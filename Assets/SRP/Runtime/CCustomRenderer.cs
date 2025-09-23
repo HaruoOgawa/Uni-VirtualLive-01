@@ -1,8 +1,20 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
+public class SPassDescriptor
+{
+    public List<ShaderTagId> TargetShaderTags = new List<ShaderTagId>();
+    public bool DrawSky = false;
+    public bool DrawOpaque = true;
+    public bool DrawTransparent = true;
+}
+
 public class CCustomRenderer
 {
+    // シーン
+    CSceneController m_SceneController = new CSceneController();
+
     // コマンドバッファ
     CommandBuffer m_CommandBuffer = new CommandBuffer();
 
@@ -26,14 +38,21 @@ public class CCustomRenderer
         m_ForegroundPass.AddShaderTag("VertexLM");
 
         //
+
     }
 
     public void Render(ScriptableRenderContext context, Camera camera)
     {
         // フォアグラウンドレンダリング
-        m_ForegroundPass.Begin(context, m_CommandBuffer, camera);
+        {
+            SPassDescriptor descriptor = new SPassDescriptor();
+            descriptor.TargetShaderTags = m_ForegroundPass.GetTargetShaderTags();
+            descriptor.DrawSky = true;
 
-        m_ForegroundPass.End(context, m_CommandBuffer, camera);
+            m_ForegroundPass.Begin(context, m_CommandBuffer, camera);
+            m_SceneController.Draw(context, m_CommandBuffer, camera, descriptor);
+            m_ForegroundPass.End(context, m_CommandBuffer, camera);
+        }
 
         /**
          * GBufferを描画
