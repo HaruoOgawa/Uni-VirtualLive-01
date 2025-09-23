@@ -21,6 +21,13 @@ public class CCustomRenderer
     // フォアグラウンドレンダーパス
     CRenderPass m_ForegroundPass = new CRenderPass();
 
+    // デファードレンダリング
+    // GBufferパス
+    CRenderPass m_GBufferGenPass = new CRenderPass();
+
+    // GBufferライティングパス
+    CRenderPass m_GBufferLightPass = new CRenderPass();
+
     public CCustomRenderer()
     {
         Create();
@@ -38,11 +45,25 @@ public class CCustomRenderer
         m_ForegroundPass.AddShaderTag("VertexLM");
 
         //
+        m_GBufferGenPass.AddShaderTag("CustomGBufferGen");
+        m_GBufferGenPass.CreateMRTRenderTarget(Screen.width, Screen.height, 5);
 
+        m_GBufferLightPass.AddShaderTag("CustomGBufferGenLight");
     }
 
     public void Render(ScriptableRenderContext context, Camera camera)
     {
+        // デファードレンダリング
+        {
+            // GBuffer描画
+            SPassDescriptor descriptor = new SPassDescriptor();
+            descriptor.TargetShaderTags = m_GBufferGenPass.GetTargetShaderTags();
+
+            m_GBufferGenPass.Begin(context, m_CommandBuffer, camera);
+            m_SceneController.Draw(context, m_CommandBuffer, camera, descriptor);
+            m_GBufferGenPass.End(context, m_CommandBuffer, camera);
+        }
+
         // フォアグラウンドレンダリング
         {
             SPassDescriptor descriptor = new SPassDescriptor();

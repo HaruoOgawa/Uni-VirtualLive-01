@@ -16,9 +16,11 @@ public class CSceneController
     {
         // ビューフラスタムカリング
         if (!Cull(context, camera)) return;
-        
+
+        //m_CullingResults.visibleLights
+
         // 不透明ジオメトリの描画
-        if(passDescriptor.DrawOpaque)
+        if (passDescriptor.DrawOpaque)
         {
             {
                 // 描画設定
