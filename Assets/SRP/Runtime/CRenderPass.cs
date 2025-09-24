@@ -4,14 +4,6 @@ using UnityEngine.Rendering;
 
 public class CRenderPass : ARenderPass
 {
-    bool m_UseRenderTarget = false;
-    int m_Width = 0;
-    int m_Height = 0;
-
-    List<RenderTargetIdentifier> m_ColorBuffers = new List<RenderTargetIdentifier>();
-    
-    RenderTargetIdentifier m_DepthBuffer;
-
     public override void Begin(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera)
     {
         // プロファイラの表記用にバッファ名にカメラ名を割り当てる
@@ -20,12 +12,9 @@ public class CRenderPass : ARenderPass
         // カメラのビュープロジェクション行列を設定する
         context.SetupCameraProperties(camera);
 
-        if(m_UseRenderTarget)
+        if(m_RenderTarget != null)
         {
-            commandBuffer.SetRenderTarget(m_ColorBuffers.ToArray(), m_DepthBuffer);
-
-            
-
+            commandBuffer.SetRenderTarget(m_RenderTarget.GetColorBuffers().ToArray(), m_RenderTarget.GetDepthBuffer());
             //commandBuffer.BeginRenderPass(m_Width, m_Height, 1, );
         }
 
@@ -45,7 +34,7 @@ public class CRenderPass : ARenderPass
     public override void End(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera)
     {
         // レンダーパス終了
-        if (m_UseRenderTarget)
+        if (m_RenderTarget != null)
         {
             //commandBuffer.EndRenderPass();
         }
@@ -58,26 +47,5 @@ public class CRenderPass : ARenderPass
 
         // コンテキストに積み上げられたコマンドを全て実行する
         context.Submit();
-    }
-
-    public void CreateMRTRenderTarget(int width, int height, int RenderTargetCount)
-    {
-        // カラーバッファ作成
-        for (int i = 0; i < RenderTargetCount; i++)
-        {
-            RenderTexture rt = new RenderTexture(width, height, 32, RenderTextureFormat.ARGBFloat);
-
-            m_ColorBuffers.Add(rt);
-        }
-
-        // デプスバッファ作成
-        {
-            RenderTexture rt = new RenderTexture(width, height, 32, RenderTextureFormat.Depth);
-            m_DepthBuffer = rt;
-        }
-
-        m_UseRenderTarget = true;
-        m_Width = width;
-        m_Height = height;
     }
 }

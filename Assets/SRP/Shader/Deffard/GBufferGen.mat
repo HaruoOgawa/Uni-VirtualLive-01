@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: GBufferTest
+  m_Name: GBufferGen
   m_Shader: {fileID: 4800000, guid: 227993ad41bddba4e8b7e17ef289de1e, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0

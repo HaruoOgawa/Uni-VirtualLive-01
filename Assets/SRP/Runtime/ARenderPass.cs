@@ -6,7 +6,9 @@ using UnityEngine.Rendering;
 
 public abstract class ARenderPass
 {
-    List<ShaderTagId> m_TargetShaderTags = new List<ShaderTagId>();
+    protected List<ShaderTagId> m_TargetShaderTags = new List<ShaderTagId>();
+
+    protected CRenderTarget m_RenderTarget = null;
 
     public ARenderPass()
     {
@@ -22,7 +24,15 @@ public abstract class ARenderPass
         return m_TargetShaderTags;
     }
 
-    //public virtual CreateFrameBuffer()
+    public void SetRenderTarget(CRenderTarget RenderTarget)
+    {
+        m_RenderTarget = RenderTarget;
+    }
+
+    public CRenderTarget GetRenderTarget()
+    {
+        return m_RenderTarget;
+    }
 
     public abstract void Begin(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera);
 

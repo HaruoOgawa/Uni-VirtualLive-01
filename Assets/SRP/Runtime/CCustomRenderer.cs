@@ -35,33 +35,60 @@ public class CCustomRenderer
 
     void Create()
     {
-        //
-        m_ForegroundPass.AddShaderTag("SRPDefaultUnlit");
-        m_ForegroundPass.AddShaderTag("Always");
-        m_ForegroundPass.AddShaderTag("ForwardBase");
-        m_ForegroundPass.AddShaderTag("PrepassBase");
-        m_ForegroundPass.AddShaderTag("Vertex");
-        m_ForegroundPass.AddShaderTag("VertexLMRGBM");
-        m_ForegroundPass.AddShaderTag("VertexLM");
+        // ForegroundPass
+        {
+            m_ForegroundPass.AddShaderTag("SRPDefaultUnlit");
+            m_ForegroundPass.AddShaderTag("Always");
+            m_ForegroundPass.AddShaderTag("ForwardBase");
+            m_ForegroundPass.AddShaderTag("PrepassBase");
+            m_ForegroundPass.AddShaderTag("Vertex");
+            m_ForegroundPass.AddShaderTag("VertexLMRGBM");
+            m_ForegroundPass.AddShaderTag("VertexLM");
+        }
 
-        //
-        m_GBufferGenPass.AddShaderTag("CustomGBufferGen");
-        m_GBufferGenPass.CreateMRTRenderTarget(Screen.width, Screen.height, 5);
+        // GBufferGenPass
+        {
+            m_GBufferGenPass.AddShaderTag("CustomGBufferGen");
+            CRenderTarget renderTarget = new CRenderTarget();
+            renderTarget.Create(Screen.width, Screen.height, 5, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
 
-        m_GBufferLightPass.AddShaderTag("CustomGBufferGenLight");
+            m_GBufferGenPass.SetRenderTarget(renderTarget);
+        }
+
+        // GBufferLightPass
+        {
+            m_GBufferLightPass.AddShaderTag("CustomGBufferGenLight");
+
+            CRenderTarget renderTarget = new CRenderTarget();
+            renderTarget.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
+
+            m_GBufferLightPass.SetRenderTarget(renderTarget);
+        }
     }
 
     public void Render(ScriptableRenderContext context, Camera camera)
     {
         // デファードレンダリング
         {
-            // GBuffer描画
-            SPassDescriptor descriptor = new SPassDescriptor();
-            descriptor.TargetShaderTags = m_GBufferGenPass.GetTargetShaderTags();
+            // GBuffer生成
+            {
+                SPassDescriptor descriptor = new SPassDescriptor();
+                descriptor.TargetShaderTags = m_GBufferGenPass.GetTargetShaderTags();
 
-            m_GBufferGenPass.Begin(context, m_CommandBuffer, camera);
-            m_SceneController.Draw(context, m_CommandBuffer, camera, descriptor);
-            m_GBufferGenPass.End(context, m_CommandBuffer, camera);
+                m_GBufferGenPass.Begin(context, m_CommandBuffer, camera);
+                m_SceneController.Draw(context, m_CommandBuffer, camera, descriptor);
+                m_GBufferGenPass.End(context, m_CommandBuffer, camera);
+            }
+
+            // GBufferライティング
+            {
+                SPassDescriptor descriptor = new SPassDescriptor();
+                descriptor.TargetShaderTags = m_GBufferLightPass.GetTargetShaderTags();
+
+                m_GBufferLightPass.Begin(context, m_CommandBuffer, camera);
+                m_SceneController.DrawDeferredLight(context, m_CommandBuffer, camera, descriptor, m_GBufferGenPass.GetRenderTarget());
+                m_GBufferLightPass.End(context, m_CommandBuffer, camera);
+            }
         }
 
         // フォアグラウンドレンダリング
@@ -74,13 +101,5 @@ public class CCustomRenderer
             m_SceneController.Draw(context, m_CommandBuffer, camera, descriptor);
             m_ForegroundPass.End(context, m_CommandBuffer, camera);
         }
-
-        /**
-         * GBufferを描画
-         * GBufferPass.Begin(context, camera);
-         * SceneController().Draw(GBufferPass.GetTargetShaderList(), IsDrawSkyBox)
-         * GBufferPass.End(context, camera);
-         * 
-         */
     }
 }

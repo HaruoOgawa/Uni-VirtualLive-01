@@ -1,4 +1,4 @@
-Shader "Custom/GBufferTest"
+Shader "GBufferGen"
 {
     Properties
     {
