@@ -1,4 +1,4 @@
-Shader "GBufferGen"
+Shader "CustomSRP/GBufferGen"
 {
     Properties
     {

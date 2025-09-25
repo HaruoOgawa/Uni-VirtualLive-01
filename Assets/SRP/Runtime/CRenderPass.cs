@@ -4,10 +4,15 @@ using UnityEngine.Rendering;
 
 public class CRenderPass : ARenderPass
 {
+    public CRenderPass(string PassName) : base(PassName)
+    {
+    }
+
     public override void Begin(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera)
     {
         // プロファイラの表記用にバッファ名にカメラ名を割り当てる
         commandBuffer.name = camera.name;
+        //commandBuffer.name = m_PassName;
 
         // カメラのビュープロジェクション行列を設定する
         context.SetupCameraProperties(camera);
@@ -25,7 +30,7 @@ public class CRenderPass : ARenderPass
         commandBuffer.ClearRenderTarget(true, true, UnityEngine.Color.clear);
 
         // プロファイラ(例えばFrame Debugger)への記録開始
-        commandBuffer.BeginSample("aaa");
+        commandBuffer.BeginSample(BufferName);
 
         // コマンドをコンテキストに登録
         ExecuteBuffer(context, commandBuffer);
@@ -40,7 +45,7 @@ public class CRenderPass : ARenderPass
         }
 
         // プロファイラの記録終了
-        commandBuffer.EndSample("aaa");
+        commandBuffer.EndSample(BufferName);
 
         // コマンドをコンテキストに登録
         ExecuteBuffer(context, commandBuffer);

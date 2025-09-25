@@ -19,14 +19,14 @@ public class CCustomRenderer
     CommandBuffer m_CommandBuffer = new CommandBuffer();
 
     // フォアグラウンドレンダーパス
-    CRenderPass m_ForegroundPass = new CRenderPass();
+    CRenderPass m_ForegroundPass = new CRenderPass("ForegroundPass");
 
     // デファードレンダリング
     // GBufferパス
-    CRenderPass m_GBufferGenPass = new CRenderPass();
+    CRenderPass m_GBufferGenPass = new CRenderPass("GBufferGenPass");
 
     // GBufferライティングパス
-    CRenderPass m_GBufferLightPass = new CRenderPass();
+    CRenderPass m_GBufferLightPass = new CRenderPass("GBufferLightPass");
 
     public CCustomRenderer()
     {
@@ -57,7 +57,7 @@ public class CCustomRenderer
 
         // GBufferLightPass
         {
-            m_GBufferLightPass.AddShaderTag("CustomGBufferGenLight");
+            m_GBufferLightPass.AddShaderTag("CustomGBufferLight");
 
             CRenderTarget renderTarget = new CRenderTarget();
             renderTarget.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);

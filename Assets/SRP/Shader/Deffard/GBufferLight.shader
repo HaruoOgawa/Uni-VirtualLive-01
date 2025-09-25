@@ -1,4 +1,4 @@
-Shader "GBufferLight"
+Shader "CustomSRP/GBufferLight"
 {
     Properties
     {
@@ -11,11 +11,11 @@ Shader "GBufferLight"
 
         Pass
         {
+            Tags { "LightMode" = "CustomGBufferLight" }
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
-            // make fog work
-            #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
 
@@ -28,28 +28,33 @@ Shader "GBufferLight"
             struct v2f
             {
                 float2 uv : TEXCOORD0;
-                UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
             };
 
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
+            sampler2D SRP_GBuffer_0;
+            sampler2D SRP_GBuffer_1;
+            sampler2D SRP_GBuffer_2;
+            sampler2D SRP_GBuffer_3;
+            sampler2D SRP_GBuffer_4;
 
             v2f vert (appdata v)
             {
                 v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                UNITY_TRANSFER_FOG(o,o.vertex);
+                o.vertex = v.vertex;
+                o.uv = v.uv;
                 return o;
             }
 
             fixed4 frag (v2f i) : SV_Target
             {
-                // sample the texture
-                fixed4 col = tex2D(_MainTex, i.uv);
-                // apply fog
-                UNITY_APPLY_FOG(i.fogCoord, col);
+                float4 col = float4(1.0, 1.0, 1.0, 1.0);
+                col += tex2D(SRP_GBuffer_0, i.uv);
+                col += tex2D(SRP_GBuffer_1, i.uv);
+                col += tex2D(SRP_GBuffer_2, i.uv);
+                col += tex2D(SRP_GBuffer_3, i.uv);
+                col += tex2D(SRP_GBuffer_4, i.uv);
+                col = float4(i.uv, 0.0, 1.0);
+
                 return col;
             }
             ENDCG

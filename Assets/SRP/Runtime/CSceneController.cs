@@ -15,6 +15,7 @@ public class CSceneController
     Mesh m_HemisphereMesh = null;
 
     // デファードライティング用マテリアル
+    Material m_DeferredLightMat = null;
 
     public CSceneController()
     {
@@ -27,6 +28,9 @@ public class CSceneController
         m_FullScreenMesh = CreateFullscreenMesh();
         m_SphereMesh = CreateSphereMesh();
         m_HemisphereMesh = CreateHemisphereMesh();
+
+        // マテリアル生成
+        m_DeferredLightMat = new Material(Shader.Find("CustomSRP/GBufferLight"));
     }
 
     public void Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, SPassDescriptor passDescriptor)
@@ -114,10 +118,15 @@ public class CSceneController
         // ビューフラスタムカリング
         if (!Cull(context, camera)) return false;
 
-        //commandBuffer.Glo
-        // これでグローバルユニフォームを定義できる
-        //Shader.PropertyToID("")
-        //m_CullingResults.visibleLights
+        // GBufferをセット
+        for(int i = 0; i < GBufferRT.GetColorBuffers().Count; i++)
+        {
+            var ColorBuffer = GBufferRT.GetColorBuffers()[i];
+
+            string ShaderName = "SRP_GBuffer_" + i.ToString();
+            int ShaderID = Shader.PropertyToID(ShaderName);
+            commandBuffer.SetGlobalTexture(ShaderID, ColorBuffer);
+        }
 
         // 各ライトボリュームの描画
         foreach (var light in m_CullingResults.visibleLights)
@@ -125,6 +134,7 @@ public class CSceneController
             switch(light.lightType)
             {
                 case LightType.Directional:
+                    if(!DrawDirectionalLight(context, commandBuffer, light)) return false;
                     break;
 
                 case LightType.Point:
@@ -141,6 +151,12 @@ public class CSceneController
         return true;
     }
 
+    bool DrawDirectionalLight(ScriptableRenderContext context, CommandBuffer commandBuffer, VisibleLight light)
+    {
+        commandBuffer.DrawMesh(m_FullScreenMesh, Matrix4x4.identity, m_DeferredLightMat);
+
+        return true;
+    }
 
     bool Cull(ScriptableRenderContext context, Camera camera)
     {
@@ -289,11 +305,12 @@ public class CSceneController
         Vector3[] positions =
         {
                 new Vector3(-1.0f,  1.0f, 0.0f),
-                new Vector3(-1.0f, -3.0f, 0.0f),
-                new Vector3(3.0f,  1.0f, 0.0f)
+                new Vector3(-1.0f, -1.0f, 0.0f),
+                new Vector3(1.0f,  1.0f, 0.0f),
+                new Vector3(1.0f,  -1.0f, 0.0f)
             };
 
-        int[] indices = { 0, 1, 2 };
+        int[] indices = { 0, 1, 2, 2, 1, 3 };
 
         Mesh mesh = new Mesh();
         mesh.indexFormat = IndexFormat.UInt16;
