@@ -50,7 +50,7 @@ public class CCustomRenderer
         {
             m_GBufferGenPass.AddShaderTag("CustomGBufferGen");
             CRenderTarget renderTarget = new CRenderTarget();
-            renderTarget.Create(Screen.width, Screen.height, 5, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
+            renderTarget.Create(Screen.width, Screen.height, 5, RenderTextureFormat.ARGB32, RenderTextureFormat.Depth, 24);
 
             m_GBufferGenPass.SetRenderTarget(renderTarget);
         }
@@ -60,7 +60,7 @@ public class CCustomRenderer
             m_GBufferLightPass.AddShaderTag("CustomGBufferLight");
 
             CRenderTarget renderTarget = new CRenderTarget();
-            renderTarget.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
+            renderTarget.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGB32, RenderTextureFormat.Depth, 24);
 
             m_GBufferLightPass.SetRenderTarget(renderTarget);
         }

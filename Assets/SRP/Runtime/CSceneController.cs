@@ -24,6 +24,10 @@ public class CSceneController
 
     void Init()
     {
+        //
+        CShaderGlobalKeywordList.InitKeywordList();
+
+
         // ライトボリューム用メッシュを作成
         m_FullScreenMesh = CreateFullscreenMesh();
         m_SphereMesh = CreateSphereMesh();
@@ -119,28 +123,37 @@ public class CSceneController
         if (!Cull(context, camera)) return false;
 
         // GBufferをセット
-        for(int i = 0; i < GBufferRT.GetColorBuffers().Count; i++)
-        {
-            var ColorBuffer = GBufferRT.GetColorBuffers()[i];
-
-            string ShaderName = "SRP_GBuffer_" + i.ToString();
-            int ShaderID = Shader.PropertyToID(ShaderName);
-            commandBuffer.SetGlobalTexture(ShaderID, ColorBuffer);
-        }
+        SetRTTextures(commandBuffer, GBufferRT, true, "SRP_GBuffer_");
 
         // 各ライトボリュームの描画
-        foreach (var light in m_CullingResults.visibleLights)
+        if (!DrawLights(context, commandBuffer, camera, int.MaxValue)) return false;
+
+        return true;
+    }
+
+    bool DrawLights(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, int maxLightCount)
+    {
+        // 各ライトボリュームの描画
+        for (int i = 0; i < m_CullingResults.visibleLights.Length; i++)
         {
-            switch(light.lightType)
+            // ライト数はForegroundでは8個までDefferedでは無制限
+            if (i >= maxLightCount) break;
+
+            var light = m_CullingResults.visibleLights[i];
+
+            // 描画実行
+            switch (light.lightType)
             {
                 case LightType.Directional:
-                    if(!DrawDirectionalLight(context, commandBuffer, light)) return false;
+                    if (!DrawDirectionalLight(context, commandBuffer, light)) return false;
                     break;
 
                 case LightType.Point:
+                    if (!DrawPointLight(context, commandBuffer, light)) return false;
                     break;
 
                 case LightType.Spot:
+                    if (!DrawSpotLight(context, commandBuffer, light)) return false;
                     break;
 
                 default:
@@ -153,9 +166,148 @@ public class CSceneController
 
     bool DrawDirectionalLight(ScriptableRenderContext context, CommandBuffer commandBuffer, VisibleLight light)
     {
+        // ライト情報をセット
+        SetLight(context, commandBuffer, light);
+
+        // 描画開始
+        commandBuffer.SetKeyword(CShaderGlobalKeywordList._LIGHT_DIRECTIONAL, true);
+
+        // 描画実行
         commandBuffer.DrawMesh(m_FullScreenMesh, Matrix4x4.identity, m_DeferredLightMat);
 
+        // 描画終了
+        commandBuffer.SetKeyword(CShaderGlobalKeywordList._LIGHT_DIRECTIONAL, false);
+
         return true;
+    }
+
+    bool DrawPointLight(ScriptableRenderContext context, CommandBuffer commandBuffer, VisibleLight light)
+    {
+        // ライト情報をセット
+        SetLight(context, commandBuffer, light);
+
+        // 描画開始
+        commandBuffer.SetKeyword(CShaderGlobalKeywordList._LIGHT_POINT, true);
+
+        // 回転成分を捨てたワールド行列を再構築(ポイントライトに)
+        Vector4 worldPos = light.localToWorldMatrix.GetColumn(3);
+        float range = light.range;
+
+        // Unity C#は列優先(端の列からvec4を埋めてく。なので見た目が行優先に見えるけどね。平行移動成分の位置的に)
+        Matrix4x4 worldMat = new Matrix4x4(
+            new Vector4(range, 0.0f, 0.0f, 0.0f),
+            new Vector4(0.0f, range, 0.0f, 0.0f),
+            new Vector4(0.0f, 0.0f, range, 0.0f),
+            new Vector4(worldPos.x, worldPos.y, worldPos.z, 1.0f)
+        );
+
+        // 描画実行
+        commandBuffer.DrawMesh(m_FullScreenMesh, worldMat, m_DeferredLightMat);
+
+        // 描画終了
+        commandBuffer.SetKeyword(CShaderGlobalKeywordList._LIGHT_POINT, false);
+
+        return true;
+    }
+    
+    bool DrawSpotLight(ScriptableRenderContext context, CommandBuffer commandBuffer, VisibleLight light)
+    {
+        // ライト情報をセット
+        SetLight(context, commandBuffer, light);
+
+        // 描画開始
+        commandBuffer.SetKeyword(CShaderGlobalKeywordList._LIGHT_SPOT, true);
+
+        // スポットライトは回転情報の大切
+        Matrix4x4 worldMat = light.localToWorldMatrix;
+
+        // 描画実行
+        commandBuffer.DrawMesh(m_FullScreenMesh, worldMat, m_DeferredLightMat);
+
+        // 描画終了
+        commandBuffer.SetKeyword(CShaderGlobalKeywordList._LIGHT_SPOT, false);
+
+        return true;
+    }
+
+    void SetRTTextures(CommandBuffer commandBuffer, CRenderTarget renderTarget, 
+        bool Color, string BaseColorName, bool Depth = false, string BaseDepthName = "")
+    {
+        // カラーテクスチャをセット
+        if(Color)
+        {
+            for (int i = 0; i < renderTarget.GetColorBuffers().Count; i++)
+            {
+                var ColorBuffer = renderTarget.GetColorBuffers()[i];
+
+                string ShaderName = BaseColorName + i.ToString();
+                int ShaderID = Shader.PropertyToID(ShaderName);
+                commandBuffer.SetGlobalTexture(ShaderID, ColorBuffer);
+            }
+        }
+
+        // デプステクスチャをセット
+        if (Depth)
+        {
+            var DepthBuffer = renderTarget.GetDepthBuffer();
+
+            string ShaderName = BaseDepthName;
+            int ShaderID = Shader.PropertyToID(ShaderName);
+            commandBuffer.SetGlobalTexture(ShaderID, DepthBuffer);
+        }
+    }
+
+    void SetLight(ScriptableRenderContext context, CommandBuffer commandBuffer, VisibleLight light)
+    {
+        // ライト
+        Vector4 lightPos, spotLightDir = new Vector4();
+        CalcLightParam(light, out lightPos, out spotLightDir);
+
+        commandBuffer.SetGlobalVector(CShaderConstants.SRP_LightPos, lightPos);
+        commandBuffer.SetGlobalColor(CShaderConstants.SRP_LightColor, light.finalColor);
+
+        switch (light.lightType)
+        {
+            case LightType.Directional:
+                break;
+
+            case LightType.Point:
+                break;
+
+            case LightType.Spot:
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    void CalcLightParam(VisibleLight light, out Vector4 lightPos, out Vector4 soptLightDir)
+    {
+        lightPos = Vector4.zero;
+        soptLightDir = Vector4.zero;
+
+        var localToWorldMat = light.localToWorldMatrix;
+
+        if (light.lightType == LightType.Directional)
+        {
+            // ディレクショナルライトの場合、ワールド行列の2列目にライト方向が入っている
+            // ライト座標は使わないので代わりに方向を入れる
+            Vector4 dir = -localToWorldMat.GetColumn(2);
+            lightPos = new Vector4(dir.x, dir.y, dir.z, 0.0f);
+        }
+        else
+        {
+            // そのほかはいつも通り平行移動成分から取得
+            Vector4 pos = localToWorldMat.GetColumn(3);
+            lightPos = new Vector4(pos.x, pos.y, pos.z, 1.0f);
+
+            // スポットライト情報を計算
+            if(light.lightType == LightType.Spot)
+            {
+
+            }
+        }
     }
 
     bool Cull(ScriptableRenderContext context, Camera camera)
@@ -177,11 +329,6 @@ public class CSceneController
         }
 
         return false;
-    }
-
-    void SetUpLight()
-    {
-
     }
 
     static Mesh CreateSphereMesh()
