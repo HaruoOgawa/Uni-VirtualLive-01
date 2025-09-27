@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.RendererUtils;
@@ -116,6 +117,19 @@ public class CSceneController
         }
     }
 
+    public bool DrawGizmo(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera)
+    {
+#if UNITY_EDITOR
+        // Handles.ShouldRenderGizmosはギズモを描画する設定になっているかどうか
+        if (Handles.ShouldRenderGizmos())
+        {
+            context.DrawGizmos(camera, GizmoSubset.PreImageEffects);
+            context.DrawGizmos(camera, GizmoSubset.PostImageEffects);
+        }
+#endif
+        return true;
+    }
+
     public bool DrawDeferredLight(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera,
         SPassDescriptor passDescriptor, CRenderTarget GBufferRT)
     {
@@ -125,13 +139,16 @@ public class CSceneController
         // GBufferをセット
         SetRTTextures(commandBuffer, GBufferRT, true, "SRP_GBuffer_");
 
+        // カメラ情報セット
+        SetCamera(commandBuffer, camera);
+
         // 各ライトボリュームの描画
-        if (!DrawLights(context, commandBuffer, camera, int.MaxValue)) return false;
+        if (!DrawLights(context, commandBuffer, int.MaxValue)) return false;
 
         return true;
     }
 
-    bool DrawLights(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, int maxLightCount)
+    bool DrawLights(ScriptableRenderContext context, CommandBuffer commandBuffer, int maxLightCount)
     {
         // 各ライトボリュームの描画
         for (int i = 0; i < m_CullingResults.visibleLights.Length; i++)
@@ -189,11 +206,11 @@ public class CSceneController
         // 描画開始
         commandBuffer.SetKeyword(CShaderGlobalKeywordList._LIGHT_POINT, true);
 
-        // 回転成分を捨てたワールド行列を再構築(ポイントライトに)
+        // ライトのRangeプロパティをスフィアのサイズにする。回転成分は不要
         Vector4 worldPos = light.localToWorldMatrix.GetColumn(3);
         float range = light.range;
 
-        // Unity C#は列優先(端の列からvec4を埋めてく。なので見た目が行優先に見えるけどね。平行移動成分の位置的に)
+        // Unity C#は列優先
         Matrix4x4 worldMat = new Matrix4x4(
             new Vector4(range, 0.0f, 0.0f, 0.0f),
             new Vector4(0.0f, range, 0.0f, 0.0f),
@@ -202,7 +219,7 @@ public class CSceneController
         );
 
         // 描画実行
-        commandBuffer.DrawMesh(m_FullScreenMesh, worldMat, m_DeferredLightMat);
+        commandBuffer.DrawMesh(m_SphereMesh, worldMat, m_DeferredLightMat);
 
         // 描画終了
         commandBuffer.SetKeyword(CShaderGlobalKeywordList._LIGHT_POINT, false);
@@ -222,7 +239,7 @@ public class CSceneController
         Matrix4x4 worldMat = light.localToWorldMatrix;
 
         // 描画実行
-        commandBuffer.DrawMesh(m_FullScreenMesh, worldMat, m_DeferredLightMat);
+        commandBuffer.DrawMesh(m_HemisphereMesh, worldMat, m_DeferredLightMat);
 
         // 描画終了
         commandBuffer.SetKeyword(CShaderGlobalKeywordList._LIGHT_SPOT, false);
@@ -308,6 +325,11 @@ public class CSceneController
 
             }
         }
+    }
+
+    void SetCamera(CommandBuffer commandBuffer, Camera camera)
+    {
+        commandBuffer.SetGlobalVector(CShaderConstants.SRP_CameraPos, camera.transform.position);
     }
 
     bool Cull(ScriptableRenderContext context, Camera camera)
@@ -457,7 +479,8 @@ public class CSceneController
                 new Vector3(1.0f,  -1.0f, 0.0f)
             };
 
-        int[] indices = { 0, 1, 2, 2, 1, 3 };
+        //int[] indices = { 0, 1, 2, 2, 1, 3 };
+        int[] indices = { 0, 2, 1, 1, 2, 3 };
 
         Mesh mesh = new Mesh();
         mesh.indexFormat = IndexFormat.UInt16;

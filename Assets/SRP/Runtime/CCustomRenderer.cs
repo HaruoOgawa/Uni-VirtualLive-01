@@ -99,6 +99,7 @@ public class CCustomRenderer
 
             m_ForegroundPass.Begin(context, m_CommandBuffer, camera);
             m_SceneController.Draw(context, m_CommandBuffer, camera, descriptor);
+            m_SceneController.DrawGizmo(context, m_CommandBuffer, camera);
             m_ForegroundPass.End(context, m_CommandBuffer, camera);
         }
     }

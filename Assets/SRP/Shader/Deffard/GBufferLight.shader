@@ -8,16 +8,19 @@ Shader "CustomSRP/GBufferLight"
     {
         Tags { "RenderType"="Opaque" }
         LOD 100
+        Cull Front
 
         Pass
         {
             Tags { "LightMode" = "CustomGBufferLight" }
 
-            // ‰ÁŽZ•`‰æ
-            Blend One One
-            BlendOp Add
-            ZWrite Off
+            // ZTest GEqual
             ZTest Always
+            ZWrite Off
+            ZClip false
+            Cull Front
+            Blend One One, Zero One
+            BlendOp Add, Add
 
             CGPROGRAM
             

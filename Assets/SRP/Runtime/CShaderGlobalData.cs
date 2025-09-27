@@ -23,4 +23,5 @@ public static class CShaderConstants
 {
     public static int SRP_LightPos = Shader.PropertyToID("SRP_LightPos");
     public static int SRP_LightColor = Shader.PropertyToID("SRP_LightColor");
+    public static int SRP_CameraPos = Shader.PropertyToID("SRP_CameraPos");
 }
