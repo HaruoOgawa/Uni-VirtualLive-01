@@ -309,8 +309,7 @@ public class CSceneController
         if (light.lightType == LightType.Directional)
         {
             // ディレクショナルライトの場合、ワールド行列の2列目にライト方向が入っている
-            // ライト座標は使わないので代わりに方向を入れる
-            Vector4 dir = -localToWorldMat.GetColumn(2);
+            Vector4 dir = localToWorldMat.GetColumn(2);
             lightPos = new Vector4(dir.x, dir.y, dir.z, 0.0f);
         }
         else

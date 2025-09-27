@@ -98,6 +98,37 @@ Shader "CustomSRP/GBufferLight"
                 return data;
             }
 
+            struct LightData
+            {
+                bool enabled;
+                float3 dir;
+                float3 color;
+                float attenuation;
+            };
+
+            LightData CreateLightData(GBufferData gData)
+            {
+                LightData data;
+
+                data.color = SRP_LightColor.rgb;
+
+                data.enabled = true;
+
+                #if defined(_LIGHT_DIRECTIONAL)
+                data.dir = normalize(SRP_LightPos.xyz);
+                data.attenuation = 1.0;
+                #elif defined(_LIGHT_POINT)
+                data.dir = normalize(gData.WorldPos.xyz - SRP_LightPos.xyz);
+                data.attenuation = 1.0;
+                #elif defined(_LIGHT_SPOT)
+                data.dir = SRP_LightPos.xyz;
+                data.attenuation = 1.0;
+                #endif
+
+                return data;
+            }
+
+
             fixed4 frag (v2f i) : SV_Target
             {
                 float3 NDCPos = i.projPos.xyy / i.projPos.w;
@@ -109,16 +140,13 @@ Shader "CustomSRP/GBufferLight"
                 float3 col = float3(0.0, 0.0, 0.0);
                 float alpha = 1.0;
 
-                GBufferData data = CreateGBufferData(screenUV);
+                GBufferData gData = CreateGBufferData(screenUV);
+                LightData lData = CreateLightData(gData);
 
-                #if defined(_LIGHT_DIRECTIONAL)
-                float diffuse = max(0.0, dot(data.WorldNormal, SRP_LightPos.xyz));
-                col = SRP_LightColor.rgb * diffuse;
-                #elif defined(_LIGHT_POINT)
-                col = float3(1.0, 0.0, 0.0);
-                #elif defined(_LIGHT_SPOT)
-                col = float3(0.0, 0.0, 1.0);
-                #endif
+                // どれぐらい光が当たっているかのdotは同じ方向のベクトルに対して行うのでlData.dirは反転する
+                // 元のライト方向だと真正面から当たっているときにちょうどベクトルが反対で-1になってしまう
+                float diffuse = max(0.0, dot(gData.WorldNormal, -lData.dir));
+                col = lData.color * diffuse * lData.attenuation;
 
                 return float4(col, alpha);
             }
