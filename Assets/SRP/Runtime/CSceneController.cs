@@ -256,7 +256,7 @@ public class CSceneController
         // 描画開始
         commandBuffer.SetKeyword(CShaderGlobalKeywordList._LIGHT_SPOT, true);
 
-        // スポットライトは回転情報の大切
+        // スポットライトは回転情報も大切
         Matrix4x4 worldMat = light.localToWorldMatrix;
 
         // 描画実行
@@ -313,7 +313,7 @@ public class CSceneController
         int NumOfSubLight = 0;
 
         //
-        NativeArray<int> lightIndexMap = new NativeArray<int>(m_CullingResults.visibleLights.Length, Allocator.Temp);
+        NativeArray<int> lightIndexMap = m_CullingResults.GetLightIndexMap(Allocator.Temp);
 
         // 各ライトボリュームの描画
         for (int i = 0; i < m_CullingResults.visibleLights.Length; i++)

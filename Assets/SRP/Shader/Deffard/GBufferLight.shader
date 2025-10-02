@@ -114,6 +114,10 @@ Shader "CustomSRP/GBufferLight"
 
                 data.enabled = true;
 
+                // ポイントライト・スポットライトの両方ともこれでライト方向を算出する
+                // 以前はスポットライトのライト方向にスポットライトの方向ベクトルを使っていたが、それは間違い
+                // スポットライトはポイントライトの球を扇形に切り取ったものとして捉える
+                // スポットライトのlightDirは減衰に使用
                 #if defined(_LIGHT_DIRECTIONAL)
                 data.dir = normalize(SRP_Deferred_LightPos.xyz);
                 data.attenuation = 1.0;
@@ -121,7 +125,7 @@ Shader "CustomSRP/GBufferLight"
                 data.dir = normalize(gData.WorldPos.xyz - SRP_Deferred_LightPos.xyz);
                 data.attenuation = 1.0;
                 #elif defined(_LIGHT_SPOT)
-                data.dir = SRP_Deferred_LightPos.xyz;
+                data.dir = normalize(gData.WorldPos.xyz - SRP_Deferred_LightPos.xyz);
                 data.attenuation = 1.0;
                 #endif
 

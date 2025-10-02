@@ -95,14 +95,15 @@ Shader "CustomSRP/ForegroundLight"
                     }
 
                     // SubLight
-                    for(int n = 0; n < unity_LightData.y; n++)
+                    for(int n = 0; n < min(8, unity_LightData.y); n++)
                     { 
                         int lightIndex = unity_LightIndices[n / 4][n % 4];
 
                         // ポイントライト・スポットライトの両方ともこれでライト方向を算出する
                         // 以前はスポットライトのライト方向にスポットライトの方向ベクトルを使っていたが、それは間違い
                         // スポットライトはポイントライトの球を扇形に切り取ったものとして捉える
-                        float3 lightDir = -normalize(i.worldPos.xyz - SRP_Foreground_SubLightPosArray[lightIndex].xyz);
+                        // スポットライトのlightDirは減衰に使用
+                        float3 lightDir = normalize(i.worldPos.xyz - SRP_Foreground_SubLightPosArray[lightIndex].xyz);
                         float3 lightColor = SRP_Foreground_SubLightColorArray[lightIndex].rgb;
 
                         col.rgb += ComputeLight(N, lightDir, lightColor, 1.0);
