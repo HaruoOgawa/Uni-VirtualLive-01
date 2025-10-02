@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.Collections;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -28,7 +29,6 @@ public class CSceneController
         //
         CShaderGlobalKeywordList.InitKeywordList();
 
-
         // ライトボリューム用メッシュを作成
         m_FullScreenMesh = CreateFullscreenMesh();
         m_SphereMesh = CreateSphereMesh();
@@ -42,6 +42,9 @@ public class CSceneController
     {
         // ビューフラスタムカリング
         if (!Cull(context, camera)) return;
+
+        // フォアグラウンドライトの設定
+        SetForegroundLightArray(context, commandBuffer, passDescriptor.PerObjLight);
 
         // 不透明ジオメトリの描画
         if (passDescriptor.DrawOpaque)
@@ -58,6 +61,14 @@ public class CSceneController
                 // 描画対象レンダーキューの指定
                 var filteringSettings = new FilteringSettings(RenderQueueRange.opaque);
 
+                // PerObjLight: オブジェクト単位で別のライトを反映できるようにするかどうか
+                PerObjectData lightFlag = PerObjectData.None;
+                if (passDescriptor.PerObjLight)
+                {
+                    // Shaderでunity_LightDataやunity_LightIndicesをUnityEngineから受け取るにはこれらのフラグが必須
+                    lightFlag = PerObjectData.LightData | PerObjectData.LightIndices;
+                }
+
                 // RendererListの作成
                 // このDescriptorに該当するオブジェクトのリストをエンジンから引っ張ってくるイメージ
                 var rendererListDesc = new RendererListDesc(passDescriptor.TargetShaderTags.ToArray(), m_CullingResults, camera)
@@ -65,7 +76,8 @@ public class CSceneController
                     sortingCriteria = sortingSettings.criteria,
                     renderQueueRange = filteringSettings.renderQueueRange,
                     layerMask = filteringSettings.layerMask,
-                    renderingLayerMask = filteringSettings.renderingLayerMask
+                    renderingLayerMask = filteringSettings.renderingLayerMask,
+                    rendererConfiguration = lightFlag // オブジェクト単位の描画設定
                 };
 
                 // 描画ジオメトリリストを取得
@@ -99,6 +111,14 @@ public class CSceneController
             // 描画対象レンダーキューの指定
             var filteringSettings = new FilteringSettings(RenderQueueRange.transparent);
 
+            // PerObjLight: オブジェクト単位で別のライトを反映できるようにするかどうか
+            PerObjectData lightFlag = PerObjectData.None;
+            if (passDescriptor.PerObjLight)
+            {
+                // Shaderでunity_LightDataやunity_LightIndicesをUnityEngineから受け取るにはこれらのフラグが必須
+                lightFlag = PerObjectData.LightData | PerObjectData.LightIndices;
+            }
+
             // RendererListの作成
             // このDescriptorに該当するオブジェクトのリストをエンジンから引っ張ってくるイメージ
             var rendererListDesc = new RendererListDesc(passDescriptor.TargetShaderTags.ToArray(), m_CullingResults, camera)
@@ -106,7 +126,8 @@ public class CSceneController
                 sortingCriteria = sortingSettings.criteria,
                 renderQueueRange = filteringSettings.renderQueueRange,
                 layerMask = filteringSettings.layerMask,
-                renderingLayerMask = filteringSettings.renderingLayerMask
+                renderingLayerMask = filteringSettings.renderingLayerMask,
+                rendererConfiguration = lightFlag // オブジェクト単位の描画設定
             };
 
             // 描画ジオメトリリストを取得
@@ -123,8 +144,8 @@ public class CSceneController
         // Handles.ShouldRenderGizmosはギズモを描画する設定になっているかどうか
         if (Handles.ShouldRenderGizmos())
         {
-            context.DrawGizmos(camera, GizmoSubset.PreImageEffects);
-            context.DrawGizmos(camera, GizmoSubset.PostImageEffects);
+            commandBuffer.DrawRendererList(context.CreateGizmoRendererList(camera, GizmoSubset.PreImageEffects));
+            commandBuffer.DrawRendererList(context.CreateGizmoRendererList(camera, GizmoSubset.PostImageEffects));
         }
 #endif
         return true;
@@ -184,7 +205,7 @@ public class CSceneController
     bool DrawDirectionalLight(ScriptableRenderContext context, CommandBuffer commandBuffer, VisibleLight light)
     {
         // ライト情報をセット
-        SetLight(context, commandBuffer, light);
+        SetDeferredLight(context, commandBuffer, light);
 
         // 描画開始
         commandBuffer.SetKeyword(CShaderGlobalKeywordList._LIGHT_DIRECTIONAL, true);
@@ -201,7 +222,7 @@ public class CSceneController
     bool DrawPointLight(ScriptableRenderContext context, CommandBuffer commandBuffer, VisibleLight light)
     {
         // ライト情報をセット
-        SetLight(context, commandBuffer, light);
+        SetDeferredLight(context, commandBuffer, light);
 
         // 描画開始
         commandBuffer.SetKeyword(CShaderGlobalKeywordList._LIGHT_POINT, true);
@@ -230,7 +251,7 @@ public class CSceneController
     bool DrawSpotLight(ScriptableRenderContext context, CommandBuffer commandBuffer, VisibleLight light)
     {
         // ライト情報をセット
-        SetLight(context, commandBuffer, light);
+        SetDeferredLight(context, commandBuffer, light);
 
         // 描画開始
         commandBuffer.SetKeyword(CShaderGlobalKeywordList._LIGHT_SPOT, true);
@@ -274,29 +295,126 @@ public class CSceneController
         }
     }
 
-    void SetLight(ScriptableRenderContext context, CommandBuffer commandBuffer, VisibleLight light)
+    void SetForegroundLightArray(ScriptableRenderContext context, CommandBuffer commandBuffer, bool PerObjLight)
+    {
+        // ライトの最大数を決めておく
+        const int MaxMainLightCount = 8;
+        const int MaxSubLightCount = 64;
+
+        // シェーダーには決まったサイズの配列しか渡せないのでここで決め打ちしておく
+        Vector4[] MainLightDirList = new Vector4[MaxMainLightCount];
+        Vector4[] MainLightColorList = new Vector4[MaxMainLightCount];
+
+        Vector4[] SubLightPosList = new Vector4[MaxSubLightCount];
+        Vector4[] SubLightColorList = new Vector4[MaxSubLightCount];
+        Vector4[] SubLightDirList = new Vector4[MaxSubLightCount];
+
+        int NumOfMainLight = 0;
+        int NumOfSubLight = 0;
+
+        //
+        NativeArray<int> lightIndexMap = new NativeArray<int>(m_CullingResults.visibleLights.Length, Allocator.Temp);
+
+        // 各ライトボリュームの描画
+        for (int i = 0; i < m_CullingResults.visibleLights.Length; i++)
+        {
+            var light = m_CullingResults.visibleLights[i];
+
+            int lightIndex = -1;
+
+            switch (light.lightType)
+            {
+                case LightType.Directional:
+                    if(NumOfMainLight < MaxMainLightCount)
+                    {
+                        PrepareDirectionalLight(light, NumOfMainLight++, ref MainLightDirList, ref MainLightColorList);
+                    }
+                    break;
+
+                case LightType.Point:
+                    if(NumOfSubLight < MaxSubLightCount)
+                    {
+                        // サブライトのみライトインデックスを設定する
+                        // メインライトは固定で8個まで使用する
+                        lightIndex = NumOfSubLight;
+
+                        PreparePointLight(light, NumOfSubLight++, ref SubLightPosList, ref SubLightColorList, ref SubLightDirList);
+                    }
+                    break;
+
+                case LightType.Spot:
+                    if (NumOfSubLight < MaxSubLightCount)
+                    {
+                        // サブライトのみライトインデックスを設定する
+                        // メインライトは固定で8個まで使用する
+                        lightIndex = NumOfSubLight;
+
+                        PrepareSpotLight(light, NumOfSubLight++, ref SubLightPosList, ref SubLightColorList, ref SubLightDirList);
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+
+            lightIndexMap[i] = lightIndex;
+        }
+
+        // ShaderLabが持つfloat4[2]型のunity_LightIndicesに設定されるオブジェクトの近くにあるライトのインデックスリストを更新する
+        m_CullingResults.SetLightIndexMap(lightIndexMap);
+
+        // メモリ解放
+        lightIndexMap.Dispose();
+
+        // MainLight
+        commandBuffer.SetGlobalInt(CShaderConstants.SRP_Foreground_MainLightCount, NumOfMainLight);
+        commandBuffer.SetGlobalVectorArray(CShaderConstants.SRP_Foreground_MainLightDirArray, MainLightDirList);
+        commandBuffer.SetGlobalVectorArray(CShaderConstants.SRP_Foreground_MainLightColorArray, MainLightColorList);
+
+        // SubLight
+        commandBuffer.SetGlobalInt(CShaderConstants.SRP_Foreground_SubLightCount, NumOfSubLight);
+        commandBuffer.SetGlobalVectorArray(CShaderConstants.SRP_Foreground_SubLightPosArray, SubLightPosList);
+        commandBuffer.SetGlobalVectorArray(CShaderConstants.SRP_Foreground_SubLightColorArray, SubLightColorList);
+        commandBuffer.SetGlobalVectorArray(CShaderConstants.SRP_Foreground_SubLightDirArray, SubLightDirList);
+    }
+
+    void PrepareDirectionalLight(VisibleLight light, int LightIndex, ref Vector4[] LightDirList, ref Vector4[] LightColorList)
+    {
+        Vector4 lightPos, spotLightDir = new Vector4();
+        CalcLightParam(light, out lightPos, out spotLightDir);
+
+        LightDirList[LightIndex] = lightPos;
+        LightColorList[LightIndex] = light.finalColor;
+    }
+
+    void PreparePointLight(VisibleLight light, int LightIndex, ref Vector4[] LightPosList, ref Vector4[] LightColorList, ref Vector4[] LightDirList)
+    {
+        Vector4 lightPos, spotLightDir = new Vector4();
+        CalcLightParam(light, out lightPos, out spotLightDir);
+
+        LightPosList[LightIndex] = lightPos;
+        LightColorList[LightIndex] = light.finalColor;
+        LightDirList[LightIndex] = spotLightDir;
+    }
+
+    void PrepareSpotLight(VisibleLight light, int LightIndex, ref Vector4[] LightPosList, ref Vector4[] LightColorList, ref Vector4[] LightDirList)
+    {
+        Vector4 lightPos, spotLightDir = new Vector4();
+        CalcLightParam(light, out lightPos, out spotLightDir);
+
+        LightPosList[LightIndex] = lightPos;
+        LightColorList[LightIndex] = light.finalColor;
+        LightDirList[LightIndex] = spotLightDir;
+    }
+
+    void SetDeferredLight(ScriptableRenderContext context, CommandBuffer commandBuffer, VisibleLight light)
     {
         // ライト
         Vector4 lightPos, spotLightDir = new Vector4();
         CalcLightParam(light, out lightPos, out spotLightDir);
 
-        commandBuffer.SetGlobalVector(CShaderConstants.SRP_LightPos, lightPos);
-        commandBuffer.SetGlobalColor(CShaderConstants.SRP_LightColor, light.finalColor);
-
-        switch (light.lightType)
-        {
-            case LightType.Directional:
-                break;
-
-            case LightType.Point:
-                break;
-
-            case LightType.Spot:
-                break;
-
-            default:
-                break;
-        }
+        commandBuffer.SetGlobalVector(CShaderConstants.SRP_Deferred_LightPos, lightPos);
+        commandBuffer.SetGlobalColor(CShaderConstants.SRP_Deferred_LightColor, light.finalColor);
     }
 
     void CalcLightParam(VisibleLight light, out Vector4 lightPos, out Vector4 soptLightDir)

@@ -10,10 +10,6 @@ public class CRenderPass : ARenderPass
 
     public override void Begin(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera)
     {
-        // プロファイラの表記用にバッファ名にカメラ名を割り当てる
-        commandBuffer.name = camera.name;
-        //commandBuffer.name = m_PassName;
-
         // カメラのビュープロジェクション行列を設定する
         context.SetupCameraProperties(camera);
 
@@ -23,17 +19,14 @@ public class CRenderPass : ARenderPass
             //commandBuffer.BeginRenderPass(m_Width, m_Height, 1, );
         }
 
-        // これでMRTとかのテクスチャをこのパスで描画するシェーダーに渡すことができる
-        //commandBuffer.SetGlobalTexture
-
         // フレームバッファ(フレームテクスチャ)の初期化コマンドを発行
         commandBuffer.ClearRenderTarget(true, true, UnityEngine.Color.clear);
 
         // プロファイラ(例えばFrame Debugger)への記録開始
         commandBuffer.BeginSample(BufferName);
 
-        // コマンドをコンテキストに登録
-        ExecuteBuffer(context, commandBuffer);
+        // プロファイラ開始コマンドをコンテキストに登録
+        ExecuteBuffer(context, commandBuffer, camera.name);
     }
 
     public override void End(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera)
@@ -44,11 +37,14 @@ public class CRenderPass : ARenderPass
             //commandBuffer.EndRenderPass();
         }
 
+        // これまでの描画コマンドをコンテキストに登録
+        ExecuteBuffer(context, commandBuffer, m_PassName);
+
         // プロファイラの記録終了
         commandBuffer.EndSample(BufferName);
 
-        // コマンドをコンテキストに登録
-        ExecuteBuffer(context, commandBuffer);
+        // プロファイラ終了コマンドをコンテキストに登録
+        ExecuteBuffer(context, commandBuffer, camera.name);
 
         // コンテキストに積み上げられたコマンドを全て実行する
         context.Submit();

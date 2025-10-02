@@ -8,6 +8,7 @@ public class SPassDescriptor
     public bool DrawSky = false;
     public bool DrawOpaque = true;
     public bool DrawTransparent = true;
+    public bool PerObjLight = true;
 }
 
 public class CCustomRenderer

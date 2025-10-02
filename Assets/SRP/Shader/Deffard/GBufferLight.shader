@@ -59,8 +59,8 @@ Shader "CustomSRP/GBufferLight"
             sampler2D SRP_GBuffer_3;
             sampler2D SRP_GBuffer_4;
 
-            float4 SRP_LightPos;
-            float4 SRP_LightColor;
+            float4 SRP_Deferred_LightPos;
+            float4 SRP_Deferred_LightColor;
 
             v2f vert (appdata v)
             {
@@ -110,24 +110,35 @@ Shader "CustomSRP/GBufferLight"
             {
                 LightData data;
 
-                data.color = SRP_LightColor.rgb;
+                data.color = SRP_Deferred_LightColor.rgb;
 
                 data.enabled = true;
 
                 #if defined(_LIGHT_DIRECTIONAL)
-                data.dir = normalize(SRP_LightPos.xyz);
+                data.dir = normalize(SRP_Deferred_LightPos.xyz);
                 data.attenuation = 1.0;
                 #elif defined(_LIGHT_POINT)
-                data.dir = normalize(gData.WorldPos.xyz - SRP_LightPos.xyz);
+                data.dir = normalize(gData.WorldPos.xyz - SRP_Deferred_LightPos.xyz);
                 data.attenuation = 1.0;
                 #elif defined(_LIGHT_SPOT)
-                data.dir = SRP_LightPos.xyz;
+                data.dir = SRP_Deferred_LightPos.xyz;
                 data.attenuation = 1.0;
                 #endif
 
                 return data;
             }
 
+            float3 ComputeLight(float3 worldNormal, float3 lightDir, float3 color, float attenuation)
+            {
+                float3 col = float3(1.0, 1.0, 1.0);
+
+                // どれぐらい光が当たっているかのdotは同じ方向のベクトルに対して行うのでlData.dirは反転する
+                // 元のライト方向だと真正面から当たっているときにちょうどベクトルが反対で-1になってしまう
+                float diffuse = max(0.0, dot(worldNormal, -lightDir));
+                col = color * diffuse * attenuation;
+
+                return col;
+            }
 
             fixed4 frag (v2f i) : SV_Target
             {
@@ -143,10 +154,7 @@ Shader "CustomSRP/GBufferLight"
                 GBufferData gData = CreateGBufferData(screenUV);
                 LightData lData = CreateLightData(gData);
 
-                // どれぐらい光が当たっているかのdotは同じ方向のベクトルに対して行うのでlData.dirは反転する
-                // 元のライト方向だと真正面から当たっているときにちょうどベクトルが反対で-1になってしまう
-                float diffuse = max(0.0, dot(gData.WorldNormal, -lData.dir));
-                col = lData.color * diffuse * lData.attenuation;
+                col = ComputeLight(gData.WorldNormal, lData.dir, lData.color, lData.attenuation);
 
                 return float4(col, alpha);
             }

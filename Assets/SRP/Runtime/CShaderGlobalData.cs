@@ -21,7 +21,20 @@ public static class CShaderGlobalKeywordList
 
 public static class CShaderConstants
 {
-    public static int SRP_LightPos = Shader.PropertyToID("SRP_LightPos");
-    public static int SRP_LightColor = Shader.PropertyToID("SRP_LightColor");
+    // Deferred Rendering
+    public static int SRP_Deferred_LightPos = Shader.PropertyToID("SRP_Deferred_LightPos");
+    public static int SRP_Deferred_LightColor = Shader.PropertyToID("SRP_Deferred_LightColor");
+
+    // Foreground Rendering
+    public static int SRP_Foreground_MainLightCount = Shader.PropertyToID("SRP_Foreground_MainLightCount");
+    public static int SRP_Foreground_MainLightDirArray = Shader.PropertyToID("SRP_Foreground_MainLightDirArray");
+    public static int SRP_Foreground_MainLightColorArray = Shader.PropertyToID("SRP_Foreground_MainLightColorArray");
+
+    public static int SRP_Foreground_SubLightCount = Shader.PropertyToID("SRP_Foreground_SubLightCount");
+    public static int SRP_Foreground_SubLightPosArray = Shader.PropertyToID("SRP_Foreground_SubLightPosArray");
+    public static int SRP_Foreground_SubLightColorArray = Shader.PropertyToID("SRP_Foreground_SubLightColorArray");
+    public static int SRP_Foreground_SubLightDirArray = Shader.PropertyToID("SRP_Foreground_SubLightDirArray");
+
+    // Common
     public static int SRP_CameraPos = Shader.PropertyToID("SRP_CameraPos");
 }

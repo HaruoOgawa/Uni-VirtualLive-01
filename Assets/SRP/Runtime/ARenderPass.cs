@@ -42,8 +42,11 @@ public abstract class ARenderPass
 
     public abstract void End(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera);
 
-    protected void ExecuteBuffer(ScriptableRenderContext context, CommandBuffer commandBuffer)
+    protected void ExecuteBuffer(ScriptableRenderContext context, CommandBuffer commandBuffer, string BufferName)
     {
+        // デバッガの表記名を登録
+        commandBuffer.name = BufferName;
+
         // コマンドバッファ内のコマンドをまとめてコンテキストに登録する
         // コンテキストが実際にGPUに送ったりといった役割を果たす
         context.ExecuteCommandBuffer(commandBuffer);
