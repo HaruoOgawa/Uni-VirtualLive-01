@@ -3,6 +3,9 @@ using UnityEngine.Rendering;
 
 public static class CShaderGlobalKeywordList
 {
+    public static GlobalKeyword UNITY_GAME_VIEW;
+    public static GlobalKeyword UNITY_SCENE_VIEW;
+
     public static GlobalKeyword _LIGHT_DIRECTIONAL;
     public static GlobalKeyword _LIGHT_POINT;
     public static GlobalKeyword _LIGHT_SPOT;
@@ -11,6 +14,9 @@ public static class CShaderGlobalKeywordList
 
     public static void InitKeywordList()
     {
+        CShaderGlobalKeywordList.UNITY_GAME_VIEW = GlobalKeyword.Create("UNITY_GAME_VIEW");
+        CShaderGlobalKeywordList.UNITY_SCENE_VIEW = GlobalKeyword.Create("UNITY_SCENE_VIEW");
+
         CShaderGlobalKeywordList._LIGHT_DIRECTIONAL = GlobalKeyword.Create("_LIGHT_DIRECTIONAL");
         CShaderGlobalKeywordList._LIGHT_POINT = GlobalKeyword.Create("_LIGHT_POINT");
         CShaderGlobalKeywordList._LIGHT_SPOT = GlobalKeyword.Create("_LIGHT_SPOT");

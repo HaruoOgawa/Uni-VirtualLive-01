@@ -19,6 +19,11 @@ public abstract class ARenderPass
         this.m_PassName = PassName;
     }
 
+    public string GetPassName()
+    {
+        return m_PassName;
+    }
+
     public void AddShaderTag(string TagName)
     {
         this.m_TargetShaderTags.Add(new ShaderTagId(TagName));
@@ -38,7 +43,7 @@ public abstract class ARenderPass
     {
         return this.m_RenderTarget;
     }
-    public abstract void Begin(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera);
+    public abstract void Begin(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, bool clearColor = true, bool clearDepth = true);
 
     public abstract void End(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera);
 

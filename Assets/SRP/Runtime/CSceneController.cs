@@ -19,6 +19,9 @@ public class CSceneController
     // デファードライティング用マテリアル
     Material m_DeferredLightMat = null;
 
+    // フルスクリーン描画用マテリアル
+    Material m_FullScreenMat = null;
+
     public CSceneController()
     {
         Init();
@@ -36,6 +39,7 @@ public class CSceneController
 
         // マテリアル生成
         m_DeferredLightMat = new Material(Shader.Find("CustomSRP/GBufferLight"));
+        m_FullScreenMat = new Material(Shader.Find("Hidden/FullScreen"));
     }
 
     public void Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, SPassDescriptor passDescriptor)
@@ -140,14 +144,13 @@ public class CSceneController
 
     public bool DrawGizmo(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera)
     {
-#if UNITY_EDITOR
         // Handles.ShouldRenderGizmosはギズモを描画する設定になっているかどうか
-        if (Handles.ShouldRenderGizmos())
+        if (Handles.ShouldRenderGizmos() && camera.cameraType == CameraType.SceneView)
         {
             commandBuffer.DrawRendererList(context.CreateGizmoRendererList(camera, GizmoSubset.PreImageEffects));
             commandBuffer.DrawRendererList(context.CreateGizmoRendererList(camera, GizmoSubset.PostImageEffects));
         }
-#endif
+
         return true;
     }
 
@@ -266,6 +269,18 @@ public class CSceneController
         commandBuffer.SetKeyword(CShaderGlobalKeywordList._LIGHT_SPOT, false);
 
         return true;
+    }
+
+    public void DrawFullScreenRT(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, RenderTexture rt)
+    {
+        m_FullScreenMat.SetTexture("_MainTex", rt);
+
+        var keyword = (camera.cameraType == CameraType.SceneView) ? CShaderGlobalKeywordList.UNITY_SCENE_VIEW : CShaderGlobalKeywordList.UNITY_GAME_VIEW;
+
+        // 描画実行
+        commandBuffer.SetKeyword(keyword, true);
+        commandBuffer.DrawMesh(m_FullScreenMesh, Matrix4x4.identity, m_FullScreenMat);
+        commandBuffer.SetKeyword(keyword, false);
     }
 
     void SetRTTextures(CommandBuffer commandBuffer, CRenderTarget renderTarget, 
@@ -594,7 +609,15 @@ public class CSceneController
                 new Vector3(-1.0f, -1.0f, 0.0f),
                 new Vector3(1.0f,  1.0f, 0.0f),
                 new Vector3(1.0f,  -1.0f, 0.0f)
-            };
+        };
+
+        Vector2[] uvs =
+        {
+            new Vector2(0.0f, 1.0f),
+            new Vector2(0.0f, 0.0f),
+            new Vector2(1.0f, 1.0f),
+            new Vector2(1.0f, 0.0f),
+        };
 
         //int[] indices = { 0, 1, 2, 2, 1, 3 };
         int[] indices = { 0, 2, 1, 1, 2, 3 };
@@ -602,6 +625,7 @@ public class CSceneController
         Mesh mesh = new Mesh();
         mesh.indexFormat = IndexFormat.UInt16;
         mesh.vertices = positions;
+        mesh.uv = uvs;
         mesh.triangles = indices;
 
         return mesh;

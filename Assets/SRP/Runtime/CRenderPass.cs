@@ -8,19 +8,19 @@ public class CRenderPass : ARenderPass
     {
     }
 
-    public override void Begin(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera)
+    public override void Begin(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, bool clearColor = true, bool clearDepth = true)
     {
         // カメラのビュープロジェクション行列を設定する
         context.SetupCameraProperties(camera);
 
         if(m_RenderTarget != null)
         {
-            commandBuffer.SetRenderTarget(m_RenderTarget.GetColorBuffers().ToArray(), m_RenderTarget.GetDepthBuffer());
+            commandBuffer.SetRenderTarget(m_RenderTarget.GetColorRTIdentifiers().ToArray(), m_RenderTarget.GetDepthRTIdentifier());
             //commandBuffer.BeginRenderPass(m_Width, m_Height, 1, );
         }
 
         // フレームバッファ(フレームテクスチャ)の初期化コマンドを発行
-        commandBuffer.ClearRenderTarget(true, true, UnityEngine.Color.clear);
+        commandBuffer.ClearRenderTarget(clearDepth, clearColor, UnityEngine.Color.clear);
 
         // プロファイラ(例えばFrame Debugger)への記録開始
         commandBuffer.BeginSample(BufferName);
