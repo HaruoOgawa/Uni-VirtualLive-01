@@ -24,16 +24,18 @@ Shader "CustomSRP/GBufferGen"
 
             struct appdata
             {
-                float4 vertex : POSITION;
+                float3 vertex : POSITION;
                 float2 uv : TEXCOORD0;
-                float4 normal : NORMAL;
+                // NORMALセマンティックはfloat4でもコンパイルを通るが、wを0にするというのを明示的に書きたいのでfloat3と書く
+                // セマンティックの型はメッシュデータの型と合わせる
+                float3 normal : NORMAL;
             };
 
             struct v2f
             {
                 float4 vertex : SV_POSITION;
                 float2 uv : TEXCOORD0;
-                float3 worldNormal : TEXCOORD1;
+                float4 worldNormal : TEXCOORD1;
                 float3 worldPos : TEXCOORD2;
             };
 
@@ -44,11 +46,13 @@ Shader "CustomSRP/GBufferGen"
 
             v2f vert (appdata v)
             {
+                float4 pos = float4(v.vertex, 1.0);
+
                 v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.vertex = UnityObjectToClipPos(pos);
                 o.uv = v.uv;
-                o.worldNormal = normalize((mul(UNITY_MATRIX_M, v.normal)).xyz);
-                o.worldPos = (mul(UNITY_MATRIX_M, v.vertex)).xyz;
+                o.worldNormal = mul(UNITY_MATRIX_M, float4(v.normal, 0.0));
+                o.worldPos = (mul(UNITY_MATRIX_M, pos)).xyz;
                 return o;
             }
 
@@ -69,7 +73,7 @@ Shader "CustomSRP/GBufferGen"
                 FragOut o;
 
                 o.col0 = float4(BaseCol.rgb, _Roughness);
-                o.col1 = float4(i.worldNormal, _Metallic);
+                o.col1 = float4(i.worldNormal.xyz, _Metallic);
                 o.col2 = float4(i.worldPos, MatType);
                 o.col3 = float4(0.0, 0.0, 0.0, 0.0);
                 o.col4 = float4(0.0, 0.0, 0.0, 0.0);

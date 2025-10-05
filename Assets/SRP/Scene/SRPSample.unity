@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: 407543726}
   - component: {fileID: 407543725}
   m_Layer: 0
-  m_Name: Plane
+  m_Name: DeferredPlane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -503,7 +503,7 @@ Transform:
   m_GameObject: {fileID: 1101260451}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 3.76}
+  m_LocalPosition: {x: 0, y: 1.08, z: -1.39}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -522,7 +522,7 @@ GameObject:
   - component: {fileID: 1191984223}
   - component: {fileID: 1191984222}
   m_Layer: 0
-  m_Name: DefeerdCube
+  m_Name: DeferredCube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -633,7 +633,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!108 &1552846357
 Light:
   m_ObjectHideFlags: 0
@@ -727,12 +727,12 @@ GameObject:
   - component: {fileID: 1599410075}
   - component: {fileID: 1599410074}
   m_Layer: 0
-  m_Name: Startdard
+  m_Name: ForegroundStartdard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!135 &1599410074
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -839,7 +839,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!108 &1605498369
 Light:
   m_ObjectHideFlags: 0
@@ -956,7 +956,7 @@ GameObject:
   - component: {fileID: 1615628164}
   - component: {fileID: 1615628163}
   m_Layer: 0
-  m_Name: Sphere (1)
+  m_Name: DeferredSphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1045,7 +1045,7 @@ Transform:
   m_GameObject: {fileID: 1615628162}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 1.29}
+  m_LocalPosition: {x: 0.36, y: 0.285, z: 0.92}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1064,7 +1064,7 @@ GameObject:
   - component: {fileID: 1640450216}
   - component: {fileID: 1640450215}
   m_Layer: 0
-  m_Name: Sphere
+  m_Name: ForegroundSphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1153,7 +1153,7 @@ Transform:
   m_GameObject: {fileID: 1640450214}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -3.98}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1172,7 +1172,7 @@ GameObject:
   - component: {fileID: 1660054050}
   - component: {fileID: 1660054049}
   m_Layer: 0
-  m_Name: DefeerdSphere
+  m_Name: DeferredSphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1272,13 +1272,13 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 1068383347}
-  - {fileID: 1605498370}
-  - {fileID: 1640450218}
-  - {fileID: 1615628166}
   - {fileID: 1017256917}
-  - {fileID: 1191984225}
-  - {fileID: 1660054052}
+  - {fileID: 1605498370}
   - {fileID: 1101260453}
   - {fileID: 1552846358}
-  - {fileID: 407543728}
+  - {fileID: 1640450218}
   - {fileID: 1599410077}
+  - {fileID: 1615628166}
+  - {fileID: 1191984225}
+  - {fileID: 1660054052}
+  - {fileID: 407543728}
