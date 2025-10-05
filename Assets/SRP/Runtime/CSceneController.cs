@@ -339,6 +339,7 @@ public class CSceneController
         Vector4[] SubLightPosList = new Vector4[MaxSubLightCount];
         Vector4[] SubLightColorList = new Vector4[MaxSubLightCount];
         Vector4[] SubLightDirList = new Vector4[MaxSubLightCount];
+        Vector4[] SubLightAngleList = new Vector4[MaxSubLightCount];
 
         int NumOfMainLight = 0;
         int NumOfSubLight = 0;
@@ -369,7 +370,7 @@ public class CSceneController
                         // メインライトは固定で8個まで使用する
                         lightIndex = NumOfSubLight;
 
-                        PreparePointLight(light, NumOfSubLight++, ref SubLightPosList, ref SubLightColorList, ref SubLightDirList);
+                        PreparePointLight(light, NumOfSubLight++, ref SubLightPosList, ref SubLightColorList, ref SubLightDirList, ref SubLightAngleList);
                     }
                     break;
 
@@ -380,7 +381,7 @@ public class CSceneController
                         // メインライトは固定で8個まで使用する
                         lightIndex = NumOfSubLight;
 
-                        PrepareSpotLight(light, NumOfSubLight++, ref SubLightPosList, ref SubLightColorList, ref SubLightDirList);
+                        PrepareSpotLight(light, NumOfSubLight++, ref SubLightPosList, ref SubLightColorList, ref SubLightDirList, ref SubLightAngleList);
                     }
                     break;
 
@@ -407,6 +408,7 @@ public class CSceneController
         commandBuffer.SetGlobalVectorArray(CShaderConstants.SRP_Foreground_SubLightPosArray, SubLightPosList);
         commandBuffer.SetGlobalVectorArray(CShaderConstants.SRP_Foreground_SubLightColorArray, SubLightColorList);
         commandBuffer.SetGlobalVectorArray(CShaderConstants.SRP_Foreground_SubLightDirArray, SubLightDirList);
+        commandBuffer.SetGlobalVectorArray(CShaderConstants.SRP_Foreground_SubLightAngleArray, SubLightAngleList);
     }
 
     void PrepareDirectionalLight(VisibleLight light, int LightIndex, ref Vector4[] LightDirList, ref Vector4[] LightColorList)
@@ -418,40 +420,69 @@ public class CSceneController
         LightColorList[LightIndex] = light.finalColor;
     }
 
-    void PreparePointLight(VisibleLight light, int LightIndex, ref Vector4[] LightPosList, ref Vector4[] LightColorList, ref Vector4[] LightDirList)
+    void PreparePointLight(VisibleLight light, int LightIndex, ref Vector4[] LightPosList, ref Vector4[] LightColorList, 
+        ref Vector4[] LightDirList, ref Vector4[] LightAngleList)
     {
         Vector4 lightPos, spotLightDir = new Vector4();
         CalcLightParam(light, out lightPos, out spotLightDir);
 
-        lightPos.w = math.max(0.001f, 1.0f / (light.range * light.range));
+        lightPos.w = 1.0f / Mathf.Max(0.0001f, light.range * light.range);
 
         LightPosList[LightIndex] = lightPos;
         LightColorList[LightIndex] = light.finalColor;
         LightDirList[LightIndex] = spotLightDir;
+        LightAngleList[LightIndex] = new Vector4(0.0f, 1.0f);
     }
 
-    void PrepareSpotLight(VisibleLight light, int LightIndex, ref Vector4[] LightPosList, ref Vector4[] LightColorList, ref Vector4[] LightDirList)
+    void PrepareSpotLight(VisibleLight visibleLight, int LightIndex, ref Vector4[] LightPosList, ref Vector4[] LightColorList, 
+        ref Vector4[] LightDirList, ref Vector4[] LightAngleList)
     {
         Vector4 lightPos, spotLightDir = new Vector4();
-        CalcLightParam(light, out lightPos, out spotLightDir);
+        CalcLightParam(visibleLight, out lightPos, out spotLightDir);
 
-        lightPos.w = 0.0f;
+        lightPos.w = 1.0f / Mathf.Max(0.0001f, visibleLight.range * visibleLight.range);
 
         LightPosList[LightIndex] = lightPos;
-        LightColorList[LightIndex] = light.finalColor;
+        LightColorList[LightIndex] = visibleLight.finalColor;
         LightDirList[LightIndex] = spotLightDir;
+
+        //
+        float innerCos = Mathf.Cos(Mathf.Deg2Rad * 0.5f * visibleLight.light.innerSpotAngle);
+        float outterCos = Mathf.Cos(Mathf.Deg2Rad * 0.5f * visibleLight.spotAngle);
+        float angleRangeInv = 1.0f / Mathf.Max(innerCos, outterCos, 0.001f);
+
+        LightAngleList[LightIndex] = new Vector4(angleRangeInv, -outterCos * angleRangeInv);
     }
 
-    void SetDeferredLight(ScriptableRenderContext context, CommandBuffer commandBuffer, VisibleLight light)
+    void SetDeferredLight(ScriptableRenderContext context, CommandBuffer commandBuffer, VisibleLight visibleLight)
     {
         // ライト
         Vector4 lightPos, spotLightDir = new Vector4();
-        CalcLightParam(light, out lightPos, out spotLightDir);
+        CalcLightParam(visibleLight, out lightPos, out spotLightDir);
 
-        lightPos.w = math.max(0.001f, 1.0f / (light.range * light.range));
+        lightPos.w = 1.0f / Mathf.Max(0.0001f, visibleLight.range * visibleLight.range);
+
+        // 角度減衰用パラメーター
+        Vector4 spotAngle = new Vector4();
+        if(visibleLight.lightType == LightType.Spot)
+        {
+            float innerCos = Mathf.Cos(Mathf.Deg2Rad * 0.5f * visibleLight.light.innerSpotAngle);
+            float outterCos = Mathf.Cos(Mathf.Deg2Rad * 0.5f * visibleLight.spotAngle);
+            float angleRangeInv = 1.0f / Mathf.Max(innerCos, outterCos, 0.001f);
+
+            spotAngle = new Vector4(angleRangeInv, -outterCos * angleRangeInv);
+
+            //Debug.LogFormat("visibleLight.light.innerSpotAngle: {0}, visibleLight.spotAngle: {1}", visibleLight.light.innerSpotAngle, visibleLight.spotAngle);
+        }
+        else
+        {
+            spotAngle = new Vector4(0.0f, 1.0f);
+        }
 
         commandBuffer.SetGlobalVector(CShaderConstants.SRP_Deferred_LightPos, lightPos);
-        commandBuffer.SetGlobalColor(CShaderConstants.SRP_Deferred_LightColor, light.finalColor);
+        commandBuffer.SetGlobalColor(CShaderConstants.SRP_Deferred_LightColor, visibleLight.finalColor);
+        commandBuffer.SetGlobalVector(CShaderConstants.SRP_Deferred_LightDir, spotLightDir);
+        commandBuffer.SetGlobalVector(CShaderConstants.SRP_Deferred_SpotAngle, spotAngle);
     }
 
     void CalcLightParam(VisibleLight light, out Vector4 lightPos, out Vector4 soptLightDir)
@@ -463,7 +494,7 @@ public class CSceneController
 
         if (light.lightType == LightType.Directional)
         {
-            // ディレクショナルライトの場合、ワールド行列の2列目にライト方向が入っている
+            // ワールド行列の2列目にライト方向が入っている
             Vector4 dir = localToWorldMat.GetColumn(2);
             lightPos = new Vector4(dir.x, dir.y, dir.z, 0.0f);
         }
@@ -476,7 +507,8 @@ public class CSceneController
             // スポットライト情報を計算
             if(light.lightType == LightType.Spot)
             {
-
+                // ワールド行列の2列目にライト方向が入っている
+                soptLightDir = localToWorldMat.GetColumn(2);
             }
         }
     }
