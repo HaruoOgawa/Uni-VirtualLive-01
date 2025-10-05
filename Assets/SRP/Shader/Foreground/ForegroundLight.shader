@@ -99,14 +99,33 @@ Shader "CustomSRP/ForegroundLight"
                     { 
                         int lightIndex = unity_LightIndices[n / 4][n % 4];
 
+                        float3 l2g = i.worldPos.xyz - SRP_Foreground_SubLightPosArray[lightIndex].xyz;
+
                         // ポイントライト・スポットライトの両方ともこれでライト方向を算出する
                         // 以前はスポットライトのライト方向にスポットライトの方向ベクトルを使っていたが、それは間違い
                         // スポットライトはポイントライトの球を扇形に切り取ったものとして捉える
                         // スポットライトのlightDirは減衰に使用
-                        float3 lightDir = normalize(i.worldPos.xyz - SRP_Foreground_SubLightPosArray[lightIndex].xyz);
+                        float3 lightDir = normalize(l2g);
                         float3 lightColor = SRP_Foreground_SubLightColorArray[lightIndex].rgb;
 
-                        col.rgb += ComputeLight(N, lightDir, lightColor, 1.0);
+                        // 減衰
+                        float spotAttenuation = 1.0;
+                        {
+                            // 距離による減衰
+                            float distPow2 = max(dot(l2g, l2g), 0.001);
+
+                            // ポイントライト範囲の境界を自然に減衰させる
+                            // 1. pow(distPow2 * SRP_Foreground_SubLightPosArray[lightIndex].w, 2.0)で 0 ～ 1 の線形な値を滑らかに上昇するようにする
+                            // 2. -1.0をかけて反対の二次関数にして +1だけずらす
+                            // 3. さらに2乗して滑らかにする
+                            // N次関数は関数を滑らかにする
+                            float rangeAtten = pow( saturate(1.0 - pow(distPow2 * SRP_Foreground_SubLightPosArray[lightIndex].w, 2.0) ) , 2.0);
+
+                            // 距離減衰と範囲減衰の結果を組み合わせる
+                            spotAttenuation = rangeAtten * 1.0f / distPow2;
+                        }
+
+                        col.rgb += ComputeLight(N, lightDir, lightColor, spotAttenuation);
                     }
                 }
 

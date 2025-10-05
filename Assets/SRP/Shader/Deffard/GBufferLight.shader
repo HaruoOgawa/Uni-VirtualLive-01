@@ -122,8 +122,21 @@ Shader "CustomSRP/GBufferLight"
                 data.dir = normalize(SRP_Deferred_LightPos.xyz);
                 data.attenuation = 1.0;
                 #elif defined(_LIGHT_POINT)
-                data.dir = normalize(gData.WorldPos.xyz - SRP_Deferred_LightPos.xyz);
-                data.attenuation = 1.0;
+                float3 l2g = gData.WorldPos.xyz - SRP_Deferred_LightPos.xyz;
+                
+                // 距離による減衰
+                float distPow2 = max(dot(l2g, l2g), 0.001);
+
+                // ポイントライト範囲の境界を自然に減衰させる
+                // 1. pow(distPow2 * SRP_Deferred_LightPos.w, 2.0)で 0 ～ 1 の線形な値を滑らかに上昇するようにする
+                // 2. -1.0をかけて反対の二次関数にして +1だけずらす
+                // 3. さらに2乗して滑らかにする
+                // N次関数は関数を滑らかにする
+                float rangeAtten = pow( saturate(1.0 - pow(distPow2 * SRP_Deferred_LightPos.w, 2.0) ) , 2.0);
+
+                data.dir = normalize(l2g);
+                // 距離減衰と範囲減衰の結果を組み合わせる
+                data.attenuation = rangeAtten * 1.0f / distPow2;
                 #elif defined(_LIGHT_SPOT)
                 data.dir = normalize(gData.WorldPos.xyz - SRP_Deferred_LightPos.xyz);
                 data.attenuation = 1.0;

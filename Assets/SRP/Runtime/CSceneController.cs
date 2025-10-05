@@ -423,6 +423,8 @@ public class CSceneController
         Vector4 lightPos, spotLightDir = new Vector4();
         CalcLightParam(light, out lightPos, out spotLightDir);
 
+        lightPos.w = math.max(0.001f, 1.0f / (light.range * light.range));
+
         LightPosList[LightIndex] = lightPos;
         LightColorList[LightIndex] = light.finalColor;
         LightDirList[LightIndex] = spotLightDir;
@@ -432,6 +434,8 @@ public class CSceneController
     {
         Vector4 lightPos, spotLightDir = new Vector4();
         CalcLightParam(light, out lightPos, out spotLightDir);
+
+        lightPos.w = 0.0f;
 
         LightPosList[LightIndex] = lightPos;
         LightColorList[LightIndex] = light.finalColor;
@@ -443,6 +447,8 @@ public class CSceneController
         // ライト
         Vector4 lightPos, spotLightDir = new Vector4();
         CalcLightParam(light, out lightPos, out spotLightDir);
+
+        lightPos.w = math.max(0.001f, 1.0f / (light.range * light.range));
 
         commandBuffer.SetGlobalVector(CShaderConstants.SRP_Deferred_LightPos, lightPos);
         commandBuffer.SetGlobalColor(CShaderConstants.SRP_Deferred_LightColor, light.finalColor);
@@ -465,7 +471,7 @@ public class CSceneController
         {
             // そのほかはいつも通り平行移動成分から取得
             Vector4 pos = localToWorldMat.GetColumn(3);
-            lightPos = new Vector4(pos.x, pos.y, pos.z, 1.0f);
+            lightPos = new Vector4(pos.x, pos.y, pos.z, 0.0f);
 
             // スポットライト情報を計算
             if(light.lightType == LightType.Spot)
