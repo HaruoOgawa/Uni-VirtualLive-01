@@ -449,7 +449,7 @@ public class CSceneController
         //
         float innerCos = Mathf.Cos(Mathf.Deg2Rad * 0.5f * visibleLight.light.innerSpotAngle);
         float outterCos = Mathf.Cos(Mathf.Deg2Rad * 0.5f * visibleLight.spotAngle);
-        float angleRangeInv = 1.0f / Mathf.Max(innerCos, outterCos, 0.001f);
+        float angleRangeInv = 1.0f / Mathf.Max(innerCos - outterCos, 0.001f);
 
         LightAngleList[LightIndex] = new Vector4(angleRangeInv, -outterCos * angleRangeInv);
     }
@@ -468,7 +468,7 @@ public class CSceneController
         {
             float innerCos = Mathf.Cos(Mathf.Deg2Rad * 0.5f * visibleLight.light.innerSpotAngle);
             float outterCos = Mathf.Cos(Mathf.Deg2Rad * 0.5f * visibleLight.spotAngle);
-            float angleRangeInv = 1.0f / Mathf.Max(innerCos, outterCos, 0.001f);
+            float angleRangeInv = 1.0f / Mathf.Max(innerCos - outterCos, 0.001f);
 
             spotAngle = new Vector4(angleRangeInv, -outterCos * angleRangeInv);
 

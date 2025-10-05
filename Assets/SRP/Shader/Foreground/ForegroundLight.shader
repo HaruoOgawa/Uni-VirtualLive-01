@@ -128,9 +128,12 @@ Shader "CustomSRP/ForegroundLight"
                         
                         // 角度減衰
                         // 光はまっすぐ進むので光の進行方向から角度が離れるほど減衰していくと考える
+                        // https://catlikecoding.com/unity/tutorials/custom-srp/point-and-spot-lights/
                         float angleAttenuation = Square(
-                            saturate(dot(SRP_Foreground_SubLightDirArray[lightIndex].xyz, lightDir)) *
-                            SRP_Foreground_SubLightAngleArray[lightIndex].x + SRP_Foreground_SubLightAngleArray[lightIndex].y
+                            saturate(
+                                dot(SRP_Foreground_SubLightDirArray[lightIndex].xyz, lightDir) *
+                                SRP_Foreground_SubLightAngleArray[lightIndex].x + SRP_Foreground_SubLightAngleArray[lightIndex].y
+                            )
                         );
 
                         // 複数の減衰を組み合わせる

@@ -147,11 +147,14 @@ Shader "CustomSRP/GBufferLight"
 
                     // 角度減衰
                     // 光はまっすぐ進むので光の進行方向から角度が離れるほど減衰していくと考える
+                    // https://catlikecoding.com/unity/tutorials/custom-srp/point-and-spot-lights/
                     float angleAttenuation = Square(
-                        saturate(dot(SRP_Deferred_LightDir.xyz, data.dir)) *
-                        SRP_Deferred_SpotAngle.x + SRP_Deferred_SpotAngle.y
+                            saturate(
+                                dot(SRP_Deferred_LightDir.xyz, data.dir) *
+                                SRP_Deferred_SpotAngle.x + SRP_Deferred_SpotAngle.y
+                            )
                     );
-                
+
                     // 減衰結果を組み合わせる
                     data.attenuation = distAttenuation * rangeAttenuation * angleAttenuation;
                 #endif
