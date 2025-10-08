@@ -4,7 +4,7 @@ Shader "CustomSRP/GBufferGen"
     {
         _MainTex ("Texture", 2D) = "white" {}
         _Color("Color", Color) = (1.0, 1.0, 1.0, 1.0)
-        _Roughness("Roughness", Float) = 0.0
+        _Smoothness("Smoothness", Float) = 0.0
         _Metallic("Metallic", Float) = 0.0
     }
     SubShader
@@ -41,7 +41,7 @@ Shader "CustomSRP/GBufferGen"
 
             sampler2D _MainTex;
             float4 _Color;
-            float _Roughness;
+            float _Smoothness;
             float _Metallic;
 
             v2f vert (appdata v)
@@ -69,10 +69,11 @@ Shader "CustomSRP/GBufferGen"
             {
                 float4 Albedo = _Color * tex2D(_MainTex, i.uv);
                 fixed MatType = 1.0; // PBR
+                float Roughness = 1.0 - _Smoothness;
 
                 FragOut o;
 
-                o.col0 = float4(Albedo.rgb, _Roughness);
+                o.col0 = float4(Albedo.rgb, Roughness);
                 o.col1 = float4(i.worldNormal.xyz, _Metallic);
                 o.col2 = float4(i.worldPos, MatType);
                 o.col3 = float4(0.0, 0.0, 0.0, 0.0);

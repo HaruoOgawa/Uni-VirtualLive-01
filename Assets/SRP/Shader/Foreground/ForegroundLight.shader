@@ -4,7 +4,7 @@ Shader "CustomSRP/ForegroundLight"
     {
         _MainTex ("Texture", 2D) = "white" {}
         _Color("Color", Color) = (1.0, 1.0, 1.0, 1.0)
-        _Roughness("Roughness", Float) = 0.0
+        _Smoothness("Smoothness", Float) = 0.0
         _Metallic("Metallic", Float) = 0.0
     }
     SubShader
@@ -45,7 +45,7 @@ Shader "CustomSRP/ForegroundLight"
             sampler2D _MainTex;
             float4 _MainTex_ST;
             float4 _Color;
-            float _Roughness;
+            float _Smoothness;
             float _Metallic;
 
             // unity_LightDataÇ∆unity_LightIndicesÇÕRendererListDesc.rendererConfigurationÇ…PerObjectDataÇê›íËÇµÇΩÇ§Ç¶Ç≈
@@ -92,7 +92,7 @@ Shader "CustomSRP/ForegroundLight"
                 PBRData pbr;
                 pbr.Albedo = Albedo.rgb;
                 pbr.Metallic = _Metallic;
-                pbr.Roughness = _Roughness;
+                pbr.Roughness = 1.0 - _Smoothness;
                 pbr.WorldNormal = WorldNormal;
                 pbr.ViewDir = normalize(i.worldPos.xyz - _WorldSpaceCameraPos);
 
