@@ -2,6 +2,8 @@
 // 非金属でも0.04%は鏡面反射する
 #define MIN_REFLECTIVITY 0.04
 
+#define PI 3.14159265
+
 // PBR関連データ
 struct PBRData
 {
@@ -20,6 +22,89 @@ struct LightData
     float attenuation;
 };
 
+struct PBRParam
+{
+    float3 Albedo;
+    float Metallic;
+    float Roughness;
+    float NdH;
+    float LdH;
+    float NdL;
+    float NdV;
+    float VdH;
+};
+
+PBRParam CreatePBRParam(PBRData pbr, LightData light)
+{
+    // PBRParamを構築
+    PBRParam param;
+    
+    float3 l = normalize(-light.dir);
+    float3 v = normalize(-pbr.ViewDir);
+    float3 n = normalize(pbr.WorldNormal);
+    float3 h = normalize(l + v);
+    
+    float NdH = clamp(dot(n, h), 0.0, 1.0);
+    float LdH = clamp(dot(l, h), 0.0, 1.0);
+    float NdL = clamp(dot(n, l), 0.0, 1.0);
+    float NdV = clamp(dot(n, v), 0.0, 1.0);
+    float VdH = clamp(dot(v, h), 0.0, 1.0);
+    
+    param.Albedo = pbr.Albedo;
+    param.Metallic = pbr.Metallic;
+    
+    // Roughnessが0.0の時の鏡面反射が消えてしまうので最小値を最小反射率にする
+    param.Roughness = max(MIN_REFLECTIVITY, pbr.Roughness);
+    
+    param.NdH = NdH;
+    param.LdH = LdH;
+    param.NdL = NdL;
+    param.NdV = NdV;
+    param.VdH = VdH;
+    
+    return param;
+}
+
+// マイクロファセット(微小面法線分布関数)(Microfacet Distribution). Distributionは分布に意味
+// 分布関数なので統計学的に求められた数式
+// マイクロファセット → 微小平面
+// 特定のハーフベクトル方向を向いたマイクロファセットの面積密度を表す
+// つまりその方向を向いてるマイクロファセットが表面上にどれぐらい存在するか
+// https://learnopengl.com/PBR/Theory#:~:text=GGX%20for%20G.-,Normal%20distribution%20function,-The%20normal%20distribution
+float CalcMicrofacet(PBRParam param)
+{
+    float r = param.Roughness;
+    //float a = r * r;
+    float a = r;
+    float a2 = max(0.001, a * a);
+    
+    float f = pow(param.NdH, 2.0) * (a2 - 1.0) + 1.0;
+    
+    return a2 / (PI * f * f);
+}
+
+// 幾何減衰項(Geometric Occlusion)
+// マイクロファセットの微小平面が光の経路を遮断することにより失われてしまう光の減衰量を計算する関数
+// → マイクロファセットの自己遮断・相互遮断によって反射に寄与できるマイクロファセットの割合を減衰させる関数
+float CalcGeometricOcculusion(PBRParam param)
+{
+    //float k = param.Roughness * param.Roughness;
+    float k = param.Roughness;
+
+    // 実際の数式を簡略した方を使う
+    float attenuationL = param.NdV / (param.NdV * (1.0 - k) + k);
+    float attenuationV = param.NdL / (param.NdL * (1.0 - k) + k);
+
+    return attenuationL * attenuationV;
+}
+
+// フレネル項
+float3 CalcFrenelReflection(PBRParam param)
+{
+    float3 F0 = lerp(float3(MIN_REFLECTIVITY, MIN_REFLECTIVITY, MIN_REFLECTIVITY), param.Albedo, param.Metallic);
+    return F0 + (1.0 - F0) * pow(1.0 - param.VdH, 5.0);
+}
+
 // ディフューズBRDF(拡散反射)
 float3 CalcDiffuseBRDF(PBRData pbr)
 {
@@ -37,26 +122,28 @@ float3 CalcDiffuseBRDF(PBRData pbr)
 }
 
 // スペキュラーBRDF(鏡面反射)
-float3 CalcSpecularBRDF(PBRData pbr, LightData light, float NdL)
+float3 CalcSpecularBRDF(PBRParam param)
 {
     // クックトランスモデルによるスペキュラーGGX計算
-    //float D = CalcMicrofacet
+    float  D = CalcMicrofacet(param); // 微小面法分布関数
+    float  G = CalcGeometricOcculusion(param); // 幾何減衰項
+    float3 F = CalcFrenelReflection(param); // フレネル項
     
-    float3 col = float3(0.0, 0.0, 0.0);
-    return col;
+    return (D * G * F) / (4.0 * param.NdV * param.NdL);
 }
 
 // 最適化されたスペキュラーBRDF(鏡面反射)
-float3 CalcOptimizedSpecularBRDF(PBRData pbr, float NdH, float LdH)
+float3 CalcOptimizedSpecularBRDF(PBRParam param)
 {
-    float3 specularColor = lerp(float3(MIN_REFLECTIVITY, MIN_REFLECTIVITY, MIN_REFLECTIVITY), pbr.Albedo, pbr.Metallic);
+    // Metallic 0 の時の色がMIN_REFLECTIVITYなのは、全く鏡面反射しなくても非金属の最低反射率0.04%だけでも光らせるため
+    // 1の時はオブジェクト表面(吸収されない光)の色が鏡面反射光の色となる
+    float3 specularColor = lerp(float3(MIN_REFLECTIVITY, MIN_REFLECTIVITY, MIN_REFLECTIVITY), param.Albedo, param.Metallic);
     
-    float r = pbr.Roughness - MIN_REFLECTIVITY;
-    
+    float r = param.Roughness;
     float a = r * r;
     float a2 = max(0.001, a * a);
-    float d = NdH * NdH * (a2 - 1.0) + 1.00001;
-    float specularTerm = a / (max(0.32, LdH) * (1.5 + a) * d);
+    float d = param.NdH * param.NdH * (a2 - 1.0) + 1.00001;
+    float specularTerm = a / (max(0.32, param.LdH) * (1.5 + a) * d);
     
     float3 spec = specularTerm * specularColor;
     spec = max(float3(0.0, 0.0, 0.0), spec);
@@ -67,24 +154,18 @@ float3 CalcOptimizedSpecularBRDF(PBRData pbr, float NdH, float LdH)
 // 直接光のPBR
 float3 ComputeDirectLight(PBRData pbr, LightData light)
 {
-    float3 l = normalize(-light.dir);
-    float3 v = normalize(-pbr.ViewDir);
-    float3 n = normalize(pbr.WorldNormal);
-    float3 h = normalize(l + v);
-    
-    float NdH = clamp(dot(n, h), 0.0, 1.0);
-    float LdH = clamp(dot(l, h), 0.0, 1.0);
-    float NdL = clamp(dot(n, l), 0.0, 1.0);
+    // PBRParamを構築
+    PBRParam param = CreatePBRParam(pbr, light);
     
     // 拡散反射
     float3 DiffuseCol = CalcDiffuseBRDF(pbr);
     
     // 鏡面反射
-    //float3 SpecularCol = CalcSpecularBRDF(pbr, light, NdL);
-    float3 SpecularCol = CalcOptimizedSpecularBRDF(pbr, NdH, LdH);
+    float3 SpecularCol = CalcSpecularBRDF(param);
+    //float3 SpecularCol = CalcOptimizedSpecularBRDF(param);
     
     // 結果を組み合わせる
-    float3 ResultCol = NdL * (DiffuseCol + SpecularCol);
+    float3 ResultCol = param.NdL * (DiffuseCol + SpecularCol);
     
     return ResultCol;
 }
