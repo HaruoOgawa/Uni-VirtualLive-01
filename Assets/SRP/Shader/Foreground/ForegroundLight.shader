@@ -3,11 +3,18 @@ Shader "CustomSRP/ForegroundLight"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        _Color("Color", Color) = (1.0, 1.0, 1.0, 1.0)
+        _Smoothness("Smoothness", Float) = 0.0
+        _Metallic("Metallic", Float) = 0.0
     }
     SubShader
     {
         Tags { "RenderType"="Opaque" }
         LOD 100
+
+        HLSLINCLUDE
+        #include "../ShaderLibrary/PBR.hlsl"
+        ENDHLSL
 
         Pass
         {
@@ -37,6 +44,9 @@ Shader "CustomSRP/ForegroundLight"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
+            float4 _Color;
+            float _Smoothness;
+            float _Metallic;
 
             // unity_LightDataとunity_LightIndicesはRendererListDesc.rendererConfigurationにPerObjectDataを設定したうえで
             // さらにこのようにシェーダーに宣言を書かないと使えない(ビルトイン変数のように勝手に用意してはくれない)
@@ -71,24 +81,20 @@ Shader "CustomSRP/ForegroundLight"
                 return pow(val, 2.0);
             }
 
-            float3 ComputeLight(float3 worldNormal, float3 lightDir, float3 color, float attenuation)
-            {
-                float3 col = float3(1.0, 1.0, 1.0);
-
-                // どれぐらい光が当たっているかのdotは同じ方向のベクトルに対して行うのでlData.dirは反転する
-                // 元のライト方向だと真正面から当たっているときにちょうどベクトルが反対で-1になってしまう
-                float diffuse = max(0.0, dot(worldNormal, -lightDir));
-                col = color * diffuse * attenuation;
-
-                return col;
-            }
-
             fixed4 frag (v2f i) : SV_Target
             {
                 float3 col = float3(0.0, 0.0, 0.0);
                 float alpha = 1.0;
 
-                float3 N = i.worldNormal.xyz;
+                float4 Albedo = _Color * tex2D(_MainTex, i.uv);
+                float3 WorldNormal = i.worldNormal.xyz;
+
+                PBRData pbr;
+                pbr.Albedo = Albedo.rgb;
+                pbr.Metallic = _Metallic;
+                pbr.Roughness = 1.0 - _Smoothness;
+                pbr.WorldNormal = WorldNormal;
+                pbr.ViewDir = normalize(i.worldPos.xyz - _WorldSpaceCameraPos);
 
                 {
                     // MainLight
@@ -97,7 +103,12 @@ Shader "CustomSRP/ForegroundLight"
                         float3 lightDir = SRP_Foreground_MainLightDirArray[n].xyz;
                         float3 lightColor = SRP_Foreground_MainLightColorArray[n].xyz;
 
-                        col.rgb += ComputeLight(N, lightDir, lightColor, 1.0);
+                        LightData light;
+                        light.dir = lightDir;
+                        light.color = lightColor;
+                        light.attenuation = 1.0;
+
+                        col.rgb += ComputeDirectLight(pbr, light);
                     }
 
                     // SubLight
@@ -139,7 +150,12 @@ Shader "CustomSRP/ForegroundLight"
                         // 複数の減衰を組み合わせる
                         float Attenuation = rangeAttenuation * distAttenuation * angleAttenuation;
 
-                        col.rgb += ComputeLight(N, lightDir, lightColor, Attenuation);
+                        LightData light;
+                        light.dir = lightDir;
+                        light.color = lightColor;
+                        light.attenuation = Attenuation;
+
+                        col.rgb += ComputeDirectLight(pbr, light);
                     }
                 }
 

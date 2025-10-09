@@ -4,7 +4,7 @@ Shader "CustomSRP/GBufferGen"
     {
         _MainTex ("Texture", 2D) = "white" {}
         _Color("Color", Color) = (1.0, 1.0, 1.0, 1.0)
-        _Roughness("Roughness", Float) = 0.0
+        _Smoothness("Smoothness", Float) = 0.0
         _Metallic("Metallic", Float) = 0.0
     }
     SubShader
@@ -16,7 +16,7 @@ Shader "CustomSRP/GBufferGen"
         {
             Tags { "LightMode" = "CustomGBufferGen" }
 
-            CGPROGRAM
+            HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
 
@@ -41,7 +41,7 @@ Shader "CustomSRP/GBufferGen"
 
             sampler2D _MainTex;
             float4 _Color;
-            float _Roughness;
+            float _Smoothness;
             float _Metallic;
 
             v2f vert (appdata v)
@@ -58,7 +58,7 @@ Shader "CustomSRP/GBufferGen"
 
             struct FragOut
             {
-                float4 col0 : SV_Target0; // BaseColor.rgb   Roughness.a
+                float4 col0 : SV_Target0; // Albedo.rgb   Roughness.a
                 float4 col1 : SV_Target1; // WorldNormal.rgb Metallic.a
                 float4 col2 : SV_Target2; // WorldPos.rgb    MaterialType.r
                 float4 col3 : SV_Target3; // None.rgba
@@ -67,12 +67,13 @@ Shader "CustomSRP/GBufferGen"
 
             FragOut frag (v2f i) : SV_Target
             {
-                float4 BaseCol = _Color * tex2D(_MainTex, i.uv);
+                float4 Albedo = _Color * tex2D(_MainTex, i.uv);
                 fixed MatType = 1.0; // PBR
+                float Roughness = 1.0 - _Smoothness;
 
                 FragOut o;
 
-                o.col0 = float4(BaseCol.rgb, _Roughness);
+                o.col0 = float4(Albedo.rgb, Roughness);
                 o.col1 = float4(i.worldNormal.xyz, _Metallic);
                 o.col2 = float4(i.worldPos, MatType);
                 o.col3 = float4(0.0, 0.0, 0.0, 0.0);
@@ -80,7 +81,7 @@ Shader "CustomSRP/GBufferGen"
 
                 return o;
             }
-            ENDCG
+            ENDHLSL
         }
     }
 }

@@ -10,6 +10,10 @@ Shader "CustomSRP/GBufferLight"
         LOD 100
         Cull Front
 
+        HLSLINCLUDE
+        #include "../ShaderLibrary/PBR.hlsl"
+        ENDHLSL
+
         Pass
         {
             Tags { "LightMode" = "CustomGBufferLight" }
@@ -22,7 +26,7 @@ Shader "CustomSRP/GBufferLight"
             Blend One One, Zero One
             BlendOp Add, Add
 
-            CGPROGRAM
+            HLSLPROGRAM
             
             #pragma multi_compile _LIGHT_DIRECTIONAL _LIGHT_POINT _LIGHT_SPOT
             
@@ -46,7 +50,7 @@ Shader "CustomSRP/GBufferLight"
             struct GBufferData
             {
                 fixed MaterialType;
-                float3 BaseColor;
+                float3 Albedo;
                 float Roughness;
                 float Metallic;
                 float3 WorldNormal;
@@ -84,14 +88,14 @@ Shader "CustomSRP/GBufferLight"
             {
                 GBufferData data;
 
-                float4 GBuffer_0 = tex2D(SRP_GBuffer_0, screenUV); // BaseColor.rgb   Roughness.a
+                float4 GBuffer_0 = tex2D(SRP_GBuffer_0, screenUV); // Albedo.rgb   Roughness.a
                 float4 GBuffer_1 = tex2D(SRP_GBuffer_1, screenUV); // WorldNormal.rgb Metallic.a
                 float4 GBuffer_2 = tex2D(SRP_GBuffer_2, screenUV); // WorldPos.rgb    MaterialType.r
                 float4 GBuffer_3 = tex2D(SRP_GBuffer_3, screenUV); // None.rgba
                 float4 GBuffer_4 = tex2D(SRP_GBuffer_4, screenUV); // None.rgba
 
                 data.MaterialType = GBuffer_2.a;
-                data.BaseColor = GBuffer_0.rgb;
+                data.Albedo = GBuffer_0.rgb;
                 data.Roughness = GBuffer_0.a;
                 data.Metallic = GBuffer_1.a;
                 data.WorldNormal = GBuffer_1.rgb;
@@ -105,21 +109,11 @@ Shader "CustomSRP/GBufferLight"
                 return pow(val, 2.0);
             }
 
-            struct LightData
-            {
-                bool enabled;
-                float3 dir;
-                float3 color;
-                float attenuation;
-            };
-
             LightData CreateLightData(GBufferData gData)
             {
                 LightData data;
 
                 data.color = SRP_Deferred_LightColor.rgb;
-
-                data.enabled = true;
 
                 // ポイントライト・スポットライトの両方ともこれでライト方向を算出する
                 // 以前はスポットライトのライト方向にスポットライトの方向ベクトルを使っていたが、それは間違い
@@ -162,16 +156,16 @@ Shader "CustomSRP/GBufferLight"
                 return data;
             }
 
-            float3 ComputeLight(float3 worldNormal, float3 lightDir, float3 color, float attenuation)
+            PBRData CreatePBRData(GBufferData gData)
             {
-                float3 col = float3(1.0, 1.0, 1.0);
+                PBRData pbr;
+                pbr.Albedo = gData.Albedo.rgb;
+                pbr.Metallic = gData.Metallic;
+                pbr.Roughness = gData.Roughness;
+                pbr.WorldNormal = gData.WorldNormal.rgb;
+                pbr.ViewDir = normalize(gData.WorldPos.xyz - _WorldSpaceCameraPos);
 
-                // どれぐらい光が当たっているかのdotは同じ方向のベクトルに対して行うのでlData.dirは反転する
-                // 元のライト方向だと真正面から当たっているときにちょうどベクトルが反対で-1になってしまう
-                float diffuse = max(0.0, dot(worldNormal, -lightDir));
-                col = color * diffuse * attenuation;
-
-                return col;
+                return pbr;
             }
 
             fixed4 frag (v2f i) : SV_Target
@@ -186,13 +180,14 @@ Shader "CustomSRP/GBufferLight"
                 float alpha = 1.0;
 
                 GBufferData gData = CreateGBufferData(screenUV);
-                LightData lData = CreateLightData(gData);
+                LightData light = CreateLightData(gData);
+                PBRData pbr = CreatePBRData(gData);
 
-                col = ComputeLight(gData.WorldNormal, lData.dir, lData.color, lData.attenuation);
+                col = ComputeDirectLight(pbr, light);
 
                 return float4(col, alpha);
             }
-            ENDCG
+            ENDHLSL
         }
     }
 }
