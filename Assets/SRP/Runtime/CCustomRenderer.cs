@@ -103,7 +103,7 @@ public class CCustomRenderer
         }
     }
 
-    public void Render(ScriptableRenderContext context, Camera camera)
+    public bool Render(ScriptableRenderContext context, Camera camera)
     {
         // デファードレンダリング
         {
@@ -120,7 +120,7 @@ public class CCustomRenderer
             // GBufferライティング
             {
                 // デファードライトパスにGBufferパスの深度をコピーする
-                m_GBufferLightPass.GetRenderTarget().CopyDepthBuffer(context, m_CommandBuffer, m_GBufferGenPass.GetRenderTarget());
+                if (!m_GBufferLightPass.GetRenderTarget().CopyDepthBuffer(context, m_CommandBuffer, m_GBufferGenPass.GetRenderTarget())) return false;
 
                 SPassDescriptor descriptor = new SPassDescriptor();
                 descriptor.TargetShaderTags = m_GBufferLightPass.GetTargetShaderTags();
@@ -133,7 +133,7 @@ public class CCustomRenderer
             // GBufferライティング(間接照明)
             {
                 // デファードライトパスにGBufferLightPassのカラー・深度をコピーする
-                m_GBufferIndirectLightPass.GetRenderTarget().CopyFrameBuffer(context, m_CommandBuffer, m_GBufferLightPass.GetRenderTarget());
+                if (!m_GBufferIndirectLightPass.GetRenderTarget().CopyFrameBuffer(context, m_CommandBuffer, m_GBufferLightPass.GetRenderTarget())) return false;
 
                 SPassDescriptor descriptor = new SPassDescriptor();
                 descriptor.TargetShaderTags = m_GBufferIndirectLightPass.GetTargetShaderTags();
@@ -147,7 +147,7 @@ public class CCustomRenderer
         // フォアグラウンドレンダリング
         {
             // フォアグラウンドパス(ForegroundPass)にGBufferLightPassのカラー・深度をコピーする
-            m_ForegroundPass.GetRenderTarget().CopyFrameBuffer(context, m_CommandBuffer, m_GBufferIndirectLightPass.GetRenderTarget());
+            if (!m_ForegroundPass.GetRenderTarget().CopyFrameBuffer(context, m_CommandBuffer, m_GBufferIndirectLightPass.GetRenderTarget())) return false;
 
             SPassDescriptor descriptor = new SPassDescriptor();
             descriptor.TargetShaderTags = m_ForegroundPass.GetTargetShaderTags();
@@ -165,5 +165,7 @@ public class CCustomRenderer
             m_SceneController.DrawFullScreenRT(context, m_CommandBuffer, camera, m_ForegroundPass.GetRenderTarget().GetColorBuffer());
             m_MainResultPass.End(context, m_CommandBuffer, camera);
         }
+
+        return true;
     }
 }

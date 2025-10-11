@@ -68,6 +68,12 @@ public class CRenderTarget
         {
             RenderTexture rt = new RenderTexture(width, height, DepthBit, ColorFormat);
 
+            if (!rt.Create())
+            {
+                Debug.LogError("[CRenderTarget] Failed to create color render target.");
+                return false;
+            }
+
             m_ColorBuffers.Add(rt);
             m_ColorRTIdentifiers.Add(rt);
         }
@@ -75,6 +81,13 @@ public class CRenderTarget
         // デプスバッファ作成
         {
             RenderTexture rt = new RenderTexture(width, height, DepthBit, DepthFormat);
+
+            if (!rt.Create())
+            {
+                Debug.LogError("[CRenderTarget] Failed to create depth render target.");
+                return false;
+            }
+
             m_DepthBuffer = rt;
             m_DepthRTIdentifier = rt;
         }
@@ -96,6 +109,9 @@ public class CRenderTarget
                 var SrcRT = Src.GetColorBuffers()[i];
                 var DstRT = m_ColorBuffers[i];
 
+                // まだレンダーテクスチャが生成されていない
+                if (!SrcRT.IsCreated() || !DstRT.IsCreated()) return false;
+
                 // CommandBuffer.Blitは名前的にOpenGLのglBlitFramebufferと見間違えてGPUで実行してパフォーマンスがよさそうだが、
                 // 実際は同じ動作ではなくてむしろ近いのはCommandBuffer.CopyTextureの方
                 commandBuffer.CopyTexture(SrcRT.colorBuffer, DstRT.colorBuffer);
@@ -106,6 +122,9 @@ public class CRenderTarget
         {
             var SrcRT = Src.GetDepthBuffer();
             var DstRT = m_DepthBuffer;
+
+            // まだレンダーテクスチャが生成されていない
+            if (!SrcRT.IsCreated() || !DstRT.IsCreated()) return false;
 
             // CommandBuffer.Blitは名前的にOpenGLのglBlitFramebufferと見間違えてGPUで実行してパフォーマンスがよさそうだが、
             // 実際は同じ動作ではなくてむしろ近いのはCommandBuffer.CopyTextureの方
@@ -129,6 +148,9 @@ public class CRenderTarget
                 var SrcRT = Src.GetColorBuffers()[i];
                 var DstRT = m_ColorBuffers[i];
 
+                // まだレンダーテクスチャが生成されていない
+                if (!SrcRT.IsCreated() || !DstRT.IsCreated()) return false;
+
                 // CommandBuffer.Blitは名前的にOpenGLのglBlitFramebufferと見間違えてGPUで実行してパフォーマンスがよさそうだが、
                 // 実際は同じ動作ではなくてむしろ近いのはCommandBuffer.CopyTextureの方
                 commandBuffer.CopyTexture(SrcRT.colorBuffer, DstRT.colorBuffer);
@@ -146,6 +168,9 @@ public class CRenderTarget
     {
         var SrcRT = Src.GetDepthBuffer();
         var DstRT = m_DepthBuffer;
+
+        // まだレンダーテクスチャが生成されていない
+        if (!SrcRT.IsCreated() || !DstRT.IsCreated()) return false;
 
         // CommandBuffer.Blitは名前的にOpenGLのglBlitFramebufferと見間違えてGPUで実行してパフォーマンスがよさそうだが、
         // 実際は同じ動作ではなくてむしろ近いのはCommandBuffer.CopyTextureの方

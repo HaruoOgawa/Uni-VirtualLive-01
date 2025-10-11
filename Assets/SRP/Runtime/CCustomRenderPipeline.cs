@@ -14,7 +14,13 @@ public class CCustomRenderPipeline : RenderPipeline
     {
         for (int i = 0; i < cameras.Count; i++)
         {
-            m_Renderer.Render(context, cameras[i]);
+            var camera = cameras[i];
+
+            if(!m_Renderer.Render(context, camera))
+            {
+                Debug.LogErrorFormat("[CCustomRenderPipeline] {0} camera failed to render.", camera.name);
+                continue;
+            }
         }
     }
 }
