@@ -1,8 +1,19 @@
+#ifndef SRP_CUSTOM_PBR
+#define SRP_CUSTOM_PBR
+
 // 最低反射率
 // 非金属でも0.04%は鏡面反射する
 #define MIN_REFLECTIVITY 0.04
 
 #define PI 3.14159265
+
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/EntityLighting.hlsl"
+// mipindexを計算するPerceptualRoughnessToMipmapLevelを使うためにinclude
+#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/ImageBasedLighting.hlsl"
+
+// 以下定義やSAMPLE_TEXTURECUBE_LODはEntityLighting.hlsl経由で実装される
+TEXTURECUBE(unity_SpecCube0);
+SAMPLER(samplerunity_SpecCube0);
 
 // PBR関連データ
 struct PBRData
@@ -99,11 +110,12 @@ float CalcGeometricOcculusion(PBRParam param)
 }
 
 // フレネル項
-float3 CalcFrenelReflection(PBRParam param)
+float3 CalcFrenelReflection(float3 Albedo, float Metallic, float NdV)
 {
-    float3 F0 = lerp(float3(MIN_REFLECTIVITY, MIN_REFLECTIVITY, MIN_REFLECTIVITY), param.Albedo, param.Metallic);
-    return F0 + (1.0 - F0) * pow(1.0 - param.LdH, 5.0);
+    float3 F0 = lerp(float3(MIN_REFLECTIVITY, MIN_REFLECTIVITY, MIN_REFLECTIVITY), Albedo, Metallic);
+    return F0 + (1.0 - F0) * pow(1.0 - NdV, 5.0);
 }
+
 
 // ディフューズBRDF(拡散反射)
 float3 CalcDiffuseBRDF(PBRData pbr)
@@ -132,7 +144,7 @@ float3 CalcSpecularBRDF(PBRParam param)
     // クックトランスモデルによるスペキュラーGGX計算
     float  D = CalcMicrofacet(param); // 微小面法分布関数
     float  G = CalcGeometricOcculusion(param); // 幾何減衰項
-    float3 F = CalcFrenelReflection(param); // フレネル項
+    float3 F = CalcFrenelReflection(param.Albedo, param.Metallic, param.NdV); // フレネル項
     
     // 最小値を0にしないと値がマイナスになって複数ライトを加算してもマイナスから復帰しなくて色がでなくなる
     float3 spec = (D * G * F) / (4.0 * param.NdV * param.NdL);
@@ -186,10 +198,34 @@ float3 ComputeDirectLight(PBRData pbr, LightData light)
     return ResultCol;
 }
 
+
+float3 CalcReflectionProbe(PBRData pbr)
+{
+    float3 v = normalize(-pbr.ViewDir);
+    float3 reflectV = reflect(v, pbr.WorldNormal);
+    
+    float mipindex = PerceptualRoughnessToMipmapLevel(pbr.Roughness);
+    
+    float4 col = SAMPLE_TEXTURECUBE_LOD(unity_SpecCube0, samplerunity_SpecCube0, reflectV, mipindex);
+    return col.rgb;
+}
+
 // 間接光のPBR
-float3 ComputeIndirectLight(PBRData pbr, LightData light)
+float3 ComputeIndirectLight(PBRData pbr)
 {
     float3 ResultCol = float3(0.0, 0.0, 0.0);
 
+    float3 v = normalize(-pbr.ViewDir);
+    float3 n = normalize(pbr.WorldNormal);
+    
+    float NdV = clamp(dot(n, v), 0.0, 1.0);
+    
+    // リフレクションプローブによる間接照明
+    ResultCol += CalcReflectionProbe(pbr);
+    
+    // フレネル反射
+    ResultCol *= CalcFrenelReflection(pbr.Albedo, pbr.Metallic, NdV);
+    
     return ResultCol;
 }
+#endif

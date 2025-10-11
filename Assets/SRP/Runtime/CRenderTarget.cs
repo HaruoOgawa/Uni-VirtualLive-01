@@ -86,10 +86,10 @@ public class CRenderTarget
         return true;
     }
 
-    public bool CopyFrameBuffer(ScriptableRenderContext context, CommandBuffer commandBuffer, CRenderTarget Src, bool Color, bool Depth)
+    public bool CopyFrameBuffer(ScriptableRenderContext context, CommandBuffer commandBuffer, CRenderTarget Src)
     {
         // カラーバッファをコピー
-        if (Color && Src.GetRenderTargetCount() == m_RenderTargetCount)
+        if (Src.GetRenderTargetCount() == m_RenderTargetCount)
         {
             for(int i = 0; i < m_RenderTargetCount; i++)
             {
@@ -103,7 +103,6 @@ public class CRenderTarget
         }
 
         // デプスバッファコピー
-        if (Depth)
         {
             var SrcRT = Src.GetDepthBuffer();
             var DstRT = m_DepthBuffer;

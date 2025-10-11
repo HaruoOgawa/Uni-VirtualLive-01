@@ -1,4 +1,4 @@
-Shader "CustomSRP/GBufferLight"
+Shader "CustomSRP/GBufferIndirectLight"
 {
     Properties
     {
@@ -12,7 +12,7 @@ Shader "CustomSRP/GBufferLight"
 
         Pass
         {
-            Tags { "LightMode" = "CustomGBufferLight" }
+            Tags { "LightMode" = "CustomGBufferIndirectLight" }
 
             // ZTest GEqual
             ZTest Always
@@ -24,16 +24,16 @@ Shader "CustomSRP/GBufferLight"
 
             HLSLPROGRAM
             
-            #pragma multi_compile _LIGHT_DIRECTIONAL _LIGHT_POINT _LIGHT_SPOT
+            #pragma multi_compile
             
             #pragma vertex vert
             #pragma fragment frag
 
-            // UnityCG.cgincの代わりにUnityInput.hlslを使う。そうしないとPackagesフォルダをincludeしたときに重複定義でエラーになってしまう
+           // UnityCG.cgincの代わりにUnityInput.hlslを使う。そうしないとPackagesフォルダをincludeしたときに重複定義でエラーになってしまう
            // このような書き方をしないと例えばPBR.hlslとかでリフレクションプローブのunity_SpecCube0が見えなくなる
            //#include "UnityCG.cginc"
            #include "../ShaderLibrary/UnityInput.hlsl"
-            #include "../ShaderLibrary/PBR.hlsl"
+           #include "../ShaderLibrary/PBR.hlsl"
 
             struct appdata
             {
@@ -63,23 +63,12 @@ Shader "CustomSRP/GBufferLight"
             sampler2D SRP_GBuffer_3;
             sampler2D SRP_GBuffer_4;
 
-            float4 SRP_Deferred_LightPos;
-            float4 SRP_Deferred_LightColor;
-            float4 SRP_Deferred_LightDir;
-            float4 SRP_Deferred_SpotAngle;
-
             v2f vert (appdata v)
             {
                 v2f o;
                 
-                #if defined(_LIGHT_DIRECTIONAL)
                 o.vertex = v.vertex;
                 o.lightWorldPos = float4(0.0, 0.0, 0.0, 0.0);
-                #else
-                o.vertex = mul(unity_MatrixVP, mul(unity_ObjectToWorld, v.vertex));
-                o.lightWorldPos = mul(unity_ObjectToWorld, v.vertex);
-                #endif
-
                 o.projPos = o.vertex;
                 return o;
             }
@@ -100,58 +89,6 @@ Shader "CustomSRP/GBufferLight"
                 data.Metallic = GBuffer_1.a;
                 data.WorldNormal = GBuffer_1.rgb;
                 data.WorldPos = GBuffer_2.rgb;
-
-                return data;
-            }
-
-            float Square(float val)
-            {
-                return pow(val, 2.0);
-            }
-
-            LightData CreateLightData(GBufferData gData)
-            {
-                LightData data;
-
-                data.color = SRP_Deferred_LightColor.rgb;
-
-                // ポイントライト・スポットライトの両方ともこれでライト方向を算出する
-                // 以前はスポットライトのライト方向にスポットライトの方向ベクトルを使っていたが、それは間違い
-                // スポットライトはポイントライトの球を扇形に切り取ったものとして捉える
-                // スポットライトのlightDirは減衰に使用
-                #if defined(_LIGHT_DIRECTIONAL)
-                    data.dir = normalize(SRP_Deferred_LightPos.xyz);
-                    data.attenuation = 1.0;
-                #elif defined(_LIGHT_POINT) || defined(_LIGHT_SPOT)
-
-                    float3 l2g = gData.WorldPos.xyz - SRP_Deferred_LightPos.xyz;
-                    data.dir = normalize(l2g);
-
-                    // 距離減衰
-                    float distPow2 = max(dot(l2g, l2g), 0.001);
-                    float distAttenuation = 1.0 / distPow2;
-
-                    // 範囲減衰
-                    // ポイントライト範囲の境界を自然に減衰させる
-                    // 1. pow(distPow2 * SRP_Deferred_LightPos.w, 2.0)で 0 ～ 1 の線形な値を滑らかに上昇するようにする
-                    // 2. -1.0をかけて反対の二次関数にして +1だけずらす
-                    // 3. さらに2乗して滑らかにする
-                    // N次関数は関数を滑らかにする
-                    float rangeAttenuation = pow( saturate(1.0 - pow(distPow2 * SRP_Deferred_LightPos.w, 2.0) ) , 2.0);
-
-                    // 角度減衰
-                    // 光はまっすぐ進むので光の進行方向から角度が離れるほど減衰していくと考える
-                    // https://catlikecoding.com/unity/tutorials/custom-srp/point-and-spot-lights/
-                    float angleAttenuation = Square(
-                            saturate(
-                                dot(SRP_Deferred_LightDir.xyz, data.dir) *
-                                SRP_Deferred_SpotAngle.x + SRP_Deferred_SpotAngle.y
-                            )
-                    );
-
-                    // 減衰結果を組み合わせる
-                    data.attenuation = distAttenuation * rangeAttenuation * angleAttenuation;
-                #endif
 
                 return data;
             }
@@ -180,10 +117,9 @@ Shader "CustomSRP/GBufferLight"
                 float alpha = 1.0;
 
                 GBufferData gData = CreateGBufferData(screenUV);
-                LightData light = CreateLightData(gData);
                 PBRData pbr = CreatePBRData(gData);
 
-                col = ComputeDirectLight(pbr, light);
+                col = ComputeIndirectLight(pbr);
 
                 return float4(col, alpha);
             }

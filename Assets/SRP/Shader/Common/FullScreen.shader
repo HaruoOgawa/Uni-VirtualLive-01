@@ -11,13 +11,16 @@ Shader "Hidden/FullScreen"
 
         Pass
         {
-            CGPROGRAM
+            HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
 
             #pragma multi_compile UNITY_GAME_VIEW UNITY_SCENE_VIEW 
 
-            #include "UnityCG.cginc"
+           // UnityCG.cgincの代わりにUnityInput.hlslを使う。そうしないとPackagesフォルダをincludeしたときに重複定義でエラーになってしまう
+           // このような書き方をしないと例えばPBR.hlslとかでリフレクションプローブのunity_SpecCube0が見えなくなる
+           //#include "UnityCG.cginc"
+           #include "../ShaderLibrary/UnityInput.hlsl"
 
             struct appdata
             {
@@ -41,7 +44,7 @@ Shader "Hidden/FullScreen"
 
             sampler2D _MainTex;
 
-            fixed4 frag (v2f i) : SV_Target
+            float4 frag (v2f i) : SV_Target
             {
                 float2 uv = i.uv;
                 
@@ -49,11 +52,11 @@ Shader "Hidden/FullScreen"
                 uv.y = 1.0 - uv.y;
                 #endif
 
-                fixed4 col = tex2D(_MainTex, uv);
+                float4 col = tex2D(_MainTex, uv);
                 //col.rgb = float3(i.uv, 0.0);
                 return col;
             }
-            ENDCG
+            ENDHLSL
         }
     }
 }

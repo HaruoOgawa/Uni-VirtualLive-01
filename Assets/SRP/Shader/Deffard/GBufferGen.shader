@@ -20,7 +20,10 @@ Shader "CustomSRP/GBufferGen"
             #pragma vertex vert
             #pragma fragment frag
 
-            #include "UnityCG.cginc"
+            // UnityCG.cgincの代わりにUnityInput.hlslを使う。そうしないとPackagesフォルダをincludeしたときに重複定義でエラーになってしまう
+            // このような書き方をしないと例えばPBR.hlslとかでリフレクションプローブのunity_SpecCube0が見えなくなる
+            //#include "UnityCG.cginc"
+            #include "../ShaderLibrary/UnityInput.hlsl"
 
             struct appdata
             {
@@ -49,10 +52,10 @@ Shader "CustomSRP/GBufferGen"
                 float4 pos = float4(v.vertex, 1.0);
 
                 v2f o;
-                o.vertex = UnityObjectToClipPos(pos);
+                o.vertex = mul(unity_MatrixVP, mul(unity_ObjectToWorld, pos));
                 o.uv = v.uv;
-                o.worldNormal = mul(UNITY_MATRIX_M, float4(v.normal, 0.0));
-                o.worldPos = (mul(UNITY_MATRIX_M, pos)).xyz;
+                o.worldNormal = mul(unity_ObjectToWorld, float4(v.normal, 0.0));
+                o.worldPos = (mul(unity_ObjectToWorld, pos)).xyz;
                 return o;
             }
 
@@ -68,7 +71,7 @@ Shader "CustomSRP/GBufferGen"
             FragOut frag (v2f i) : SV_Target
             {
                 float4 Albedo = _Color * tex2D(_MainTex, i.uv);
-                fixed MatType = 1.0; // PBR
+                float MatType = 1.0; // PBR
                 float Roughness = 1.0 - _Smoothness;
 
                 FragOut o;

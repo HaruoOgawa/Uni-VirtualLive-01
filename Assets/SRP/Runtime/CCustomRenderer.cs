@@ -19,15 +19,17 @@ public class CCustomRenderer
     // コマンドバッファ
     CommandBuffer m_CommandBuffer = new CommandBuffer();
 
-    // デファードレンダリング
-    // GBufferパス
+    // デファードレンダリング GBufferパス
     CRenderPass m_GBufferGenPass = new CRenderPass("GBufferGenPass");
 
-    // GBufferライティングパス
-    CRenderPass m_GBufferLightPass = new CRenderPass("GBufferLightPass");
+    // デファードレンダリング
+    CRenderPass m_GBufferLightPass = new CRenderPass("GBufferLightPass"); // GBufferライティングパス
+    CRenderPass m_GBufferIndirectLightPass = new CRenderPass("GBufferIndirectLightPass"); // GBuffer間接照明パス
 
     // フォアグラウンドレンダーパス
     CRenderPass m_ForegroundPass = new CRenderPass("ForegroundPass");
+
+    // シャドウマップパス
 
     // 最終描画結果
     CRenderPass m_MainResultPass = new CRenderPass("MainResultPass");
@@ -56,6 +58,16 @@ public class CCustomRenderer
             renderTarget.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGB32, RenderTextureFormat.Depth, 24);
 
             m_GBufferLightPass.SetRenderTarget(renderTarget);
+        }
+
+        // GBufferIndirectLightPass
+        {
+            m_GBufferIndirectLightPass.AddShaderTag("CustomGBufferIndirectLight");
+
+            CRenderTarget renderTarget = new CRenderTarget();
+            renderTarget.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGB32, RenderTextureFormat.Depth, 24);
+
+            m_GBufferIndirectLightPass.SetRenderTarget(renderTarget);
         }
 
         // ForegroundPass
@@ -117,12 +129,25 @@ public class CCustomRenderer
                 m_SceneController.DrawDeferredLight(context, m_CommandBuffer, camera, descriptor, m_GBufferGenPass.GetRenderTarget());
                 m_GBufferLightPass.End(context, m_CommandBuffer, camera);
             }
+            
+            // GBufferライティング(間接照明)
+            {
+                // デファードライトパスにGBufferLightPassのカラー・深度をコピーする
+                m_GBufferIndirectLightPass.GetRenderTarget().CopyFrameBuffer(context, m_CommandBuffer, m_GBufferLightPass.GetRenderTarget());
+
+                SPassDescriptor descriptor = new SPassDescriptor();
+                descriptor.TargetShaderTags = m_GBufferIndirectLightPass.GetTargetShaderTags();
+
+                m_GBufferIndirectLightPass.Begin(context, m_CommandBuffer, camera, false, false);
+                m_SceneController.DrawDeferredIndirectLight(context, m_CommandBuffer, camera, descriptor, m_GBufferGenPass.GetRenderTarget());
+                m_GBufferIndirectLightPass.End(context, m_CommandBuffer, camera);
+            }
         }
 
         // フォアグラウンドレンダリング
         {
             // フォアグラウンドパス(ForegroundPass)にGBufferLightPassのカラー・深度をコピーする
-            m_ForegroundPass.GetRenderTarget().CopyFrameBuffer(context, m_CommandBuffer, m_GBufferLightPass.GetRenderTarget(), true, true);
+            m_ForegroundPass.GetRenderTarget().CopyFrameBuffer(context, m_CommandBuffer, m_GBufferIndirectLightPass.GetRenderTarget());
 
             SPassDescriptor descriptor = new SPassDescriptor();
             descriptor.TargetShaderTags = m_ForegroundPass.GetTargetShaderTags();

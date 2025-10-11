@@ -20,6 +20,7 @@ public class CSceneController
 
     // デファードライティング用マテリアル
     Material m_DeferredLightMat = null;
+    Material m_DeferredIndirectLightMat = null;
 
     // フルスクリーン描画用マテリアル
     Material m_FullScreenMat = null;
@@ -41,6 +42,7 @@ public class CSceneController
 
         // マテリアル生成
         m_DeferredLightMat = new Material(Shader.Find("CustomSRP/GBufferLight"));
+        m_DeferredIndirectLightMat = new Material(Shader.Find("CustomSRP/GBufferIndirectLight"));
         m_FullScreenMat = new Material(Shader.Find("Hidden/FullScreen"));
     }
 
@@ -74,6 +76,8 @@ public class CSceneController
                     // Shaderでunity_LightDataやunity_LightIndicesをUnityEngineから受け取るにはこれらのフラグが必須
                     lightFlag = PerObjectData.LightData | PerObjectData.LightIndices;
                 }
+
+                lightFlag |= PerObjectData.ReflectionProbes;
 
                 // RendererListの作成
                 // このDescriptorに該当するオブジェクトのリストをエンジンから引っ張ってくるイメージ
@@ -170,6 +174,21 @@ public class CSceneController
 
         // 各ライトボリュームの描画
         if (!DrawLights(context, commandBuffer, int.MaxValue)) return false;
+
+        return true;
+    }
+
+    // 間接照明の描画
+    public bool DrawDeferredIndirectLight(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera,
+        SPassDescriptor passDescriptor, CRenderTarget GBufferRT)
+    {
+        // GBufferをセット
+        SetRTTextures(commandBuffer, GBufferRT, true, "SRP_GBuffer_");
+
+        // カメラ情報セット
+        SetCamera(commandBuffer, camera);
+
+        if (!DrawIndirectLight(context, commandBuffer)) return false;
 
         return true;
     }
@@ -287,6 +306,14 @@ public class CSceneController
         return true;
     }
 
+    bool DrawIndirectLight(ScriptableRenderContext context, CommandBuffer commandBuffer)
+    {
+        // 描画実行
+        commandBuffer.DrawMesh(m_FullScreenMesh, Matrix4x4.identity, m_DeferredIndirectLightMat);
+
+        return true;
+    }
+
     public void DrawFullScreenRT(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, RenderTexture rt)
     {
         m_FullScreenMat.SetTexture("_MainTex", rt);
@@ -297,6 +324,12 @@ public class CSceneController
         commandBuffer.SetKeyword(keyword, true);
         commandBuffer.DrawMesh(m_FullScreenMesh, Matrix4x4.identity, m_FullScreenMat);
         commandBuffer.SetKeyword(keyword, false);
+    }
+
+    // シャドウマップ描画
+    public void DrawShaodowMap(ScriptableRenderContext context, CommandBuffer commandBuffer)
+    {
+
     }
 
     void SetRTTextures(CommandBuffer commandBuffer, CRenderTarget renderTarget, 
@@ -532,7 +565,7 @@ public class CSceneController
             // いや、ビューフラスタムカリングを実行している
             // 画面外のやつのドローコールをそもそもスキップするやつ
             m_CullingResults = context.Cull(ref p);
-
+            //m_CullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives
             return true;
         }
 
