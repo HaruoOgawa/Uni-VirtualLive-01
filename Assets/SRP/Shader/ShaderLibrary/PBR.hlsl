@@ -102,7 +102,7 @@ float CalcGeometricOcculusion(PBRParam param)
 float3 CalcFrenelReflection(PBRParam param)
 {
     float3 F0 = lerp(float3(MIN_REFLECTIVITY, MIN_REFLECTIVITY, MIN_REFLECTIVITY), param.Albedo, param.Metallic);
-    return F0 + (1.0 - F0) * pow(1.0 - param.VdH, 5.0);
+    return F0 + (1.0 - F0) * pow(1.0 - param.LdH, 5.0);
 }
 
 // ディフューズBRDF(拡散反射)
@@ -117,7 +117,12 @@ float3 CalcDiffuseBRDF(PBRData pbr)
     float OneMinusReflectivity = (1.0 - MIN_REFLECTIVITY) - pbr.Metallic * (1.0 - MIN_REFLECTIVITY);
     
     // 最終結果
+    // 最小値を0にしないと値がマイナスになって複数ライトを加算してもマイナスから復帰しなくて色がでなくなる
     float3 col = pbr.Albedo * OneMinusReflectivity;
+    col.r = max(0.0, col.r);
+    col.g = max(0.0, col.g);
+    col.b = max(0.0, col.b);
+    
     return col;
 }
 
@@ -129,7 +134,13 @@ float3 CalcSpecularBRDF(PBRParam param)
     float  G = CalcGeometricOcculusion(param); // 幾何減衰項
     float3 F = CalcFrenelReflection(param); // フレネル項
     
-    return (D * G * F) / (4.0 * param.NdV * param.NdL);
+    // 最小値を0にしないと値がマイナスになって複数ライトを加算してもマイナスから復帰しなくて色がでなくなる
+    float3 spec = (D * G * F) / (4.0 * param.NdV * param.NdL);
+    spec.r = max(0.0, spec.r);
+    spec.g = max(0.0, spec.g);
+    spec.b = max(0.0, spec.b);
+    
+    return spec;
 }
 
 // 最適化されたスペキュラーBRDF(鏡面反射)
@@ -145,8 +156,13 @@ float3 CalcOptimizedSpecularBRDF(PBRParam param)
     float d = param.NdH * param.NdH * (a2 - 1.0) + 1.00001;
     float specularTerm = a / (max(0.32, param.LdH) * (1.5 + a) * d);
     
+    // 最小値を0にしないと値がマイナスになって複数ライトを加算してもマイナスから復帰しなくて色がでなくなる
     float3 spec = specularTerm * specularColor;
     spec = max(float3(0.0, 0.0, 0.0), spec);
+    
+    spec.r = max(0.0, spec.r);
+    spec.g = max(0.0, spec.g);
+    spec.b = max(0.0, spec.b);
     
     return spec;
 }
@@ -161,11 +177,11 @@ float3 ComputeDirectLight(PBRData pbr, LightData light)
     float3 DiffuseCol = CalcDiffuseBRDF(pbr);
     
     // 鏡面反射
-    float3 SpecularCol = CalcSpecularBRDF(param);
-    //float3 SpecularCol = CalcOptimizedSpecularBRDF(param);
+    //float3 SpecularCol = CalcSpecularBRDF(param);
+    float3 SpecularCol = CalcOptimizedSpecularBRDF(param);
     
     // 結果を組み合わせる
-    float3 ResultCol = param.NdL * (DiffuseCol + SpecularCol);
+    float3 ResultCol = param.NdL * (DiffuseCol + SpecularCol) * light.color * light.attenuation;
     
     return ResultCol;
 }
