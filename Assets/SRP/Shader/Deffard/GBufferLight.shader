@@ -63,6 +63,8 @@ Shader "CustomSRP/GBufferLight"
             sampler2D SRP_GBuffer_3;
             sampler2D SRP_GBuffer_4;
 
+           sampler2D SRP_ShadowMap_0;
+
             float4 SRP_Deferred_LightPos;
             float4 SRP_Deferred_LightColor;
             float4 SRP_Deferred_LightDir;

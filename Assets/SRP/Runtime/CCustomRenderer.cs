@@ -131,7 +131,7 @@ public class CCustomRenderer
                 descriptor.TargetShaderTags = m_GBufferGenPass.GetTargetShaderTags();
 
                 m_GBufferGenPass.Begin(context, m_CommandBuffer, camera);
-                m_SceneController.Draw(context, m_CommandBuffer, camera, descriptor);
+                m_SceneController.Draw(context, m_CommandBuffer, camera, descriptor, null);
                 m_GBufferGenPass.End(context, m_CommandBuffer, camera);
             }
 
@@ -144,7 +144,7 @@ public class CCustomRenderer
                 descriptor.TargetShaderTags = m_GBufferLightPass.GetTargetShaderTags();
 
                 m_GBufferLightPass.Begin(context, m_CommandBuffer, camera, true, false);
-                m_SceneController.DrawDeferredLight(context, m_CommandBuffer, camera, descriptor, m_GBufferGenPass.GetRenderTarget());
+                m_SceneController.DrawDeferredLight(context, m_CommandBuffer, camera, descriptor, m_GBufferGenPass.GetRenderTarget(), m_ShadowMapPass.GetRenderTarget());
                 m_GBufferLightPass.End(context, m_CommandBuffer, camera);
             }
             
@@ -172,7 +172,7 @@ public class CCustomRenderer
             descriptor.DrawSky = true;
 
             m_ForegroundPass.Begin(context, m_CommandBuffer, camera, false, false);
-            m_SceneController.Draw(context, m_CommandBuffer, camera, descriptor);
+            m_SceneController.Draw(context, m_CommandBuffer, camera, descriptor, m_ShadowMapPass.GetRenderTarget());
             m_SceneController.DrawGizmo(context, m_CommandBuffer, camera);
             m_ForegroundPass.End(context, m_CommandBuffer, camera);
         }

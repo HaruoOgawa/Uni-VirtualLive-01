@@ -57,7 +57,7 @@ Shader "CustomSRP/ForegroundLight"
                 return o;
             }
 
-            #define MAX_MAIN_LIGHT_COUNT 8
+            #define MAX_MAIN_LIGHT_COUNT 4
             #define MAX_SUB_LIGHT_COUNT 64
 
             int SRP_Foreground_MainLightCount;
@@ -69,6 +69,8 @@ Shader "CustomSRP/ForegroundLight"
             float4 SRP_Foreground_SubLightColorArray[MAX_SUB_LIGHT_COUNT];
             float4 SRP_Foreground_SubLightDirArray[MAX_SUB_LIGHT_COUNT];
             float4 SRP_Foreground_SubLightAngleArray[MAX_SUB_LIGHT_COUNT];
+
+            sampler2D SRP_ShadowMap_0;
 
             float Square(float val)
             {
