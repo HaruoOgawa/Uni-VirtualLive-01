@@ -86,5 +86,16 @@ Shader "CustomSRP/GBufferGen"
             }
             ENDHLSL
         }
+
+        Pass
+        {
+            Tags{ "LightMode" = "ShadowCaster" }
+
+            HLSLPROGRAM
+            #pragma vertex shadowVert
+            #pragma fragment shadowFrag
+            #include "../ShaderLibrary/ShadowCaster.hlsl"
+            ENDHLSL
+        }
     }
 }

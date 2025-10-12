@@ -1,15 +1,7 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
-
-public class SPassDescriptor
-{
-    public List<ShaderTagId> TargetShaderTags = new List<ShaderTagId>();
-    public bool DrawSky = false;
-    public bool DrawOpaque = true;
-    public bool DrawTransparent = true;
-    public bool PerObjLight = true;
-}
 
 public class CCustomRenderer
 {
@@ -30,6 +22,8 @@ public class CCustomRenderer
     CRenderPass m_ForegroundPass = new CRenderPass("ForegroundPass");
 
     // シャドウマップパス
+    SShadowDescriptor m_ShadowDescriptor = new SShadowDescriptor();
+    CRenderPass m_ShadowMapPass = new CRenderPass("ShadowMapPass");
 
     // 最終描画結果
     CRenderPass m_MainResultPass = new CRenderPass("MainResultPass");
@@ -41,6 +35,17 @@ public class CCustomRenderer
 
     void Create()
     {
+        // ShadowMapPass
+        {
+            // ShadowMap描画のRenderList API CreateShadowListは内部的に自動でShadowCasterのShaderPassのみが収集されるのでこれは不要
+            //m_ShadowMapPass.AddShaderTag("ShadowCaster");
+
+            CRenderTarget renderTarget = new CRenderTarget();
+            renderTarget.Create(m_ShadowDescriptor.Resolution, m_ShadowDescriptor.Resolution, 1, RenderTextureFormat.Shadowmap, RenderTextureFormat.Depth, 24);
+
+            m_ShadowMapPass.SetRenderTarget(renderTarget);
+        }
+
         // GBufferGenPass
         {
             m_GBufferGenPass.AddShaderTag("CustomGBufferGen");
@@ -105,6 +110,19 @@ public class CCustomRenderer
 
     public bool Render(ScriptableRenderContext context, Camera camera)
     {
+        // カメラ位置に基づいてビューフラスタムカリングを実行
+        if (!m_SceneController.ExecuteCulling(context, camera, m_ShadowDescriptor)) return false;
+
+        // ライト情報を準備
+        m_SceneController.PrepareLightArray(context, m_CommandBuffer, true);
+
+        // シャドウマッピング
+        {
+            m_ShadowMapPass.Begin(context, m_CommandBuffer, camera, true, true);
+            if(!m_SceneController.DrawShadowMap(context, m_CommandBuffer, camera, m_ShadowDescriptor)) return false;
+            m_ShadowMapPass.End(context, m_CommandBuffer, camera);
+        }
+
         // デファードレンダリング
         {
             // GBuffer生成
