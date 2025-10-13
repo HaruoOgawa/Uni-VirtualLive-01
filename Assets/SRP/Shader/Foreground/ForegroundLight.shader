@@ -70,7 +70,9 @@ Shader "CustomSRP/ForegroundLight"
             float4 SRP_Foreground_SubLightDirArray[MAX_SUB_LIGHT_COUNT];
             float4 SRP_Foreground_SubLightAngleArray[MAX_SUB_LIGHT_COUNT];
 
+            // シャドウマッピング
             sampler2D SRP_ShadowMap_0;
+            float4x4 SRP_DirectionLight_ViewProjMatrix_List[MAX_MAIN_LIGHT_COUNT];
 
             float Square(float val)
             {
@@ -105,6 +107,9 @@ Shader "CustomSRP/ForegroundLight"
                         light.attenuation = 1.0;
 
                         col.rgb += ComputeDirectLight(pbr, light);
+
+                        // シャドウマッピング
+
                     }
 
                     // SubLight

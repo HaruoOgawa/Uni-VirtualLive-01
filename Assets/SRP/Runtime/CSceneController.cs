@@ -20,6 +20,7 @@ public class CSceneController
 
     // 描画に使用可能なディレクショナルライトリスト
     List<(VisibleLight visibleLight, int lightIndex)> m_VisibleDirectionalLightList = new List<(VisibleLight, int)>();
+    List<Matrix4x4> m_LightViewProjMatrixList = new List<Matrix4x4>();
 
     // デファードライティング用マテリアル
     Material m_DeferredLightMat = null;
@@ -162,11 +163,16 @@ public class CSceneController
         // シャドウマップの分割セル単位の解像度
         int splitResolution = shadowDescriptor.Resolution / splitNum;
 
+        //
+        m_LightViewProjMatrixList.Clear();
+
+        //
         for (int i = 0; i < Mathf.Min(4, m_VisibleDirectionalLightList.Count); i++)
         {
             var visibleLight = m_VisibleDirectionalLightList[i];
 
             // シャドウマップカメラのビューポートを再計算
+            // ビューポートはフレームバッファのどの範囲に描画するか
             SetShadowCameraViewPort(context, commandBuffer, splitNum, i, splitResolution);
            
             // シャドウマップ用のビュー行列・プロジェクション行列を計算
@@ -189,6 +195,9 @@ public class CSceneController
             // ビュー行列・プロジェクション行列を設定
             commandBuffer.SetViewProjectionMatrices(viewMatrix, projMatrix);
 
+            Matrix4x4 viewProj = projMatrix * viewMatrix;
+            //m_LightViewProjMatrixList.Add(viewProj);
+
             // シャドウマップの設定
             ShadowDrawingSettings settings = new ShadowDrawingSettings(m_CullingResults, visibleLight.lightIndex);
 
@@ -199,9 +208,7 @@ public class CSceneController
             commandBuffer.DrawRendererList(rendererList);
         }
 
-        /*ShadowCastersCullingInfos shadowCastersCullingInfos = new ShadowCastersCullingInfos();
-        shadowCastersCullingInfos.splitBuffer
-        context.CullShadowCasters(m_CullingResults, )*/
+        //commandBuffer.SetGlobalMatrixArray(CShaderConstants.SRP_DirectionLight_ViewProjMatrix_List, m_LightViewProjMatrixList.ToArray());
 
         return true;
     }
