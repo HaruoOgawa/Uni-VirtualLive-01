@@ -11,6 +11,9 @@ public class CCustomRenderer
     // コマンドバッファ
     CommandBuffer m_CommandBuffer = new CommandBuffer();
 
+    // 最終的に画面に描画されるレンダーターゲット
+    CRenderTarget m_FinalResultRT = new CRenderTarget();
+
     // デファードレンダリング GBufferパス
     CRenderPass m_GBufferGenPass = new CRenderPass("GBufferGenPass");
 
@@ -25,6 +28,9 @@ public class CCustomRenderer
     SShadowDescriptor m_ShadowDescriptor = new SShadowDescriptor();
     CRenderPass m_ShadowMapPass = new CRenderPass("ShadowMapPass");
 
+    // ポストプロセス
+    CPostProcess m_PostProcess = new CPostProcess();
+
     // 最終描画結果
     CRenderPass m_MainResultPass = new CRenderPass("MainResultPass");
 
@@ -35,6 +41,11 @@ public class CCustomRenderer
 
     void Create()
     {
+        // FinalResultRT
+        {
+            m_FinalResultRT.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGB32, RenderTextureFormat.Depth, 24);
+        }
+
         // ShadowMapPass
         {
             // ShadowMap描画のRenderList API CreateShadowListは内部的に自動でShadowCasterのShaderPassのみが収集されるのでこれは不要
@@ -177,10 +188,18 @@ public class CCustomRenderer
             m_ForegroundPass.End(context, m_CommandBuffer, camera);
         }
 
+        // ここまでの描画結果をいったん最終描画先にコピーしておく
+        {
+            if (!m_FinalResultRT.CopyFrameBuffer(context, m_CommandBuffer, m_ForegroundPass.GetRenderTarget())) return false;
+        }
+
+        // ポストプロセス
+        if (!m_PostProcess.Draw(context, m_CommandBuffer, camera, m_FinalResultRT, m_SceneController)) return false;
+
         // 最終描画結果
         {
             m_MainResultPass.Begin(context, m_CommandBuffer, camera, true, true);
-            m_SceneController.DrawFullScreenRT(context, m_CommandBuffer, camera, m_ForegroundPass.GetRenderTarget().GetColorBuffer());
+            m_SceneController.DrawFullScreenRT(context, m_CommandBuffer, camera, m_FinalResultRT.GetColorBuffer());
             m_MainResultPass.End(context, m_CommandBuffer, camera);
         }
 

@@ -402,6 +402,16 @@ public class CSceneController
         commandBuffer.DrawMesh(m_FullScreenMesh, Matrix4x4.identity, m_FullScreenMat);
         commandBuffer.SetKeyword(keyword, false);
     }
+    
+    public void DrawFullScreen(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, Material material)
+    {
+        var keyword = (camera.cameraType == CameraType.SceneView) ? CShaderGlobalKeywordList.UNITY_SCENE_VIEW : CShaderGlobalKeywordList.UNITY_GAME_VIEW;
+
+        // ï`âÊé¿çs
+        commandBuffer.SetKeyword(keyword, true);
+        commandBuffer.DrawMesh(m_FullScreenMesh, Matrix4x4.identity, material);
+        commandBuffer.SetKeyword(keyword, false);
+    }
 
     void SetRTTextures(CommandBuffer commandBuffer, CRenderTarget renderTarget, 
         bool Color, string BaseColorName, bool Depth = false, string BaseDepthName = "")
