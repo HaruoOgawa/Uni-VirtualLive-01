@@ -1,3 +1,6 @@
+#ifndef POSTPROCESS_COMMON
+#define POSTPROCESS_COMMON
+
 struct appdata
 {
     float3 vertex : POSITION;
@@ -18,3 +21,5 @@ v2f vertPostProcess(appdata v)
 
     return o;
 }
+
+#endif // POSTPROCESS_COMMON
