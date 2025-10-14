@@ -112,10 +112,10 @@ float CalcGeometricOcculusion(PBRParam param)
 // フレネル項
 float3 CalcFrenelReflection(float3 Albedo, float Metallic, float NdV)
 {
+    // フレネル反射は視線ベクトルと法線の角度が大きいほど(斜めから見るほど)明るくなる現象
     float3 F0 = lerp(float3(MIN_REFLECTIVITY, MIN_REFLECTIVITY, MIN_REFLECTIVITY), Albedo, Metallic);
     return F0 + (1.0 - F0) * pow(1.0 - NdV, 5.0);
 }
-
 
 // ディフューズBRDF(拡散反射)
 float3 CalcDiffuseBRDF(PBRData pbr)
