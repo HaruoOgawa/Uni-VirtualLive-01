@@ -188,6 +188,11 @@ public class CCustomRenderer
             m_ForegroundPass.End(context, m_CommandBuffer, camera);
         }
 
+        // リアルタイムGI
+        {
+
+        }
+
         // ここまでの描画結果をいったん最終描画先にコピーしておく
         {
             if (!m_FinalResultRT.CopyFrameBuffer(context, m_CommandBuffer, m_ForegroundPass.GetRenderTarget())) return false;

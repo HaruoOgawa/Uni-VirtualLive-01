@@ -9,6 +9,9 @@ public class CPostProcess
     // FXAAフィルター
     CFXAAFilter m_FXAAFilter = new CFXAAFilter();
 
+    // Bloomフィルター
+    CBloomFilter m_BloomFilter = new CBloomFilter();
+
     public CPostProcess()
     {
         m_WriteRT = new CRenderTarget();
@@ -27,7 +30,9 @@ public class CPostProcess
         if (!m_FXAAFilter.Draw(context, commandBuffer, camera, m_ReadRT, m_WriteRT, sceneController)) return false;
         SwapRT(); // レンダーターゲットをスワップ
 
-        // Bloom
+        // Bloom 
+        //if (!m_BloomFilter.Draw(context, commandBuffer, camera, m_ReadRT, m_WriteRT, sceneController)) return false;
+        //SwapRT(); // レンダーターゲットをスワップ
 
         // 最終描画結果を更新
         finalResultRT.CopyFrameBuffer(context, commandBuffer, m_ReadRT);
