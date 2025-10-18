@@ -15,10 +15,10 @@ public class CPostProcess
     public CPostProcess()
     {
         m_WriteRT = new CRenderTarget();
-        m_WriteRT.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGB32, RenderTextureFormat.Depth, 24);
+        m_WriteRT.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
 
         m_ReadRT = new CRenderTarget();
-        m_ReadRT.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGB32, RenderTextureFormat.Depth, 24);
+        m_ReadRT.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
     }
 
     public bool Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, CRenderTarget finalResultRT, CSceneController sceneController)
@@ -31,8 +31,8 @@ public class CPostProcess
         SwapRT(); // レンダーターゲットをスワップ
 
         // Bloom 
-        //if (!m_BloomFilter.Draw(context, commandBuffer, camera, m_ReadRT, m_WriteRT, sceneController)) return false;
-        //SwapRT(); // レンダーターゲットをスワップ
+        if (!m_BloomFilter.Draw(context, commandBuffer, camera, m_ReadRT, m_WriteRT, sceneController)) return false;
+        SwapRT(); // レンダーターゲットをスワップ
 
         // 最終描画結果を更新
         finalResultRT.CopyFrameBuffer(context, commandBuffer, m_ReadRT);

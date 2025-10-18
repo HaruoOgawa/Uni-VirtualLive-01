@@ -1,4 +1,4 @@
-Shader "Unlit/BloomReduceBuffer"
+Shader "SRP/BloomReduceBuffer"
 {
     Properties
     {

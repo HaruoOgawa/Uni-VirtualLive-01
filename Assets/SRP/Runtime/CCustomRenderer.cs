@@ -43,7 +43,7 @@ public class CCustomRenderer
     {
         // FinalResultRT
         {
-            m_FinalResultRT.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGB32, RenderTextureFormat.Depth, 24);
+            m_FinalResultRT.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
         }
 
         // ShadowMapPass
@@ -71,7 +71,7 @@ public class CCustomRenderer
             m_GBufferLightPass.AddShaderTag("CustomGBufferLight");
 
             CRenderTarget renderTarget = new CRenderTarget();
-            renderTarget.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGB32, RenderTextureFormat.Depth, 24);
+            renderTarget.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
 
             m_GBufferLightPass.SetRenderTarget(renderTarget);
         }
@@ -81,7 +81,7 @@ public class CCustomRenderer
             m_GBufferIndirectLightPass.AddShaderTag("CustomGBufferIndirectLight");
 
             CRenderTarget renderTarget = new CRenderTarget();
-            renderTarget.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGB32, RenderTextureFormat.Depth, 24);
+            renderTarget.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
 
             m_GBufferIndirectLightPass.SetRenderTarget(renderTarget);
         }
@@ -97,7 +97,7 @@ public class CCustomRenderer
             m_ForegroundPass.AddShaderTag("VertexLM");
 
             CRenderTarget renderTarget = new CRenderTarget();
-            renderTarget.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGB32, RenderTextureFormat.Depth, 24);
+            renderTarget.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
 
             m_ForegroundPass.SetRenderTarget(renderTarget);
         }
@@ -111,11 +111,6 @@ public class CCustomRenderer
             m_MainResultPass.AddShaderTag("Vertex");
             m_MainResultPass.AddShaderTag("VertexLMRGBM");
             m_MainResultPass.AddShaderTag("VertexLM");
-
-            //CRenderTarget renderTarget = new CRenderTarget();
-            //renderTarget.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGB32, RenderTextureFormat.Depth, 24);
-
-            //m_MainResultPass.SetRenderTarget(renderTarget);
         }
     }
 

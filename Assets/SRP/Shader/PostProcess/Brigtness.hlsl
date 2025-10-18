@@ -14,7 +14,7 @@ float4 fragBrigtness(v2f i) : SV_Target
     st.y = 1.0 - st.y;
         
     float4 BrigtnessCol = tex2D(_MainTex, st);
-    BrigtnessCol.rgb = max(float3(0.0, 0.0, 0.0), BrigtnessCol.rgb - _Threshold) * _Intencity;
+    BrigtnessCol.rgb = max(float3(0.0, 0.0, 0.0), BrigtnessCol.rgb - float3(_Threshold, _Threshold, _Threshold)) * _Intencity;
 
     return BrigtnessCol;
 
