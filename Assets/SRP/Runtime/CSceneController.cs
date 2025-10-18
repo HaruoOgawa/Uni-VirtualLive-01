@@ -53,7 +53,17 @@ public class CSceneController
     public void Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, SPassDescriptor passDescriptor, CRenderTarget ShadowMapRT)
     {
         // シャドウマップをセットする
-        if (ShadowMapRT != null) SetRTTextures(commandBuffer, ShadowMapRT, true, "SRP_ShadowMap_");
+        if (ShadowMapRT != null && m_LightViewProjMatrixList.Count > 0)
+        {
+            SetRTTextures(commandBuffer, ShadowMapRT, true, "SRP_ShadowMap_");
+
+            Vector4 _TexelSize = new Vector4();
+            _TexelSize.x = 1.0f / ShadowMapRT.GetWidth();
+            _TexelSize.y = 1.0f / ShadowMapRT.GetHeight();
+            commandBuffer.SetGlobalVector(CShaderConstants.SRP_ShadowTexelSize, _TexelSize);
+
+            commandBuffer.SetGlobalMatrixArray(CShaderConstants.SRP_DirectionLight_ViewProjMatrix_List, m_LightViewProjMatrixList.ToArray());
+        }
 
         // 不透明ジオメトリの描画
         if (passDescriptor.DrawOpaque)
@@ -152,64 +162,68 @@ public class CSceneController
     // シャドウマップ描画
     public bool DrawShadowMap(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, SShadowDescriptor shadowDescriptor)
     {
-        if (m_CullingResults == null) return false;
-
-        // ライトが存在しない
-        if(m_VisibleDirectionalLightList.Count == 0) return true;
-
-        // シャドウマップの分割数
-        int splitNum = (m_VisibleDirectionalLightList.Count <= 1) ? 1 : 2;
-
-        // シャドウマップの分割セル単位の解像度
-        int splitResolution = shadowDescriptor.Resolution / splitNum;
-
-        //
-        m_LightViewProjMatrixList.Clear();
-
-        //
-        for (int i = 0; i < Mathf.Min(4, m_VisibleDirectionalLightList.Count); i++)
+        try
         {
-            var visibleLight = m_VisibleDirectionalLightList[i];
+            if (m_CullingResults == null) return false;
 
-            // シャドウマップカメラのビューポートを再計算
-            // ビューポートはフレームバッファのどの範囲に描画するか
-            SetShadowCameraViewPort(context, commandBuffer, splitNum, i, splitResolution);
-           
-            // シャドウマップ用のビュー行列・プロジェクション行列を計算
-            Matrix4x4 viewMatrix = new Matrix4x4();
-            Matrix4x4 projMatrix = new Matrix4x4();
-            ShadowSplitData shadowSplitData = new ShadowSplitData();
+            // ライトが存在しない
+            if (m_VisibleDirectionalLightList.Count == 0) return true;
 
-            m_CullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(
-                visibleLight.lightIndex, // CullingResultのVisibleLight内のインデックス
-                0,  
-                1, 
-                Vector3.zero,
-                shadowDescriptor.Resolution, // シャドウマップの解像度
-                shadowDescriptor.NearPlaneOffset,
-                out viewMatrix,
-                out projMatrix,
-                out shadowSplitData
-            );
+            // シャドウマップの分割数
+            int splitNum = (m_VisibleDirectionalLightList.Count <= 1) ? 1 : 2;
 
-            // ビュー行列・プロジェクション行列を設定
-            commandBuffer.SetViewProjectionMatrices(viewMatrix, projMatrix);
+            // シャドウマップの分割セル単位の解像度
+            int splitResolution = shadowDescriptor.Resolution / splitNum;
 
-            Matrix4x4 viewProj = projMatrix * viewMatrix;
-            //m_LightViewProjMatrixList.Add(viewProj);
+            //
+            m_LightViewProjMatrixList.Clear();
 
-            // シャドウマップの設定
-            ShadowDrawingSettings settings = new ShadowDrawingSettings(m_CullingResults, visibleLight.lightIndex);
+            //
+            for (int i = 0; i < Mathf.Min(4, m_VisibleDirectionalLightList.Count); i++)
+            {
+                var visibleLight = m_VisibleDirectionalLightList[i];
 
-            // シャドウ描画ジオメトリリストを取得
-            var rendererList = context.CreateShadowRendererList(ref settings);
+                // シャドウマップカメラのビューポートを再計算
+                // ビューポートはフレームバッファのどの範囲に描画するか
+                SetShadowCameraViewPort(context, commandBuffer, splitNum, i, splitResolution);
 
-            // 描画実行
-            commandBuffer.DrawRendererList(rendererList);
+                // シャドウマップ用のビュー行列・プロジェクション行列を計算
+                Matrix4x4 viewMatrix = new Matrix4x4();
+                Matrix4x4 projMatrix = new Matrix4x4();
+                ShadowSplitData shadowSplitData = new ShadowSplitData();
+
+                m_CullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(
+                    visibleLight.lightIndex, // CullingResultのVisibleLight内のインデックス
+                    0,
+                    1,
+                    Vector3.zero,
+                    shadowDescriptor.Resolution, // シャドウマップの解像度
+                    shadowDescriptor.NearPlaneOffset,
+                    out viewMatrix,
+                    out projMatrix,
+                    out shadowSplitData
+                );
+
+                // ビュー行列・プロジェクション行列を設定
+                commandBuffer.SetViewProjectionMatrices(viewMatrix, projMatrix);
+
+                Matrix4x4 viewProj = projMatrix * viewMatrix;
+                m_LightViewProjMatrixList.Add(viewProj);
+
+                // シャドウマップの設定
+                ShadowDrawingSettings settings = new ShadowDrawingSettings(m_CullingResults, visibleLight.lightIndex);
+
+                // シャドウ描画ジオメトリリストを取得
+                var rendererList = context.CreateShadowRendererList(ref settings);
+
+                // 描画実行
+                commandBuffer.DrawRendererList(rendererList);
+            }
         }
-
-        //commandBuffer.SetGlobalMatrixArray(CShaderConstants.SRP_DirectionLight_ViewProjMatrix_List, m_LightViewProjMatrixList.ToArray());
-
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+        }
         return true;
     }
 
@@ -244,7 +258,17 @@ public class CSceneController
         SetRTTextures(commandBuffer, GBufferRT, true, "SRP_GBuffer_");
 
         // シャドウマップをセットする
-        if (ShadowMapRT != null) SetRTTextures(commandBuffer, ShadowMapRT, true, "SRP_ShadowMap_");
+        if (ShadowMapRT != null && m_LightViewProjMatrixList.Count > 0)
+        {
+            SetRTTextures(commandBuffer, ShadowMapRT, true, "SRP_ShadowMap_");
+
+            Vector4 _TexelSize = new Vector4();
+            _TexelSize.x = 1.0f / ShadowMapRT.GetWidth();
+            _TexelSize.y = 1.0f / ShadowMapRT.GetHeight();
+            commandBuffer.SetGlobalVector(CShaderConstants.SRP_ShadowTexelSize, _TexelSize);
+
+            commandBuffer.SetGlobalMatrixArray(CShaderConstants.SRP_DirectionLight_ViewProjMatrix_List, m_LightViewProjMatrixList.ToArray());
+        }
 
         // カメラ情報セット
         SetCamera(commandBuffer, camera);
@@ -595,10 +619,26 @@ public class CSceneController
             spotAngle = new Vector4(0.0f, 1.0f);
         }
 
+        int DirectionalLightIndex = -1;
+
+        if(visibleLight.lightType == LightType.Directional)
+        {
+            for(int index = 0; index < m_VisibleDirectionalLightList.Count; index++)
+            {
+                if(m_VisibleDirectionalLightList[index].visibleLight == visibleLight)
+                {
+                    DirectionalLightIndex = index; 
+                    break;
+                }
+
+            }
+        }
+
         commandBuffer.SetGlobalVector(CShaderConstants.SRP_Deferred_LightPos, lightPos);
         commandBuffer.SetGlobalColor(CShaderConstants.SRP_Deferred_LightColor, visibleLight.finalColor);
         commandBuffer.SetGlobalVector(CShaderConstants.SRP_Deferred_LightDir, spotLightDir);
         commandBuffer.SetGlobalVector(CShaderConstants.SRP_Deferred_SpotAngle, spotAngle);
+        commandBuffer.SetGlobalInt(CShaderConstants.SRP_Deferred_DirectionalLightIndex, DirectionalLightIndex);
     }
 
     void CalcLightParam(VisibleLight light, out Vector4 lightPos, out Vector4 soptLightDir)

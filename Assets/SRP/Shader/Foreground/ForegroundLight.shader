@@ -25,6 +25,7 @@ Shader "CustomSRP/ForegroundLight"
             //#include "UnityCG.cginc"
             #include "../ShaderLibrary/UnityInput.hlsl"
             #include "../ShaderLibrary/PBR.hlsl"
+            #include "../ShaderLibrary/ShadowMapping.hlsl"
 
             struct appdata
             {
@@ -72,6 +73,7 @@ Shader "CustomSRP/ForegroundLight"
 
             // シャドウマッピング
             sampler2D SRP_ShadowMap_0;
+            float4 SRP_ShadowTexelSize;
             float4x4 SRP_DirectionLight_ViewProjMatrix_List[MAX_MAIN_LIGHT_COUNT];
 
             float Square(float val)
@@ -96,7 +98,7 @@ Shader "CustomSRP/ForegroundLight"
 
                 {
                     // MainLight
-                    for(int n = 0; n < SRP_Foreground_MainLightCount; n++)
+                    for(int n = 0; n < min(MAX_MAIN_LIGHT_COUNT, SRP_Foreground_MainLightCount); n++)
                     {
                         float3 lightDir = SRP_Foreground_MainLightDirArray[n].xyz;
                         float3 lightColor = SRP_Foreground_MainLightColorArray[n].xyz;
@@ -106,10 +108,12 @@ Shader "CustomSRP/ForegroundLight"
                         light.color = lightColor;
                         light.attenuation = 1.0;
 
-                        col.rgb += ComputeDirectLight(pbr, light);
-
                         // シャドウマッピング
+                        float4 lightProjPos = mul(SRP_DirectionLight_ViewProjMatrix_List[n], float4(i.worldPos.xyz, 1.0));
+                        float shadow = CalcShadow(SRP_ShadowMap_0, SRP_ShadowTexelSize.xy, lightProjPos, WorldNormal, lightDir);
 
+                        // PBR
+                        col.rgb += ComputeDirectLight(pbr, light);
                     }
 
                     // SubLight

@@ -125,7 +125,7 @@ public class CCustomRenderer
         // シャドウマッピング
         {
             m_ShadowMapPass.Begin(context, m_CommandBuffer, camera, true, true);
-            //if(!m_SceneController.DrawShadowMap(context, m_CommandBuffer, camera, m_ShadowDescriptor)) return false;
+            if(!m_SceneController.DrawShadowMap(context, m_CommandBuffer, camera, m_ShadowDescriptor)) return false;
             m_ShadowMapPass.End(context, m_CommandBuffer, camera);
         }
 

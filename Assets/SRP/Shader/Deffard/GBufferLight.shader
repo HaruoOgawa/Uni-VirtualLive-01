@@ -34,6 +34,7 @@ Shader "CustomSRP/GBufferLight"
            //#include "UnityCG.cginc"
            #include "../ShaderLibrary/UnityInput.hlsl"
            #include "../ShaderLibrary/PBR.hlsl"
+           #include "../ShaderLibrary/ShadowMapping.hlsl"
 
            struct appdata
            {
@@ -67,12 +68,14 @@ Shader "CustomSRP/GBufferLight"
            float4 SRP_Deferred_LightColor;
            float4 SRP_Deferred_LightDir;
            float4 SRP_Deferred_SpotAngle;
+           int    SRP_Deferred_DirectionalLightIndex;
 
            #define MAX_MAIN_LIGHT_COUNT 4
            #define MAX_SUB_LIGHT_COUNT 64
 
            // シャドウマッピング
            sampler2D SRP_ShadowMap_0;
+           float4 SRP_ShadowTexelSize;
            float4x4 SRP_DirectionLight_ViewProjMatrix_List[MAX_MAIN_LIGHT_COUNT];
 
            v2f vert (appdata v)
@@ -190,6 +193,15 @@ Shader "CustomSRP/GBufferLight"
                LightData light = CreateLightData(gData);
                PBRData pbr = CreatePBRData(gData);
 
+               // シャドウマッピング
+               float shadow = 1.0;
+               if(SRP_Deferred_DirectionalLightIndex >= 0)
+               {
+                    float4 lightProjPos = mul(SRP_DirectionLight_ViewProjMatrix_List[SRP_Deferred_DirectionalLightIndex], float4(gData.WorldPos, 1.0));
+                    shadow = CalcShadow(SRP_ShadowMap_0, SRP_ShadowTexelSize.xy, lightProjPos, gData.WorldNormal, light.dir);
+               }
+
+               // PBR
                col = ComputeDirectLight(pbr, light);
 
                return float4(col, alpha);
