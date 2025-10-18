@@ -18,8 +18,13 @@ public class CSceneController
     Mesh m_SphereMesh = null;
     Mesh m_ConeMesh = null;
 
+    // 描画に使用可能なディレクショナルライトリスト
+    List<(VisibleLight visibleLight, int lightIndex)> m_VisibleDirectionalLightList = new List<(VisibleLight, int)>();
+    List<Matrix4x4> m_LightViewProjMatrixList = new List<Matrix4x4>();
+
     // デファードライティング用マテリアル
     Material m_DeferredLightMat = null;
+    Material m_DeferredIndirectLightMat = null;
 
     // フルスクリーン描画用マテリアル
     Material m_FullScreenMat = null;
@@ -41,16 +46,14 @@ public class CSceneController
 
         // マテリアル生成
         m_DeferredLightMat = new Material(Shader.Find("CustomSRP/GBufferLight"));
+        m_DeferredIndirectLightMat = new Material(Shader.Find("CustomSRP/GBufferIndirectLight"));
         m_FullScreenMat = new Material(Shader.Find("Hidden/FullScreen"));
     }
 
-    public void Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, SPassDescriptor passDescriptor)
+    public void Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, SPassDescriptor passDescriptor, CRenderTarget ShadowMapRT)
     {
-        // ビューフラスタムカリング
-        if (!Cull(context, camera)) return;
-
-        // フォアグラウンドライトの設定
-        SetForegroundLightArray(context, commandBuffer, passDescriptor.PerObjLight);
+        // シャドウマップをセットする
+        if (ShadowMapRT != null) SetRTTextures(commandBuffer, ShadowMapRT, true, "SRP_ShadowMap_");
 
         // 不透明ジオメトリの描画
         if (passDescriptor.DrawOpaque)
@@ -74,6 +77,8 @@ public class CSceneController
                     // Shaderでunity_LightDataやunity_LightIndicesをUnityEngineから受け取るにはこれらのフラグが必須
                     lightFlag = PerObjectData.LightData | PerObjectData.LightIndices;
                 }
+
+                lightFlag |= PerObjectData.ReflectionProbes;
 
                 // RendererListの作成
                 // このDescriptorに該当するオブジェクトのリストをエンジンから引っ張ってくるイメージ
@@ -144,6 +149,82 @@ public class CSceneController
         }
     }
 
+    // シャドウマップ描画
+    public bool DrawShadowMap(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, SShadowDescriptor shadowDescriptor)
+    {
+        if (m_CullingResults == null) return false;
+
+        // ライトが存在しない
+        if(m_VisibleDirectionalLightList.Count == 0) return true;
+
+        // シャドウマップの分割数
+        int splitNum = (m_VisibleDirectionalLightList.Count <= 1) ? 1 : 2;
+
+        // シャドウマップの分割セル単位の解像度
+        int splitResolution = shadowDescriptor.Resolution / splitNum;
+
+        //
+        m_LightViewProjMatrixList.Clear();
+
+        //
+        for (int i = 0; i < Mathf.Min(4, m_VisibleDirectionalLightList.Count); i++)
+        {
+            var visibleLight = m_VisibleDirectionalLightList[i];
+
+            // シャドウマップカメラのビューポートを再計算
+            // ビューポートはフレームバッファのどの範囲に描画するか
+            SetShadowCameraViewPort(context, commandBuffer, splitNum, i, splitResolution);
+           
+            // シャドウマップ用のビュー行列・プロジェクション行列を計算
+            Matrix4x4 viewMatrix = new Matrix4x4();
+            Matrix4x4 projMatrix = new Matrix4x4();
+            ShadowSplitData shadowSplitData = new ShadowSplitData();
+
+            m_CullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(
+                visibleLight.lightIndex, // CullingResultのVisibleLight内のインデックス
+                0,  
+                1, 
+                Vector3.zero,
+                shadowDescriptor.Resolution, // シャドウマップの解像度
+                shadowDescriptor.NearPlaneOffset,
+                out viewMatrix,
+                out projMatrix,
+                out shadowSplitData
+            );
+
+            // ビュー行列・プロジェクション行列を設定
+            commandBuffer.SetViewProjectionMatrices(viewMatrix, projMatrix);
+
+            Matrix4x4 viewProj = projMatrix * viewMatrix;
+            //m_LightViewProjMatrixList.Add(viewProj);
+
+            // シャドウマップの設定
+            ShadowDrawingSettings settings = new ShadowDrawingSettings(m_CullingResults, visibleLight.lightIndex);
+
+            // シャドウ描画ジオメトリリストを取得
+            var rendererList = context.CreateShadowRendererList(ref settings);
+
+            // 描画実行
+            commandBuffer.DrawRendererList(rendererList);
+        }
+
+        //commandBuffer.SetGlobalMatrixArray(CShaderConstants.SRP_DirectionLight_ViewProjMatrix_List, m_LightViewProjMatrixList.ToArray());
+
+        return true;
+    }
+
+    void SetShadowCameraViewPort(ScriptableRenderContext context, CommandBuffer commandBuffer, int splitNum, int spiltIndex, int Resolution)
+    {
+        Vector2 offset = new Vector2(
+            (spiltIndex % splitNum),
+            (spiltIndex / splitNum)
+        );
+
+        Rect rect = new Rect(offset.x * Resolution, offset.y * Resolution, Resolution, Resolution);
+
+        commandBuffer.SetViewport(rect);
+    }
+
     public bool DrawGizmo(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera)
     {
         // Handles.ShouldRenderGizmosはギズモを描画する設定になっているかどうか
@@ -157,19 +238,34 @@ public class CSceneController
     }
 
     public bool DrawDeferredLight(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera,
-        SPassDescriptor passDescriptor, CRenderTarget GBufferRT)
+        SPassDescriptor passDescriptor, CRenderTarget GBufferRT, CRenderTarget ShadowMapRT)
     {
-        // ビューフラスタムカリング
-        if (!Cull(context, camera)) return false;
-
         // GBufferをセット
         SetRTTextures(commandBuffer, GBufferRT, true, "SRP_GBuffer_");
+
+        // シャドウマップをセットする
+        if (ShadowMapRT != null) SetRTTextures(commandBuffer, ShadowMapRT, true, "SRP_ShadowMap_");
 
         // カメラ情報セット
         SetCamera(commandBuffer, camera);
 
         // 各ライトボリュームの描画
         if (!DrawLights(context, commandBuffer, int.MaxValue)) return false;
+
+        return true;
+    }
+
+    // 間接照明の描画
+    public bool DrawDeferredIndirectLight(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera,
+        SPassDescriptor passDescriptor, CRenderTarget GBufferRT)
+    {
+        // GBufferをセット
+        SetRTTextures(commandBuffer, GBufferRT, true, "SRP_GBuffer_");
+
+        // カメラ情報セット
+        SetCamera(commandBuffer, camera);
+
+        if (!DrawIndirectLight(context, commandBuffer)) return false;
 
         return true;
     }
@@ -287,6 +383,14 @@ public class CSceneController
         return true;
     }
 
+    bool DrawIndirectLight(ScriptableRenderContext context, CommandBuffer commandBuffer)
+    {
+        // 描画実行
+        commandBuffer.DrawMesh(m_FullScreenMesh, Matrix4x4.identity, m_DeferredIndirectLightMat);
+
+        return true;
+    }
+
     public void DrawFullScreenRT(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, RenderTexture rt)
     {
         m_FullScreenMat.SetTexture("_MainTex", rt);
@@ -296,6 +400,16 @@ public class CSceneController
         // 描画実行
         commandBuffer.SetKeyword(keyword, true);
         commandBuffer.DrawMesh(m_FullScreenMesh, Matrix4x4.identity, m_FullScreenMat);
+        commandBuffer.SetKeyword(keyword, false);
+    }
+    
+    public void DrawFullScreen(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, Material material)
+    {
+        var keyword = (camera.cameraType == CameraType.SceneView) ? CShaderGlobalKeywordList.UNITY_SCENE_VIEW : CShaderGlobalKeywordList.UNITY_GAME_VIEW;
+
+        // 描画実行
+        commandBuffer.SetKeyword(keyword, true);
+        commandBuffer.DrawMesh(m_FullScreenMesh, Matrix4x4.identity, material);
         commandBuffer.SetKeyword(keyword, false);
     }
 
@@ -326,10 +440,12 @@ public class CSceneController
         }
     }
 
-    void SetForegroundLightArray(ScriptableRenderContext context, CommandBuffer commandBuffer, bool PerObjLight)
+    public void PrepareLightArray(ScriptableRenderContext context, CommandBuffer commandBuffer, bool PerObjLight)
     {
+        m_VisibleDirectionalLightList.Clear();
+
         // ライトの最大数を決めておく
-        const int MaxMainLightCount = 8;
+        const int MaxMainLightCount = 4;
         const int MaxSubLightCount = 64;
 
         // シェーダーには決まったサイズの配列しか渡せないのでここで決め打ちしておく
@@ -418,6 +534,8 @@ public class CSceneController
 
         LightDirList[LightIndex] = lightPos;
         LightColorList[LightIndex] = light.finalColor;
+
+        m_VisibleDirectionalLightList.Add((light, LightIndex));
     }
 
     void PreparePointLight(VisibleLight light, int LightIndex, ref Vector4[] LightPosList, ref Vector4[] LightColorList, 
@@ -471,8 +589,6 @@ public class CSceneController
             float angleRangeInv = 1.0f / Mathf.Max(innerCos - outterCos, 0.001f);
 
             spotAngle = new Vector4(angleRangeInv, -outterCos * angleRangeInv);
-
-            //Debug.LogFormat("visibleLight.light.innerSpotAngle: {0}, visibleLight.spotAngle: {1}", visibleLight.light.innerSpotAngle, visibleLight.spotAngle);
         }
         else
         {
@@ -518,7 +634,7 @@ public class CSceneController
         commandBuffer.SetGlobalVector(CShaderConstants.SRP_CameraPos, camera.transform.position);
     }
 
-    bool Cull(ScriptableRenderContext context, Camera camera)
+    public bool ExecuteCulling(ScriptableRenderContext context, Camera camera, SShadowDescriptor shadowDescriptor)
     {
         // ここで実際にカリングをしているというわけではないが、
         // カリング用のパラメーター(たぶんCULL_NONEとかCULL_FRONTみたいな)
@@ -528,6 +644,12 @@ public class CSceneController
         ScriptableCullingParameters p;
         if (camera.TryGetCullingParameters(out p))
         {
+            // シャドウカメラの距離を指定
+            p.shadowDistance = shadowDescriptor.Distance;
+
+            //
+            p.shadowNearPlaneOffset = shadowDescriptor.NearPlaneOffset;
+
             // コンテキスト経由でグラフィックAPIにカリング設定をする？
             // いや、ビューフラスタムカリングを実行している
             // 画面外のやつのドローコールをそもそもスキップするやつ

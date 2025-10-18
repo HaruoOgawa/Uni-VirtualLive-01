@@ -12,10 +12,6 @@ Shader "CustomSRP/ForegroundLight"
         Tags { "RenderType"="Opaque" }
         LOD 100
 
-        HLSLINCLUDE
-        #include "../ShaderLibrary/PBR.hlsl"
-        ENDHLSL
-
         Pass
         {
             Tags{ "LightMode" = "SRPDefaultUnlit" }
@@ -24,8 +20,11 @@ Shader "CustomSRP/ForegroundLight"
             #pragma vertex vert
             #pragma fragment frag
 
-            #include "UnityCG.cginc"
-            #include "UnityLightingCommon.cginc"
+            // UnityCG.cgincの代わりにUnityInput.hlslを使う。そうしないとPackagesフォルダをincludeしたときに重複定義でエラーになってしまう
+            // このような書き方をしないと例えばPBR.hlslとかでリフレクションプローブのunity_SpecCube0が見えなくなる
+            //#include "UnityCG.cginc"
+            #include "../ShaderLibrary/UnityInput.hlsl"
+            #include "../ShaderLibrary/PBR.hlsl"
 
             struct appdata
             {
@@ -48,22 +47,17 @@ Shader "CustomSRP/ForegroundLight"
             float _Smoothness;
             float _Metallic;
 
-            // unity_LightDataとunity_LightIndicesはRendererListDesc.rendererConfigurationにPerObjectDataを設定したうえで
-            // さらにこのようにシェーダーに宣言を書かないと使えない(ビルトイン変数のように勝手に用意してはくれない)
-            half4 unity_LightData;
-            half4 unity_LightIndices[2];
-
             v2f vert (appdata v)
             {
                 v2f o;
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.worldNormal = mul(UNITY_MATRIX_M, float4(v.normal, 0.0));
-                o.worldPos = mul(UNITY_MATRIX_M, v.vertex);
+                o.vertex = mul(unity_MatrixVP, mul(unity_ObjectToWorld, v.vertex));
+                o.uv = v.uv;
+                o.worldNormal = mul(unity_ObjectToWorld, float4(v.normal, 0.0));
+                o.worldPos = mul(unity_ObjectToWorld, v.vertex);
                 return o;
             }
 
-            #define MAX_MAIN_LIGHT_COUNT 8
+            #define MAX_MAIN_LIGHT_COUNT 4
             #define MAX_SUB_LIGHT_COUNT 64
 
             int SRP_Foreground_MainLightCount;
@@ -76,12 +70,16 @@ Shader "CustomSRP/ForegroundLight"
             float4 SRP_Foreground_SubLightDirArray[MAX_SUB_LIGHT_COUNT];
             float4 SRP_Foreground_SubLightAngleArray[MAX_SUB_LIGHT_COUNT];
 
+            // シャドウマッピング
+            sampler2D SRP_ShadowMap_0;
+            float4x4 SRP_DirectionLight_ViewProjMatrix_List[MAX_MAIN_LIGHT_COUNT];
+
             float Square(float val)
             {
                 return pow(val, 2.0);
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            float4 frag (v2f i) : SV_Target
             {
                 float3 col = float3(0.0, 0.0, 0.0);
                 float alpha = 1.0;
@@ -109,6 +107,9 @@ Shader "CustomSRP/ForegroundLight"
                         light.attenuation = 1.0;
 
                         col.rgb += ComputeDirectLight(pbr, light);
+
+                        // シャドウマッピング
+
                     }
 
                     // SubLight
@@ -159,8 +160,22 @@ Shader "CustomSRP/ForegroundLight"
                     }
                 }
 
+                // 間接照明
+                col.rgb += ComputeIndirectLight(pbr);
+
                 return float4(col, alpha);
             }
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Tags{ "LightMode" = "ShadowCaster" }
+
+            HLSLPROGRAM
+            #pragma vertex shadowVert
+            #pragma fragment shadowFrag
+            #include "../ShaderLibrary/ShadowCaster.hlsl"
             ENDHLSL
         }
     }
