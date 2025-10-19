@@ -51,6 +51,9 @@ public class CCustomRenderer
             // ShadowMap描画のRenderList API CreateShadowListは内部的に自動でShadowCasterのShaderPassのみが収集されるのでこれは不要
             //m_ShadowMapPass.AddShaderTag("ShadowCaster");
 
+            m_ShadowDescriptor.Distance = 25.0f;
+            m_ShadowDescriptor.Resolution = 4096;
+
             CRenderTarget renderTarget = new CRenderTarget();
             renderTarget.Create(m_ShadowDescriptor.Resolution, m_ShadowDescriptor.Resolution, 1, RenderTextureFormat.Shadowmap, RenderTextureFormat.Depth, 24);
 
@@ -116,6 +119,9 @@ public class CCustomRenderer
 
     public bool Render(ScriptableRenderContext context, Camera camera)
     {
+        // Scene Previewカメラはクラッシュしたり何かと問題が発生するのでスキップする
+        if (camera.cameraType == CameraType.Preview) return true;
+
         // カメラ位置に基づいてビューフラスタムカリングを実行
         if (!m_SceneController.ExecuteCulling(context, camera, m_ShadowDescriptor)) return false;
 
@@ -125,7 +131,7 @@ public class CCustomRenderer
         // シャドウマッピング
         {
             m_ShadowMapPass.Begin(context, m_CommandBuffer, camera, true, true);
-            //if(!m_SceneController.DrawShadowMap(context, m_CommandBuffer, camera, m_ShadowDescriptor)) return false;
+            if(!m_SceneController.DrawShadowMap(context, m_CommandBuffer, camera, m_ShadowDescriptor)) return false;
             m_ShadowMapPass.End(context, m_CommandBuffer, camera);
         }
 

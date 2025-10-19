@@ -15,7 +15,7 @@ Shader "Hidden/FullScreen"
             #pragma vertex vert
             #pragma fragment frag
 
-            #pragma multi_compile UNITY_GAME_VIEW UNITY_SCENE_VIEW 
+            #pragma multi_compile UNITY_GAME_VIEW UNITY_SCENE_VIEW UNITY_REFLECTION_VIEW
 
            // UnityCG.cgincの代わりにUnityInput.hlslを使う。そうしないとPackagesフォルダをincludeしたときに重複定義でエラーになってしまう
            // このような書き方をしないと例えばPBR.hlslとかでリフレクションプローブのunity_SpecCube0が見えなくなる
@@ -48,12 +48,11 @@ Shader "Hidden/FullScreen"
             {
                 float2 uv = i.uv;
                 
-                #if defined(UNITY_SCENE_VIEW)
+                #if defined(UNITY_SCENE_VIEW) || defined(UNITY_REFLECTION_VIEW)
                 uv.y = 1.0 - uv.y;
                 #endif
 
                 float4 col = tex2D(_MainTex, uv);
-                //col.rgb = float3(i.uv, 0.0);
                 return col;
             }
             ENDHLSL
