@@ -86,5 +86,6 @@ public static class CShaderConstants
     // Common
     public static int SRP_CameraPos = Shader.PropertyToID("SRP_CameraPos");
     public static int SRP_DirectionLight_ViewProjMatrix_List = Shader.PropertyToID("SRP_DirectionLight_ViewProjMatrix_List");
+    public static int SRP_DirectionLight_LightUVBiasMatrix_List = Shader.PropertyToID("SRP_DirectionLight_LightUVBiasMatrix_List");
     public static int SRP_ShadowTexelSize = Shader.PropertyToID("SRP_ShadowTexelSize");
 }

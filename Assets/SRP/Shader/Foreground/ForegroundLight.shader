@@ -75,6 +75,7 @@ Shader "CustomSRP/ForegroundLight"
             sampler2D SRP_ShadowMap;
             float4 SRP_ShadowTexelSize;
             float4x4 SRP_DirectionLight_ViewProjMatrix_List[MAX_MAIN_LIGHT_COUNT];
+            float4x4 SRP_DirectionLight_LightUVBiasMatrix_List[MAX_MAIN_LIGHT_COUNT];
 
             float Square(float val)
             {
@@ -110,7 +111,8 @@ Shader "CustomSRP/ForegroundLight"
 
                         // シャドウマッピング
                         float4 lightProjPos = mul(SRP_DirectionLight_ViewProjMatrix_List[n], float4(i.worldPos.xyz, 1.0));
-                        float shadow = CalcShadow(SRP_ShadowMap, SRP_ShadowTexelSize.xy, lightProjPos, WorldNormal, lightDir);
+                        float4x4 LightUVBiasMatrix = SRP_DirectionLight_LightUVBiasMatrix_List[n];
+                        float shadow = CalcShadow(SRP_ShadowMap, SRP_ShadowTexelSize.xy, lightProjPos, WorldNormal, lightDir, LightUVBiasMatrix);
 
                         // PBR
                         col.rgb += ComputeDirectLight(pbr, light) * shadow;

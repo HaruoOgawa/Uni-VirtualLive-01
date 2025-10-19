@@ -52,7 +52,7 @@ public class CCustomRenderer
             //m_ShadowMapPass.AddShaderTag("ShadowCaster");
 
             m_ShadowDescriptor.Distance = 25.0f;
-            m_ShadowDescriptor.Resolution = 2048;
+            m_ShadowDescriptor.Resolution = 4096;
 
             CRenderTarget renderTarget = new CRenderTarget();
             renderTarget.Create(m_ShadowDescriptor.Resolution, m_ShadowDescriptor.Resolution, 1, RenderTextureFormat.Shadowmap, RenderTextureFormat.Depth, 24);

@@ -21,6 +21,7 @@ public class CSceneController
     // 描画に使用可能なディレクショナルライトリスト
     List<(VisibleLight visibleLight, int lightIndex)> m_VisibleDirectionalLightList = new List<(VisibleLight, int)>();
     List<Matrix4x4> m_LightViewProjMatrixList = new List<Matrix4x4>();
+    List<Matrix4x4> m_LightUVBiasMatrixList = new List<Matrix4x4>();
 
     // デファードライティング用マテリアル
     Material m_DeferredLightMat = null;
@@ -53,7 +54,7 @@ public class CSceneController
     public void Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, SPassDescriptor passDescriptor, CRenderTarget ShadowMapRT)
     {
         // シャドウマップをセットする
-        if (ShadowMapRT != null && m_LightViewProjMatrixList.Count > 0)
+        if (ShadowMapRT != null && m_LightViewProjMatrixList.Count > 0 && m_LightUVBiasMatrixList.Count > 0)
         {
             SetRTTextures(commandBuffer, ShadowMapRT, false, "", true, "SRP_ShadowMap");
 
@@ -63,6 +64,7 @@ public class CSceneController
             commandBuffer.SetGlobalVector(CShaderConstants.SRP_ShadowTexelSize, _TexelSize);
 
             commandBuffer.SetGlobalMatrixArray(CShaderConstants.SRP_DirectionLight_ViewProjMatrix_List, m_LightViewProjMatrixList.ToArray());
+            commandBuffer.SetGlobalMatrixArray(CShaderConstants.SRP_DirectionLight_LightUVBiasMatrix_List, m_LightUVBiasMatrixList.ToArray());
         }
 
         // 不透明ジオメトリの描画
@@ -180,6 +182,7 @@ public class CSceneController
 
             //
             m_LightViewProjMatrixList.Clear();
+            m_LightUVBiasMatrixList.Clear();
 
             //
             for (int i = 0; i < Mathf.Min(4, m_VisibleDirectionalLightList.Count); i++)
@@ -216,6 +219,8 @@ public class CSceneController
                 Matrix4x4 viewProj = projMatrix * viewMatrix;
                 m_LightViewProjMatrixList.Add(viewProj);
 
+                m_LightUVBiasMatrixList.Add(CreateBiasMatrix(splitNum, i));
+
                 // シャドウマップの設定
                 ShadowDrawingSettings settings = new ShadowDrawingSettings(m_CullingResults, visibleLight.lightIndex);
 
@@ -231,6 +236,27 @@ public class CSceneController
             Debug.LogException(e);
         }
         return true;
+    }
+
+    Matrix4x4 CreateBiasMatrix(int splitNum, int spiltIndex)
+    {
+        if(splitNum == 1)
+        {
+            return Matrix4x4.identity;
+        }
+
+        float halfRate = 1.0f / (float)splitNum;
+        float xSign = ((spiltIndex % splitNum) == 1)? 1.0f : -1.0f;
+        float ySign = ((spiltIndex / splitNum) == 1) ? 1.0f : -1.0f;
+
+        Matrix4x4 matrix = new Matrix4x4(
+            new Vector4(halfRate, 0.0f, 0.0f, 0.0f),
+            new Vector4(0.0f, halfRate, 0.0f, 0.0f),
+            new Vector4(0.0f, 0.0f, 1.0f, 0.0f),
+            new Vector4(halfRate * xSign, halfRate * ySign, 0.0f, 1.0f)
+        );
+
+        return matrix;
     }
 
     void SetShadowCameraViewPort(ScriptableRenderContext context, CommandBuffer commandBuffer, int splitNum, int spiltIndex, int Resolution)
@@ -264,7 +290,7 @@ public class CSceneController
         SetRTTextures(commandBuffer, GBufferRT, true, "SRP_GBuffer_");
 
         // シャドウマップをセットする
-        if (ShadowMapRT != null && m_LightViewProjMatrixList.Count > 0)
+        if (ShadowMapRT != null && m_LightViewProjMatrixList.Count > 0 && m_LightUVBiasMatrixList.Count > 0)
         {
             SetRTTextures(commandBuffer, ShadowMapRT, false, "", true, "SRP_ShadowMap");
 
@@ -274,6 +300,7 @@ public class CSceneController
             commandBuffer.SetGlobalVector(CShaderConstants.SRP_ShadowTexelSize, _TexelSize);
 
             commandBuffer.SetGlobalMatrixArray(CShaderConstants.SRP_DirectionLight_ViewProjMatrix_List, m_LightViewProjMatrixList.ToArray());
+            commandBuffer.SetGlobalMatrixArray(CShaderConstants.SRP_DirectionLight_LightUVBiasMatrix_List, m_LightUVBiasMatrixList.ToArray());
         }
 
         // カメラ情報セット
