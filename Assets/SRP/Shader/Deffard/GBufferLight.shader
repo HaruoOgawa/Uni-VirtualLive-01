@@ -74,7 +74,7 @@ Shader "CustomSRP/GBufferLight"
            #define MAX_SUB_LIGHT_COUNT 64
 
            // シャドウマッピング
-           sampler2D SRP_ShadowMap_0;
+           sampler2D SRP_ShadowMap;
            float4 SRP_ShadowTexelSize;
            float4x4 SRP_DirectionLight_ViewProjMatrix_List[MAX_MAIN_LIGHT_COUNT];
 
@@ -198,11 +198,11 @@ Shader "CustomSRP/GBufferLight"
                if(SRP_Deferred_DirectionalLightIndex >= 0)
                {
                     float4 lightProjPos = mul(SRP_DirectionLight_ViewProjMatrix_List[SRP_Deferred_DirectionalLightIndex], float4(gData.WorldPos, 1.0));
-                    shadow = CalcShadow(SRP_ShadowMap_0, SRP_ShadowTexelSize.xy, lightProjPos, gData.WorldNormal, light.dir);
+                    shadow = CalcShadow(SRP_ShadowMap, SRP_ShadowTexelSize.xy, lightProjPos, gData.WorldNormal, light.dir);
                }
 
                // PBR
-               col = ComputeDirectLight(pbr, light);
+               col = ComputeDirectLight(pbr, light) * shadow;
 
                return float4(col, alpha);
            }

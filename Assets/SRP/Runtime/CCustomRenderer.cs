@@ -51,6 +51,8 @@ public class CCustomRenderer
             // ShadowMap描画のRenderList API CreateShadowListは内部的に自動でShadowCasterのShaderPassのみが収集されるのでこれは不要
             //m_ShadowMapPass.AddShaderTag("ShadowCaster");
 
+            m_ShadowDescriptor.Distance = 25.0f;
+
             CRenderTarget renderTarget = new CRenderTarget();
             renderTarget.Create(m_ShadowDescriptor.Resolution, m_ShadowDescriptor.Resolution, 1, RenderTextureFormat.Shadowmap, RenderTextureFormat.Depth, 24);
 

@@ -22,7 +22,10 @@ float CalcShadow(sampler2D shadowMap, float2 shadowTexelSize, float4 lightProjPo
     float3 lightNdc = lightProjPos.xyz / lightProjPos.w;
     
     float2 lightUV = lightNdc.xy * 0.5 + 0.5;
-    float lightDist = lightNdc.z;
+    
+    // 左手系で手前が-1.0・奥が1.0になっているので深度の仕様「1.0(近い) ～ 0.0(遠い)」になるように補正
+    float lightDist = lightNdc.z * 0.5 + 0.5;
+    lightDist = 1.0 - lightDist;
     
     // 範囲外チェック
     bool outSide = (lightUV.x < 0.0 || lightUV.y < 0.0 || lightDist < 0.0) || (lightUV.x > 1.0 || lightUV.y > 1.0 || lightDist > 1.0);
@@ -38,12 +41,14 @@ float CalcShadow(sampler2D shadowMap, float2 shadowTexelSize, float4 lightProjPo
 	// https://drive.google.com/file/d/1tyDT7xQVSYzKnZXt6vvDwt-rlWEjVGDP/view?usp=sharing
 	// 床の法線とライト方向の成す角度が垂直になるほど、Biasを強くする
 	// https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
-    float ShadowBias = max(0.0, 0.001 * (1.0 - dot(normal, lightDir)));
-
-    float distance = lightDist - ShadowBias;
-
+    float ShadowBias = max(0.0, 0.001 * (1.0 - dot(normal, -lightDir)));
+    
+    //float distance = lightDist - ShadowBias;
+    float distance = lightDist;
+    
 	// ShadowMapの深度よりも手前なので普通に描画する
-    if (distance <= moments.x)
+    // Unity(DirectX系)は手前が1、後ろが0なのでOpenGLアプリとは逆になる
+    if (distance >= moments.x)
     {
         return 1.0;
     }

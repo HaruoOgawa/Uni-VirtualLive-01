@@ -55,7 +55,7 @@ public class CSceneController
         // シャドウマップをセットする
         if (ShadowMapRT != null && m_LightViewProjMatrixList.Count > 0)
         {
-            SetRTTextures(commandBuffer, ShadowMapRT, true, "SRP_ShadowMap_");
+            SetRTTextures(commandBuffer, ShadowMapRT, false, "", true, "SRP_ShadowMap");
 
             Vector4 _TexelSize = new Vector4();
             _TexelSize.x = 1.0f / ShadowMapRT.GetWidth();
@@ -266,7 +266,7 @@ public class CSceneController
         // シャドウマップをセットする
         if (ShadowMapRT != null && m_LightViewProjMatrixList.Count > 0)
         {
-            SetRTTextures(commandBuffer, ShadowMapRT, true, "SRP_ShadowMap_");
+            SetRTTextures(commandBuffer, ShadowMapRT, false, "", true, "SRP_ShadowMap");
 
             Vector4 _TexelSize = new Vector4();
             _TexelSize.x = 1.0f / ShadowMapRT.GetWidth();
