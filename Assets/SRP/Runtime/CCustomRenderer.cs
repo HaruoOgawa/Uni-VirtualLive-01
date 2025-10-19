@@ -116,6 +116,9 @@ public class CCustomRenderer
 
     public bool Render(ScriptableRenderContext context, Camera camera)
     {
+        // Scene Previewカメラはクラッシュしたり何かと問題が発生するのでスキップする
+        if (camera.cameraType == CameraType.Preview) return true;
+
         // カメラ位置に基づいてビューフラスタムカリングを実行
         if (!m_SceneController.ExecuteCulling(context, camera, m_ShadowDescriptor)) return false;
 

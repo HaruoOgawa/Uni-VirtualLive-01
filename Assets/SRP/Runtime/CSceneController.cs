@@ -162,6 +162,9 @@ public class CSceneController
     // シャドウマップ描画
     public bool DrawShadowMap(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, SShadowDescriptor shadowDescriptor)
     {
+        // Preview Scene Cameraだとライトが１つしかなくてもなぜかvisibleLight.lightIndex: 1が存在してそれでクラッシュするのでシャドウマップはスキップする
+        if (camera.cameraType == CameraType.Preview) return true;
+
         try
         {
             if (m_CullingResults == null) return false;
@@ -191,6 +194,9 @@ public class CSceneController
                 Matrix4x4 viewMatrix = new Matrix4x4();
                 Matrix4x4 projMatrix = new Matrix4x4();
                 ShadowSplitData shadowSplitData = new ShadowSplitData();
+
+                // Preview Scene Cameraだとライトが１つしかなくてもなぜかvisibleLight.lightIndex: 1が存在してそれでクラッシュする
+                //Debug.LogFormat("visibleLight.lightIndex: {0}, camera.cameraType: {1}", visibleLight.lightIndex, camera.cameraType);
 
                 m_CullingResults.ComputeDirectionalShadowMatricesAndCullingPrimitives(
                     visibleLight.lightIndex, // CullingResultのVisibleLight内のインデックス

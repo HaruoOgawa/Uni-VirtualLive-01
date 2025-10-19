@@ -12,6 +12,8 @@ float2 ComputePCF(sampler2D shadowMap, float2 uv, float2 shadowTexelSize)
         }
     }
     
+    moments /= 9.0;
+    
     return moments;
 }
 
