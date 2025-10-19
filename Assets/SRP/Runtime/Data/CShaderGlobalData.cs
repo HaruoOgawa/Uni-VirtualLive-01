@@ -5,6 +5,9 @@ public static class CShaderGlobalKeywordList
 {
     public static GlobalKeyword UNITY_GAME_VIEW;
     public static GlobalKeyword UNITY_SCENE_VIEW;
+    public static GlobalKeyword UNITY_PREVIEW_VIEW;
+    public static GlobalKeyword UNITY_VR_VIEW;
+    public static GlobalKeyword UNITY_REFLECTION_VIEW;
 
     public static GlobalKeyword _LIGHT_DIRECTIONAL;
     public static GlobalKeyword _LIGHT_POINT;
@@ -16,12 +19,47 @@ public static class CShaderGlobalKeywordList
     {
         CShaderGlobalKeywordList.UNITY_GAME_VIEW = GlobalKeyword.Create("UNITY_GAME_VIEW");
         CShaderGlobalKeywordList.UNITY_SCENE_VIEW = GlobalKeyword.Create("UNITY_SCENE_VIEW");
+        CShaderGlobalKeywordList.UNITY_PREVIEW_VIEW = GlobalKeyword.Create("UNITY_PREVIEW_VIEW");
+        CShaderGlobalKeywordList.UNITY_VR_VIEW = GlobalKeyword.Create("UNITY_VR_VIEW");
+        CShaderGlobalKeywordList.UNITY_REFLECTION_VIEW = GlobalKeyword.Create("UNITY_REFLECTION_VIEW");
 
         CShaderGlobalKeywordList._LIGHT_DIRECTIONAL = GlobalKeyword.Create("_LIGHT_DIRECTIONAL");
         CShaderGlobalKeywordList._LIGHT_POINT = GlobalKeyword.Create("_LIGHT_POINT");
         CShaderGlobalKeywordList._LIGHT_SPOT = GlobalKeyword.Create("_LIGHT_SPOT");
         CShaderGlobalKeywordList._NORMAL_MAP = GlobalKeyword.Create("_NORMAL_MAP");
         CShaderGlobalKeywordList._METALLIC_ROUGHNESS_MAP = GlobalKeyword.Create("_METALLIC_ROUGHNESS_MAP");
+    }
+
+    public static bool GetCameraTypeKeyword(CameraType cameraType, out GlobalKeyword keyword)
+    {
+        switch (cameraType)
+        {
+            case CameraType.Game:
+                keyword = UNITY_GAME_VIEW;
+                break;
+
+            case CameraType.SceneView:
+                keyword = UNITY_SCENE_VIEW;
+                break;
+
+            case CameraType.Preview:
+                keyword = UNITY_PREVIEW_VIEW;
+                break;
+
+            case CameraType.VR:
+                keyword = UNITY_VR_VIEW;
+                break;
+
+            case CameraType.Reflection:
+                keyword = UNITY_REFLECTION_VIEW;
+                break;
+
+            default:
+                keyword = UNITY_GAME_VIEW;
+                return false;
+        }
+
+        return true;
     }
 }
 

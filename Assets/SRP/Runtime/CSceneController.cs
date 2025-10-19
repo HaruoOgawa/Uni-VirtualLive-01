@@ -421,16 +421,19 @@ public class CSceneController
         return true;
     }
 
-    public void DrawFullScreenRT(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, RenderTexture rt)
+    public bool DrawFullScreenRT(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, RenderTexture rt)
     {
         m_FullScreenMat.SetTexture("_MainTex", rt);
 
-        var keyword = (camera.cameraType == CameraType.SceneView) ? CShaderGlobalKeywordList.UNITY_SCENE_VIEW : CShaderGlobalKeywordList.UNITY_GAME_VIEW;
+        GlobalKeyword keyword;
+        if (!CShaderGlobalKeywordList.GetCameraTypeKeyword(camera.cameraType, out keyword)) return false;
 
         // ï`âÊé¿çs
         commandBuffer.SetKeyword(keyword, true);
         commandBuffer.DrawMesh(m_FullScreenMesh, Matrix4x4.identity, m_FullScreenMat);
         commandBuffer.SetKeyword(keyword, false);
+
+        return true;
     }
     
     public void DrawFullScreen(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, Material material)

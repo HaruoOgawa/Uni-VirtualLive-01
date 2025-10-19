@@ -201,7 +201,7 @@ float3 ComputeDirectLight(PBRData pbr, LightData light)
 
 float3 CalcReflectionProbe(PBRData pbr)
 {
-    float3 v = normalize(-pbr.ViewDir);
+    float3 v = normalize(pbr.ViewDir);
     float3 reflectV = reflect(v, pbr.WorldNormal);
     
     float mipindex = PerceptualRoughnessToMipmapLevel(pbr.Roughness);
@@ -214,16 +214,16 @@ float3 CalcReflectionProbe(PBRData pbr)
 float3 ComputeIndirectLight(PBRData pbr)
 {
     float3 ResultCol = float3(0.0, 0.0, 0.0);
-
-    float3 v = normalize(-pbr.ViewDir);
-    float3 n = normalize(pbr.WorldNormal);
-    
-    float NdV = clamp(dot(n, v), 0.0, 1.0);
     
     // リフレクションプローブによる間接照明
     ResultCol += CalcReflectionProbe(pbr);
     
     // フレネル反射
+    float3 v = normalize(-pbr.ViewDir);
+    float3 n = normalize(pbr.WorldNormal);
+    
+    float NdV = clamp(dot(n, v), 0.0, 1.0);
+    
     ResultCol *= CalcFrenelReflection(pbr.Albedo, pbr.Metallic, NdV);
     
     return ResultCol;
