@@ -44,9 +44,9 @@ namespace srp
         {
             return this.m_RenderTarget;
         }
-        public abstract void Begin(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, bool clearColor = true, bool clearDepth = true);
+        public abstract bool Begin(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, bool clearColor = true, bool clearDepth = true);
 
-        public abstract void End(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera);
+        public abstract bool End(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera);
 
         protected void ExecuteBuffer(ScriptableRenderContext context, CommandBuffer commandBuffer, string BufferName)
         {

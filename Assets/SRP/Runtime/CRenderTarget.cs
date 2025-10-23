@@ -20,6 +20,21 @@ namespace srp
         {
         }
 
+        public bool IsValid()
+        {
+            if(m_RenderTargetCount > 0)
+            {
+                foreach(var rt in m_ColorBuffers)
+                {
+                    if (rt == null) return false;
+                }
+            }
+
+            if(m_DepthBuffer == null) return false;
+
+            return true;
+        }
+
         public int GetWidth()
         {
             return m_Width;

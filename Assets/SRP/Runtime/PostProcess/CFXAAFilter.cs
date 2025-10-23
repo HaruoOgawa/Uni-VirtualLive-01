@@ -22,7 +22,7 @@ namespace srp
             m_RenderPass.SetRenderTarget(writeRT);
 
             // •`‰æŠJŽn
-            m_RenderPass.Begin(context, commandBuffer, camera);
+            if (!m_RenderPass.Begin(context, commandBuffer, camera)) return false;
             m_Material.SetTexture("_MainTex", readRT.GetColorBuffer());
 
             Vector4 _TexelSize = new Vector4();
@@ -32,7 +32,7 @@ namespace srp
 
             sceneController.DrawFullScreen(context, commandBuffer, camera, m_Material);
 
-            m_RenderPass.End(context, commandBuffer, camera);
+            if (!m_RenderPass.End(context, commandBuffer, camera)) return false;
 
             return true;
         }

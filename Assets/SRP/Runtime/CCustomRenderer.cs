@@ -132,9 +132,9 @@ namespace srp
 
             // シャドウマッピング
             {
-                m_ShadowMapPass.Begin(context, m_CommandBuffer, camera, true, true);
+                if (!m_ShadowMapPass.Begin(context, m_CommandBuffer, camera, true, true)) return false;
                 if (!m_SceneController.DrawShadowMap(context, m_CommandBuffer, camera, m_ShadowDescriptor)) return false;
-                m_ShadowMapPass.End(context, m_CommandBuffer, camera);
+                if (!m_ShadowMapPass.End(context, m_CommandBuffer, camera)) return false;
             }
 
             // デファードレンダリング
@@ -144,9 +144,9 @@ namespace srp
                     SPassDescriptor descriptor = new SPassDescriptor();
                     descriptor.TargetShaderTags = m_GBufferGenPass.GetTargetShaderTags();
 
-                    m_GBufferGenPass.Begin(context, m_CommandBuffer, camera);
+                    if (!m_GBufferGenPass.Begin(context, m_CommandBuffer, camera)) return false;
                     m_SceneController.Draw(context, m_CommandBuffer, camera, descriptor, null);
-                    m_GBufferGenPass.End(context, m_CommandBuffer, camera);
+                    if (!m_GBufferGenPass.End(context, m_CommandBuffer, camera)) return false;
                 }
 
                 // GBufferライティング
@@ -157,9 +157,9 @@ namespace srp
                     SPassDescriptor descriptor = new SPassDescriptor();
                     descriptor.TargetShaderTags = m_GBufferLightPass.GetTargetShaderTags();
 
-                    m_GBufferLightPass.Begin(context, m_CommandBuffer, camera, true, false);
+                    if (!m_GBufferLightPass.Begin(context, m_CommandBuffer, camera, true, false)) return false;
                     m_SceneController.DrawDeferredLight(context, m_CommandBuffer, camera, descriptor, m_GBufferGenPass.GetRenderTarget(), m_ShadowMapPass.GetRenderTarget());
-                    m_GBufferLightPass.End(context, m_CommandBuffer, camera);
+                    if (!m_GBufferLightPass.End(context, m_CommandBuffer, camera)) return false;
                 }
 
                 // GBufferライティング(間接照明)
@@ -170,9 +170,9 @@ namespace srp
                     SPassDescriptor descriptor = new SPassDescriptor();
                     descriptor.TargetShaderTags = m_GBufferIndirectLightPass.GetTargetShaderTags();
 
-                    m_GBufferIndirectLightPass.Begin(context, m_CommandBuffer, camera, false, false);
+                    if (!m_GBufferIndirectLightPass.Begin(context, m_CommandBuffer, camera, false, false)) return false;
                     m_SceneController.DrawDeferredIndirectLight(context, m_CommandBuffer, camera, descriptor, m_GBufferGenPass.GetRenderTarget());
-                    m_GBufferIndirectLightPass.End(context, m_CommandBuffer, camera);
+                    if (!m_GBufferIndirectLightPass.End(context, m_CommandBuffer, camera)) return false;
                 }
             }
 
@@ -185,10 +185,10 @@ namespace srp
                 descriptor.TargetShaderTags = m_ForegroundPass.GetTargetShaderTags();
                 descriptor.DrawSky = true;
 
-                m_ForegroundPass.Begin(context, m_CommandBuffer, camera, false, false);
+                if (!m_ForegroundPass.Begin(context, m_CommandBuffer, camera, false, false)) return false;
                 m_SceneController.Draw(context, m_CommandBuffer, camera, descriptor, m_ShadowMapPass.GetRenderTarget());
                 m_SceneController.DrawGizmo(context, m_CommandBuffer, camera);
-                m_ForegroundPass.End(context, m_CommandBuffer, camera);
+                if (!m_ForegroundPass.End(context, m_CommandBuffer, camera)) return false;
             }
 
             // リアルタイムGI
@@ -206,9 +206,9 @@ namespace srp
 
             // 最終描画結果
             {
-                m_MainResultPass.Begin(context, m_CommandBuffer, camera, true, true);
+                if (!m_MainResultPass.Begin(context, m_CommandBuffer, camera, true, true)) return false;
                 m_SceneController.DrawFullScreenRT(context, m_CommandBuffer, camera, m_FinalResultRT.GetColorBuffer());
-                m_MainResultPass.End(context, m_CommandBuffer, camera);
+                if (!m_MainResultPass.End(context, m_CommandBuffer, camera)) return false;
             }
 
             return true;

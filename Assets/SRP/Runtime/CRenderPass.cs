@@ -10,13 +10,15 @@ namespace srp
         {
         }
 
-        public override void Begin(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, bool clearColor = true, bool clearDepth = true)
+        public override bool Begin(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, bool clearColor = true, bool clearDepth = true)
         {
             // カメラのビュープロジェクション行列を設定する
             context.SetupCameraProperties(camera);
 
             if (m_RenderTarget != null)
             {
+                if (!m_RenderTarget.IsValid()) return false;
+
                 commandBuffer.SetRenderTarget(m_RenderTarget.GetColorRTIdentifiers().ToArray(), m_RenderTarget.GetDepthRTIdentifier());
                 //commandBuffer.BeginRenderPass(m_Width, m_Height, 1, );
             }
@@ -29,13 +31,16 @@ namespace srp
 
             // プロファイラ開始コマンドをコンテキストに登録
             ExecuteBuffer(context, commandBuffer, camera.name);
+
+            return true;
         }
 
-        public override void End(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera)
+        public override bool End(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera)
         {
             // レンダーパス終了
             if (m_RenderTarget != null)
             {
+                if (!m_RenderTarget.IsValid()) return false;
                 //commandBuffer.EndRenderPass();
             }
 
@@ -50,6 +55,8 @@ namespace srp
 
             // コンテキストに積み上げられたコマンドを全て実行する
             context.Submit();
+
+            return true;
         }
     }
 }

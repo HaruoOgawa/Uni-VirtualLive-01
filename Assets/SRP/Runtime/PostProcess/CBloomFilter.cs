@@ -172,7 +172,7 @@ namespace srp
 
             if (!m_RenderPassMap.TryGetValue(Name, out renderPass)) return false;
 
-            renderPass.Begin(context, commandBuffer, camera, true, true);
+            if (!renderPass.Begin(context, commandBuffer, camera, true, true)) return false;
 
             return true;
         }
@@ -183,7 +183,7 @@ namespace srp
 
             if (!m_RenderPassMap.TryGetValue(Name, out renderPass)) return false;
 
-            renderPass.End(context, commandBuffer, camera);
+            if (!renderPass.End(context, commandBuffer, camera)) return false;
 
             return true;
         }
