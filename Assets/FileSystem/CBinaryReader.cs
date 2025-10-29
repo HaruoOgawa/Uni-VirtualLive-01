@@ -86,30 +86,70 @@ namespace binary
             return Dst;
         }
 
-        public bool GetString(ref string Dst, int byteSize)
+        public bool GetUShort(ref ushort Dst)
         {
-            if(!IsValid(byteSize)) return false;
+            if (!IsValid(sizeof(ushort))) return false;
 
-            byte[] bin = memcpy(byteSize);
-
-            Dst = System.Text.Encoding.UTF8.GetString(bin);
-
-            UpdatePointer(byteSize);
+            Dst = GetUShort();
 
             return true;
         }
-        
-        public bool GetUTF16String(ref string Dst, int byteSize)
+
+        public ushort GetUShort()
         {
-            if(!IsValid(byteSize)) return false;
+            var pointer = GetPointer();
 
-            byte[] bin = memcpy(byteSize);
+            var val = ((pointer[1] << 8) | (pointer[0]));
 
-            Dst = System.Text.Encoding.Unicode.GetString(bin);
+            ushort Dst = BitConverter.ToUInt16(BitConverter.GetBytes(val), 0);
 
-            UpdatePointer(byteSize);
+            UpdatePointer(sizeof(ushort));
+
+            return Dst;
+        }
+
+        public bool GetUShortReverse(ref ushort Dst)
+        {
+            if (!IsValid(sizeof(ushort))) return false;
+
+            Dst = GetUShortReverse();
 
             return true;
+        }
+
+        public ushort GetUShortReverse()
+        {
+            var pointer = GetPointer();
+
+            var val = ((pointer[0] << 8) | (pointer[1]));
+
+            ushort Dst = BitConverter.ToUInt16(BitConverter.GetBytes(val), 0);
+
+            UpdatePointer(sizeof(ushort));
+
+            return Dst;
+        }
+
+        public bool GetShort(ref short Dst)
+        {
+            if (!IsValid(sizeof(short))) return false;
+
+            Dst = GetShort();
+
+            return true;
+        }
+
+        public short GetShort()
+        {
+            var pointer = GetPointer();
+
+            var val = ((pointer[1] << 8) | (pointer[0]));
+
+            short Dst = BitConverter.ToInt16(BitConverter.GetBytes(val), 0);
+
+            UpdatePointer(sizeof(short));
+
+            return Dst;
         }
 
         public bool GetInt(ref int Dst)
@@ -155,6 +195,32 @@ namespace binary
             UpdatePointer(sizeof(float));
 
             return Dst;
+        }
+
+        public bool GetString(ref string Dst, int byteSize)
+        {
+            if (!IsValid(byteSize)) return false;
+
+            byte[] bin = memcpy(byteSize);
+
+            Dst = System.Text.Encoding.UTF8.GetString(bin);
+
+            UpdatePointer(byteSize);
+
+            return true;
+        }
+
+        public bool GetUTF16String(ref string Dst, int byteSize)
+        {
+            if (!IsValid(byteSize)) return false;
+
+            byte[] bin = memcpy(byteSize);
+
+            Dst = System.Text.Encoding.Unicode.GetString(bin);
+
+            UpdatePointer(byteSize);
+
+            return true;
         }
     }
 }
