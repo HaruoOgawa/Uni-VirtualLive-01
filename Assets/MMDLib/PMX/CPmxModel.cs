@@ -1,8 +1,10 @@
 using binary;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor.AssetImporters;
 using UnityEngine;
 using UnityEngine.Profiling.Memory.Experimental;
+using static TreeEditor.TextureAtlas;
 
 namespace mmdlib
 {
@@ -10,6 +12,8 @@ namespace mmdlib
     {
         SPmxMetaData m_MetaData = new SPmxMetaData();
         CPmxMesh m_PmxMesh = null;
+        List<CPmxTexture> m_PmxTextureList = new List<CPmxTexture>();
+        List<CPmxMaterial> m_PmxMaterialList = new List<CPmxMaterial>();
 
         public bool Analyse(string fileName)
         {
@@ -430,11 +434,206 @@ namespace mmdlib
 
         bool AnalyseTexture(ref CBinaryReader Analyser)
         {
+            int NumOfTexture = 0;
+            if (!Analyser.GetInt(ref NumOfTexture)) return false;
+
+            for (int TextureIndex = 0; TextureIndex < NumOfTexture; TextureIndex++)
+            {
+                CPmxTexture PmxTexture = new CPmxTexture();
+
+                string TextureName = string.Empty;
+
+                int ByteLength = 0;
+                if (!Analyser.GetInt(ref ByteLength)) return false;
+
+                if (m_MetaData.EncodeType == EPmxEncodeType.UTF16)
+                {
+                    if (!Analyser.GetUTF16String(ref TextureName, ByteLength)) return false;
+                }
+                else if (m_MetaData.EncodeType == EPmxEncodeType.UTF8)
+                {
+                    if (!Analyser.GetString(ref TextureName, ByteLength)) return false;
+                }
+
+                PmxTexture.SetFilePath(TextureName);
+
+                m_PmxTextureList.Add(PmxTexture);
+            }
+
             return true;
         }
 
         bool AnalyseMaterial(ref CBinaryReader Analyser)
         {
+            int NumOfMaterial = 0;
+            if (!Analyser.GetInt(ref NumOfMaterial)) return false;
+
+            for (int MaterialIndex = 0; MaterialIndex < NumOfMaterial; MaterialIndex++)
+            {
+                // MaterialName
+                string MaterialName = string.Empty;
+                {
+                    int ByteLength = 0;
+                    if (!Analyser.GetInt(ref ByteLength)) return false;
+
+                    if (m_MetaData.EncodeType == EPmxEncodeType.UTF8)
+                    {
+                        if (!Analyser.GetString(ref MaterialName, ByteLength)) return false;
+                    }
+                    else if (m_MetaData.EncodeType == EPmxEncodeType.UTF16)
+                    {
+                        if (!Analyser.GetUTF16String(ref MaterialName, ByteLength)) return false;
+                    }
+                }
+
+                // MaterialName_EN
+                string MaterialName_EN = string.Empty;
+                {
+                    int ByteLength = 0;
+                    if (!Analyser.GetInt(ref ByteLength)) return false;
+
+                    if (m_MetaData.EncodeType == EPmxEncodeType.UTF8)
+                    {
+                        if (!Analyser.GetString(ref MaterialName_EN, ByteLength)) return false;
+                    }
+                    else if (m_MetaData.EncodeType == EPmxEncodeType.UTF16)
+                    {
+                        if (!Analyser.GetUTF16String(ref MaterialName_EN, ByteLength)) return false;
+                    }
+                }
+
+                // Diffuse
+                Vector4 Diffuse = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+                {
+                    if (!Analyser.IsValid(4 * 4)) return false;
+
+                    float R = Analyser.GetFloat();
+                    float G = Analyser.GetFloat();
+                    float B = Analyser.GetFloat();
+                    float A = Analyser.GetFloat();
+
+                    Diffuse = new Vector4(R, G, B, A);
+                }
+
+                // Specular
+                Vector4 Specular = new Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+                {
+                    if (!Analyser.IsValid(4 * 3)) return false;
+
+                    float R = Analyser.GetFloat();
+                    float G = Analyser.GetFloat();
+                    float B = Analyser.GetFloat();
+
+                    Specular = new Vector4(R, G, B, 1.0f);
+                }
+
+                // Specular係数
+                float SpecularCoef = 1.0f;
+                if (!Analyser.GetFloat(ref SpecularCoef)) return false;
+
+                // Ambient
+                Vector4 Ambient = new Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+                {
+                    if (!Analyser.IsValid(4 * 3)) return false;
+
+                    float R = Analyser.GetFloat();
+                    float G = Analyser.GetFloat();
+                    float B = Analyser.GetFloat();
+
+                    Ambient = new Vector4(R, G, B, 1.0f);
+                }
+
+                /*
+                bitFlag  	| 描画フラグ(8bit) - 各bit 0:OFF 1:ON
+                       0x01:両面描画, 0x02:地面影, 0x04:セルフシャドウマップへの描画, 0x08:セルフシャドウの描画, 
+                       0x10:エッジ描画
+                // CPmaxMaterial内で解析する
+                */
+                byte DrawBitFlag = 0;
+                if (!Analyser.GetByte(ref DrawBitFlag)) return false;
+
+                // エッジカラー
+                Vector4 EdgeColor = new Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+                {
+                    if (!Analyser.IsValid(4 * 4)) return false;
+
+                    float R = Analyser.GetFloat();
+                    float G = Analyser.GetFloat();
+                    float B = Analyser.GetFloat();
+                    float A = Analyser.GetFloat();
+
+                    EdgeColor = new Vector4(R, G, B, A);
+                }
+
+                // エッジサイズ
+                float EdgeSize = 1.0f;
+                if (!Analyser.GetFloat(ref EdgeSize)) return false;
+
+                // メインテクスチャの参照インデックス
+                int MainTexIndex = GetMultiTypeValueAsInterger(ref Analyser, m_MetaData.TextureIndexSize);
+
+                // スフィアテクスチャの参照インデックス
+                int SphereTexIndex = GetMultiTypeValueAsInterger(ref Analyser, m_MetaData.TextureIndexSize);
+
+                // スフィアモード 0:無効 1:乗算(sph) 2:加算(spa) 3:サブテクスチャ(追加UV1のx,yをUV参照して通常テクスチャ描画を行う)
+                byte SphereModeByte = 0;
+                if (!Analyser.GetByte(ref SphereModeByte)) return false;
+
+                EPmxSphereMode SphereMode = (EPmxSphereMode)((int)SphereModeByte);
+
+                // 共有Toonフラグ 0:継続値は個別Toon 1:継続値は共有Toon
+                byte SharedToonFlag = 0;
+                if (!Analyser.GetByte(ref SharedToonFlag)) return false;
+
+                // トゥーンテクスチャ
+                int ToonTexIndex = -1;
+                int SharedToonTexIndex = -1;
+
+                if (SharedToonFlag == 0)
+                {
+                    // Toonテクスチャ, テクスチャテーブルの参照Index
+                    ToonTexIndex = GetMultiTypeValueAsInterger(ref Analyser, m_MetaData.TextureIndexSize);
+                }
+                else if (SharedToonFlag == 1)
+                {
+                    // 共有Toonテクスチャ[0～9] -> それぞれ toon01.bmp～toon10.bmp に対応
+                    byte SharedToonTexByte = 0;
+                    if (!Analyser.GetByte(ref SharedToonTexByte)) return false;
+
+                    SharedToonTexIndex = (int)(SharedToonTexByte);
+                }
+                else
+                {
+                    return false;
+                }
+
+                // メモ : 自由欄／スクリプト記述／エフェクトへのパラメータ配置など
+                string MaterialDescription = string.Empty;
+                {
+                    int ByteLength = 0;
+                    if (!Analyser.GetInt(ref ByteLength)) return false;
+
+                    if (m_MetaData.EncodeType == EPmxEncodeType.UTF8)
+                    {
+                        if (!Analyser.GetString(ref MaterialDescription, ByteLength)) return false;
+                    }
+                    else if (m_MetaData.EncodeType == EPmxEncodeType.UTF16)
+                    {
+                        if (!Analyser.GetUTF16String(ref MaterialDescription, ByteLength)) return false;
+                    }
+                }
+
+                // 材質に対応する面(頂点)数 (必ず3の倍数になる)
+                int MatRefIndiceCount = 0;
+                if (!Analyser.GetInt(ref MatRefIndiceCount)) return false;
+
+                // マテリアルを登録
+                CPmxMaterial PmxMaterial = new CPmxMaterial(MaterialName, MaterialName_EN, Diffuse, Specular, SpecularCoef, Ambient, DrawBitFlag, EdgeColor, EdgeSize,
+                    MainTexIndex, SphereTexIndex, SphereMode, ToonTexIndex, SharedToonTexIndex, MaterialDescription, MatRefIndiceCount);
+
+                m_PmxMaterialList.Add(PmxMaterial);
+            }
+
             return true;
         }
 
@@ -524,7 +723,7 @@ namespace mmdlib
             return true;
         }
 
-        int GetMultiTypeValueAsInterger(ref CBinaryReader Analyser, int ByteSize, bool UseSign)
+        int GetMultiTypeValueAsInterger(ref CBinaryReader Analyser, int ByteSize, bool UseSign = false)
         {
             int Result = -1;
 
