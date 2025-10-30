@@ -14,6 +14,7 @@ namespace mmdlib
         CPmxMesh m_PmxMesh = null;
         List<CPmxTexture> m_PmxTextureList = new List<CPmxTexture>();
         List<CPmxMaterial> m_PmxMaterialList = new List<CPmxMaterial>();
+        List<CPmxBone> m_PmxBoneList = new List<CPmxBone>();
 
         public bool Analyse(string fileName)
         {
@@ -198,7 +199,7 @@ namespace mmdlib
             List<float> UVAttribute = new List<float>();
             List<float> TangentAttribute = new List<float>();
             
-            // MetaData.BoneIndexSizeに応じてバイト数が変わる
+            // m_MetaData.BoneIndexSizeに応じてバイト数が変わる
             List<uint> UIntBoneAttribute = new List<uint> ();
             List<byte> ByteBoneAttribute = new List<byte>();
             List<ushort> UShortBoneAttribute = new List<ushort>();
@@ -639,8 +640,227 @@ namespace mmdlib
 
         bool AnalyseBone(ref CBinaryReader Analyser)
         {
-            return true;
+            int NumOfBone = 0;
+		    if (!Analyser.GetInt(ref NumOfBone)) return false;
+
+		    for (int BoneIndex = 0; BoneIndex < NumOfBone; BoneIndex++)
+		    {
+                // BoneName
+                string BoneName = string.Empty;
+                {
+				    int ByteLength = 0;
+				    if (!Analyser.GetInt(ref ByteLength)) return false;
+
+				    if (m_MetaData.EncodeType == EPmxEncodeType.UTF8)
+				    {
+					    if (!Analyser.GetString(ref BoneName, ByteLength)) return false;
+				    }
+				    else if (m_MetaData.EncodeType == EPmxEncodeType.UTF16)
+				    {
+					    if (!Analyser.GetUTF16String(ref BoneName, ByteLength)) return false;
+				    }
+			    }
+
+                // BoneName_EN
+                string BoneName_EN = string.Empty;
+                {
+				    int ByteLength = 0;
+				    if (!Analyser.GetInt(ref ByteLength)) return false;
+
+				    if (m_MetaData.EncodeType == EPmxEncodeType.UTF8)
+				    {
+					    if (!Analyser.GetString(ref BoneName_EN, ByteLength)) return false;
+				    }
+				    else if (m_MetaData.EncodeType == EPmxEncodeType.UTF16)
+				    {
+					    if (!Analyser.GetUTF16String(ref BoneName_EN, ByteLength)) return false;
+				    }
+			    }
+
+			    // 位置
+			    Vector3 Pos = new Vector3(0.0f, 0.0f, 0.0f);
+			    {
+				    if (!Analyser.IsValid(4 * 3)) return false;
+
+				    Pos.x = Analyser.GetFloat();
+				    Pos.y = Analyser.GetFloat();
+				    Pos.z = Analyser.GetFloat();
+			    }
+
+			    // 親ボーンのインデックス
+			    int ParentBoneIndex = GetMultiTypeValueAsInterger(ref Analyser, m_MetaData.BoneIndexSize);
+
+			    // 変形階層
+			    int DeformLayer = -1;
+			    if (!Analyser.GetInt(ref DeformLayer)) return false;
+
+			    // ボーンフラグ(16bit)
+			    ushort BoneFlag = 0;
+			    if (!Analyser.GetUShort(ref BoneFlag)) return false;
+
+                // PmxBoneを作成
+                CPmxBone PmxBone = new CPmxBone(BoneName, BoneName_EN, Pos, ParentBoneIndex, DeformLayer, BoneFlag);
+
+			    // ボーンフラグを見て処理を分ける
+			    {
+				    // 接続先
+				    if ((BoneFlag & 0x0001) != 0)
+				    {
+					    // 接続先: 1
+					    // 接続先ボーンのボーンIndex(ネットで調べるときは『表示先』と出る)
+					    int ConnectBoneIndex = GetMultiTypeValueAsInterger(ref Analyser, m_MetaData.BoneIndexSize);
+				    }
+				    else
+				    {
+					    // 接続先: 0
+					    // 座標オフセット, ボーン位置からの相対分
+					    if (!Analyser.IsValid(4 * 3)) return false;
+
+					    Vector3 Offset = new Vector3(0.0f, 0.0f, 0.0f);
+
+					    Offset.x = Analyser.GetFloat();
+					    Offset.y = Analyser.GetFloat();
+					    Offset.z = Analyser.GetFloat();
+
+					    // Posにオフセットを追加する(いらないかも)
+					    //Pos += Offset;
+				    }
+
+				    // 回転付与 または 移動付与 が 1
+				    if ((BoneFlag & 0x0100) != 0 || (BoneFlag & 0x0200) != 0)
+				    {
+					    // 付与親ボーンのボーンIndex
+					    int GrantParentBoneIndex = GetMultiTypeValueAsInterger(ref Analyser, m_MetaData.BoneIndexSize);
+
+					    // 付与率
+					    float GrantRate = 0.0f;
+					    if (!Analyser.GetFloat(ref GrantRate)) return false;
+
+					    if ((BoneFlag & 0x0100) != 0)
+					    {
+						    // 回転付与
+						    PmxBone.SetRotateGrant(GrantParentBoneIndex, GrantRate);
+
+					    }
+					    else if ((BoneFlag & 0x0200) != 0)
+					    {
+						    // 移動付与
+						    PmxBone.SetMoveGrant(GrantParentBoneIndex, GrantRate);
+					    }
+				    }
+
+				    // 軸固定:1 の場合
+				    if ((BoneFlag & 0x0400) != 0)
+				    {
+					    if (!Analyser.IsValid(4 * 3)) return false;
+
+					    Vector3 FixedAxisVector = new Vector3(0.0f, 0.0f, 0.0f);
+
+					    FixedAxisVector.x = Analyser.GetFloat();
+					    FixedAxisVector.y = Analyser.GetFloat();
+					    FixedAxisVector.z = Analyser.GetFloat();
+				    }
+
+				    // ローカル軸:1 の場合
+				    if ((BoneFlag & 0x0800) != 0)
+				    {
+					    if (!Analyser.IsValid(4 * 3 * 2)) return false;
+
+					    //
+					    Vector3 XAxisVector = new Vector3(0.0f, 0.0f, 0.0f);
+
+					    XAxisVector.x = Analyser.GetFloat();
+					    XAxisVector.y = Analyser.GetFloat();
+					    XAxisVector.z = Analyser.GetFloat();
+
+                        XAxisVector = XAxisVector.normalized;
+
+                        //
+                        Vector3 ZAxisVector = new Vector3(0.0f, 0.0f, 0.0f);
+
+					    ZAxisVector.x = Analyser.GetFloat();
+					    ZAxisVector.y = Analyser.GetFloat();
+					    ZAxisVector.z = Analyser.GetFloat();
+
+					    ZAxisVector = ZAxisVector.normalized;
+
+					    //
+					    PmxBone.SetLocalAxis(XAxisVector, ZAxisVector);
+				    }
+
+				    // 外部親変形:1 の場合
+				    if ((BoneFlag & 0x2000) != 0)
+				    {
+					    int KeyIndex = -1;
+					    if (!Analyser.GetInt(ref KeyIndex)) return false;
+				    }
+
+				    // IK:1 の場合 IKデータを格納
+				    if ((BoneFlag & 0x0020) != 0)
+				    {
+					    // IKターゲットボーンのボーンIndex
+					    int IKTargetBoneIndex = GetMultiTypeValueAsInterger(ref Analyser, m_MetaData.BoneIndexSize);
+
+					    // IKループ回数 (PMD及びMMD環境では255回が最大になるようです)
+					    int IKLoopCount = 0;
+					    if (!Analyser.GetInt(ref IKLoopCount)) return false;
+
+					    // IKループ計算時の1回あたりの制限角度 -> ラジアン角 | PMDのIK値とは4倍異なるので注意
+					    float LimitedAngle = 0.0f;
+					    if (!Analyser.GetFloat(ref LimitedAngle)) return false;
+
+					    // IKリンク数 : 後続の要素数
+					    int IKLinkCount = 0;
+					    if (!Analyser.GetInt(ref IKLinkCount)) return false;
+
+					    List<SIKLink> IKLinkList = new List<SIKLink>();
+
+					    for (int IKLinkIndex = 0; IKLinkIndex < IKLinkCount; IKLinkIndex++)
+					    {
+						    // リンクボーンのボーンIndex
+						    int IKLinkBoneIndex = GetMultiTypeValueAsInterger(ref Analyser, m_MetaData.BoneIndexSize);
+
+						    // 角度制限 0:OFF 1:ON
+						    byte IsLimitAngle = 0;
+						    if (!Analyser.GetByte(ref IsLimitAngle)) return false;
+
+						    bool UseLimitAngle = false;
+						    Vector3 LowerAngle = new Vector3(0.0f, 0.0f, 0.0f);
+						    Vector3 UpperAngle = new Vector3(0.0f, 0.0f, 0.0f);
+
+						    if ((IsLimitAngle & 0x01) != 0)
+						    {
+							    if (!Analyser.IsValid(4 * 3 * 2)) return false;
+
+							    UseLimitAngle = true;
+
+							    LowerAngle.x = Analyser.GetFloat();
+							    LowerAngle.y = Analyser.GetFloat();
+							    LowerAngle.z = Analyser.GetFloat();
+
+							    UpperAngle.x = Analyser.GetFloat();
+							    UpperAngle.y = Analyser.GetFloat();
+							    UpperAngle.z = Analyser.GetFloat();
+						    }
+
+						    // IKLinkを登録
+						    IKLinkList.Add(new SIKLink(IKLinkBoneIndex, UseLimitAngle, LowerAngle, UpperAngle));
+					    }
+
+                        // IKParamを登録
+                        SIKParam IKParam = new SIKParam(IKTargetBoneIndex, IKLoopCount, LimitedAngle, IKLinkList);
+
+					    PmxBone.SetIKParam(IKParam);
+				    }
+			    }
+
+			    // PmxBoneを登録
+			    m_PmxBoneList.Add(PmxBone);
+		    }
+
+		    return true;
         }
+
 
         bool AnalyseMorph(ref CBinaryReader Analyser)
         {
