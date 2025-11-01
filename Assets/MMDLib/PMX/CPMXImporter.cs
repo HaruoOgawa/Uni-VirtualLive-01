@@ -139,11 +139,11 @@ namespace mmdlib
             //if (!CreateTextureList(model, srcFolder, ref TextureList, FolderMap)) return false;
 
             // マテリアルリスト
-            Dictionary<string, Material> MaterialMap = new Dictionary<string, Material>();
-            if (!CreateMaterialList(model, ref NodeList, ref MaterialMap, TextureList, FolderMap)) return false;
+            List<Material> MaterialList = new List<Material>();
+            if (!CreateMaterialList(model, ref NodeList, ref MaterialList, TextureList, FolderMap)) return false;
 
             // メッシュ
-            if (!CreateMeshList(model, ref rootNode, ref NodeList, MaterialMap, FolderMap)) return false;
+            if (!CreateMeshList(model, ref rootNode, ref NodeList, MaterialList, FolderMap)) return false;
 
             // 物理演算
 
@@ -262,7 +262,7 @@ namespace mmdlib
             return true;
         }
 
-        static bool CreateMaterialList(CPmxModel model, ref List<GameObject> NodeList, ref Dictionary<string, Material> MaterialMap,
+        static bool CreateMaterialList(CPmxModel model, ref List<GameObject> NodeList, ref List<Material> MaterialList,
             List<Texture> TextureList, Dictionary<string, string> FolderMap)
         {
             string MaterialFolder = string.Empty;
@@ -330,7 +330,7 @@ namespace mmdlib
                 }
 
                 //
-                MaterialMap.Add(MaterialName, material);
+                MaterialList.Add(material);
 
                 // マテリアルアセット生成
                 string MaterialAssetName = Path.Combine(MaterialFolder, MaterialName);
@@ -343,7 +343,7 @@ namespace mmdlib
         }
 
         static bool CreateMeshList(CPmxModel model, ref GameObject rootNode, ref List<GameObject> NodeList, 
-            Dictionary<string, Material> MaterialMap, Dictionary<string, string> FolderMap)
+            List<Material> MaterialList, Dictionary<string, string> FolderMap)
         {
             string MeshFolder = string.Empty;
             if (!FolderMap.TryGetValue("Meshs", out MeshFolder)) return false;
@@ -583,7 +583,12 @@ namespace mmdlib
                 AssetDatabase.CreateAsset(mesh, MeshAssetName);
 
                 // スキンメッシュレンダラーを作成
+                MeshNode.AddComponent<SkinnedMeshRenderer>();
 
+                SkinnedMeshRenderer skinnedMeshRenderer = MeshNode.GetComponent<SkinnedMeshRenderer>();
+
+                skinnedMeshRenderer.sharedMesh = mesh;
+                skinnedMeshRenderer.materials = MaterialList.ToArray();
             }
 
             return true;
