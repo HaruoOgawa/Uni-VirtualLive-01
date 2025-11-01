@@ -135,12 +135,12 @@ namespace mmdlib
             if (!CreateAnimationSkeleton(model, ref rootNode, ref NodeList)) return false;
 
             // テクスチャリスト
-            List<Texture> TextureList = new List<Texture>();
-            //if (!CreateTextureList(model, srcFolder, ref TextureList, FolderMap)) return false;
+            List<string> TexturePathList = new List<string>();
+            if (!CreateTextureList(model, srcFolder, ref TexturePathList, FolderMap)) return false;
 
             // マテリアルリスト
             List<Material> MaterialList = new List<Material>();
-            if (!CreateMaterialList(model, ref NodeList, ref MaterialList, TextureList, FolderMap)) return false;
+            if (!CreateMaterialList(model, ref NodeList, ref MaterialList, TexturePathList, FolderMap)) return false;
 
             // メッシュ
             if (!CreateMeshList(model, ref rootNode, ref NodeList, MaterialList, FolderMap)) return false;
@@ -222,7 +222,7 @@ namespace mmdlib
             return true;
         }
 
-        static bool CreateTextureList(CPmxModel model, string srcFolder, ref List<Texture> TextureList,
+        static bool CreateTextureList(CPmxModel model, string srcFolder, ref List<string> TexturePathList,
             Dictionary<string, string> FolderMap)
         {
             string TextureFolder = string.Empty;
@@ -235,35 +235,23 @@ namespace mmdlib
                 string fileName = Path.GetFileName(TexturePath);
                 string TexAssetName = Path.Combine(TextureFolder, fileName);
 
-                bool result = AssetDatabase.CopyAsset(TexturePath, TexAssetName);
+                // ファイルをコピー
+                File.Copy(TexturePath, TexAssetName, true);
 
-                Debug.LogFormat("TexturePath: {0}, TexAssetName: {1}, result: {2}", TexturePath, TexAssetName, result);
+                // Unityでインポートを実行
+                AssetDatabase.ImportAsset(TexAssetName, ImportAssetOptions.Default);
 
-                /*Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(TexturePath);
-                Debug.LogFormat("texture.name: {0}", texture.name);
-                if (texture == null)
-                {
-                    Debug.LogErrorFormat("Failed to load Texture. TexturePath: {0}", TexturePath);
+                // インポート後にアセットを取得
+                Texture asset = AssetDatabase.LoadAssetAtPath<Texture>(TexAssetName);
 
-                    return false;
-                }
-
-                // アセットを保存
-                string fileName = Path.GetFileName(TexturePath);
-
-                string TexAssetName = Path.Combine(TextureFolder, fileName);
-                AssetDatabase.CreateAsset(texture, TexAssetName);
-                
-                TextureList.Add(texture); 
-                */
-
+                TexturePathList.Add(TexAssetName);
             }
 
             return true;
         }
 
         static bool CreateMaterialList(CPmxModel model, ref List<GameObject> NodeList, ref List<Material> MaterialList,
-            List<Texture> TextureList, Dictionary<string, string> FolderMap)
+            List<string> TexturePathList, Dictionary<string, string> FolderMap)
         {
             string MaterialFolder = string.Empty;
             if (!FolderMap.TryGetValue("Materials", out MaterialFolder)) return false;
@@ -276,60 +264,6 @@ namespace mmdlib
 
                 Material material = new Material(Shader.Find("MMDLib/BasicToon"));
 
-                // カリング
-                // https://docs.unity3d.com/6000.2/Documentation/ScriptReference/Rendering.CullMode.html
-                CullMode cullMode = CullMode.Back;
-                if (PmxMaterial.IsDrawDoubleSlided()) cullMode = CullMode.Off;
-
-                material.SetInteger("_Cull", (int)cullMode);
-
-                // ブレンドモード
-                BlendMode blendSrc = BlendMode.SrcAlpha;
-                material.SetInteger("_BlendSrc", (int)blendSrc);
-
-                BlendMode blendDst = BlendMode.OneMinusSrcAlpha;
-                material.SetInteger("_BlendDst", (int)blendDst);
-
-                // ShaderUniformをセット
-                material.SetFloat("_EdgeSize", PmxMaterial.GetEdgeSize());
-                material.SetFloat("_SpecularIntensity", PmxMaterial.GetSpecularCoef());
-
-                material.SetColor("_DiffuseFactor", PmxMaterial.GetDiffuse());
-                material.SetColor("_AmbientFactor", PmxMaterial.GetAmbient());
-                material.SetColor("_SpecularFactor", PmxMaterial.GetSpecular());
-                material.SetColor("_EdgeColor", PmxMaterial.GetEdgeColor());
-
-                // MainTexture
-                int MainTexIndex = PmxMaterial.GetMainTexIndex();
-                if(MainTexIndex >= 0 && MainTexIndex < TextureList.Count)
-                {
-                    Texture texture = TextureList[MainTexIndex];
-                    material.SetTexture("_MainTexture", texture);
-                }
-
-                // ToonTexture
-                int ToonTexIndex = PmxMaterial.GetToonTexIndex();
-                int SharedToonTexIndex = PmxMaterial.GetSharedToonTexIndex();
-
-                if (ToonTexIndex >= 0 && ToonTexIndex < TextureList.Count)
-                {
-                    Texture texture = TextureList[ToonTexIndex];
-                    material.SetTexture("_ToonTexture", texture);
-                }
-                else if(SharedToonTexIndex >= 0)
-                {
-                    // 未対応
-                }
-
-                // SphereTexture
-                int SphereTexIndex = PmxMaterial.GetSphereTexIndex();
-                if (SphereTexIndex >= 0 && SphereTexIndex < TextureList.Count)
-                {
-                    Texture texture = TextureList[SphereTexIndex];
-                    material.SetTexture("_SphereTexture", texture);
-                }
-
-                //
                 MaterialList.Add(material);
 
                 // マテリアルアセット生成
@@ -337,6 +271,87 @@ namespace mmdlib
                 MaterialAssetName += ".mat";
 
                 AssetDatabase.CreateAsset(material, MaterialAssetName);
+
+                // 次のエディタフレームで実行するコールバック
+                EditorApplication.delayCall += () =>
+                {
+                    // カリング
+                    // https://docs.unity3d.com/6000.2/Documentation/ScriptReference/Rendering.CullMode.html
+                    CullMode cullMode = CullMode.Back;
+                    if (PmxMaterial.IsDrawDoubleSlided()) cullMode = CullMode.Off;
+
+                    material.SetInteger("_Cull", (int)cullMode);
+
+                    // ブレンドモード
+                    BlendMode blendSrc = BlendMode.SrcAlpha;
+                    material.SetInteger("_BlendSrc", (int)blendSrc);
+
+                    BlendMode blendDst = BlendMode.OneMinusSrcAlpha;
+                    material.SetInteger("_BlendDst", (int)blendDst);
+
+                    // ShaderUniformをセット
+                    material.SetFloat("_EdgeSize", PmxMaterial.GetEdgeSize());
+                    material.SetFloat("_SpecularIntensity", PmxMaterial.GetSpecularCoef());
+
+                    material.SetColor("_DiffuseFactor", PmxMaterial.GetDiffuse());
+                    material.SetColor("_AmbientFactor", PmxMaterial.GetAmbient());
+                    material.SetColor("_SpecularFactor", PmxMaterial.GetSpecular());
+                    material.SetColor("_EdgeColor", PmxMaterial.GetEdgeColor());
+
+                    // MainTexture
+                    int MainTexIndex = PmxMaterial.GetMainTexIndex();
+
+                    if (MainTexIndex >= 0 && MainTexIndex < TexturePathList.Count)
+                    {
+                        // CreateTextureListで作ったTextureオブジェクトはまだインポート中でそれをmaterial.SetTextureに
+                        // 使うと消えてしまうので遅延コールバック内でAssetDatabase.LoadAssetAtPathで新規ロードする
+                        string path = TexturePathList[MainTexIndex];
+
+                        material.SetTexture("_MainTexture", AssetDatabase.LoadAssetAtPath<Texture>(path));
+                    }
+
+                    // ToonTexture
+                    int ToonTexIndex = PmxMaterial.GetToonTexIndex();
+                    int SharedToonTexIndex = PmxMaterial.GetSharedToonTexIndex();
+
+                    // 10枚しか存在しない想定
+                    const int NumOfSharedToon = 10;
+
+                    if (ToonTexIndex >= 0 && ToonTexIndex < TexturePathList.Count)
+                    {
+                        // CreateTextureListで作ったTextureオブジェクトはまだインポート中でそれをmaterial.SetTextureに
+                        // 使うと消えてしまうので遅延コールバック内でAssetDatabase.LoadAssetAtPathで新規ロードする
+                        string path = TexturePathList[ToonTexIndex];
+
+                        material.SetTexture("_ToonTexture", AssetDatabase.LoadAssetAtPath<Texture>(path));
+                    }
+                    else if (SharedToonTexIndex >= 0 && SharedToonTexIndex <= NumOfSharedToon)
+                    {
+                        // CreateTextureListで作ったTextureオブジェクトはまだインポート中でそれをmaterial.SetTextureに
+                        // 使うと消えてしまうので遅延コールバック内でAssetDatabase.LoadAssetAtPathで新規ロードする
+                        int number = SharedToonTexIndex + 1;
+                        string path = "Assets/MMDLib/Texture/SharedToon/toon" + number.ToString("00") + ".bmp";
+
+                        Texture texture = AssetDatabase.LoadAssetAtPath<Texture>(path);
+
+                        material.SetTexture("_ToonTexture", texture);
+                    }
+
+                    // SphereTexture
+                    int SphereTexIndex = PmxMaterial.GetSphereTexIndex();
+                    if (SphereTexIndex >= 0 && SphereTexIndex < TexturePathList.Count)
+                    {
+                        // CreateTextureListで作ったTextureオブジェクトはまだインポート中でそれをmaterial.SetTextureに
+                        // 使うと消えてしまうので遅延コールバック内でAssetDatabase.LoadAssetAtPathで新規ロードする
+                        string path = TexturePathList[SphereTexIndex];
+
+                        material.SetTexture("_SphereTexture", AssetDatabase.LoadAssetAtPath<Texture>(path));
+                    }
+
+                    // マテリアルの変更を保存する(テクスチャのバインドを保持しておくために必要。これがないとテクスチャが消える)
+                    EditorUtility.SetDirty(material);
+                    AssetDatabase.SaveAssetIfDirty(material);
+                };
             }
 
             return true;
