@@ -1,6 +1,8 @@
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
@@ -123,7 +125,6 @@ namespace mmdlib
             if (!model.Analyse(fileName)) return false;
 
             List<GameObject> NodeList = new List<GameObject>();
-            List<Mesh> MeshList = new List<Mesh>();
 
             // ルートノードを生成
             string rootName = Path.GetFileNameWithoutExtension(fileName);
@@ -142,6 +143,7 @@ namespace mmdlib
             if (!CreateMaterialList(model, ref NodeList, ref MaterialMap, TextureList, FolderMap)) return false;
 
             // メッシュ
+            if (!CreateMeshList(model, ref rootNode, ref NodeList, MaterialMap, FolderMap)) return false;
 
             // 物理演算
 
@@ -339,6 +341,256 @@ namespace mmdlib
 
             return true;
         }
+
+        static bool CreateMeshList(CPmxModel model, ref GameObject rootNode, ref List<GameObject> NodeList, 
+            Dictionary<string, Material> MaterialMap, Dictionary<string, string> FolderMap)
+        {
+            string MeshFolder = string.Empty;
+            if (!FolderMap.TryGetValue("Meshs", out MeshFolder)) return false;
+
+            CPmxMesh PmxMesh = model.GetPmxMesh();
+            if (PmxMesh == null) return true;
+
+            var PmxMaterialList = model.GetPmxMaterialList();
+
+            // 明示的にMeshNodeを作成
+            GameObject MeshNode = new GameObject("BaseMeshNode");
+            MeshNode.transform.parent = rootNode.transform;
+
+            {
+                // メッシュを作成する
+                Mesh mesh = new Mesh();
+
+                // メタデータ
+                SPmxMetaData MetaData = model.GetMetaData();
+
+                // VertexBuffer
+                {
+                    var PmxPosition = PmxMesh.GetPositionAttribute();
+                    var PmxNormal = PmxMesh.GetNormalAttribute();
+                    var PmxUV = PmxMesh.GetUVAttribute();
+                    var PmxTangent = PmxMesh.GetTangentAttribute();
+
+                    // Position
+                    if(PmxPosition != null && PmxPosition.Count > 0)
+                    {
+                        int NumOfElm = PmxPosition.Count / 3;
+
+                        Vector3[] vertices = new Vector3[NumOfElm];
+
+                        for(int elmIndex = 0; elmIndex < NumOfElm; elmIndex ++)
+                        {
+                            vertices[elmIndex] = new Vector3(
+                                PmxPosition[elmIndex * 3 + 0],
+                                PmxPosition[elmIndex * 3 + 1],
+                                PmxPosition[elmIndex * 3 + 2]
+                            );
+                        }
+
+                        //Array.Copy(PmxPosition.ToArray(), 0, vertices, 0, PmxPosition.Count);
+
+                        mesh.vertices = vertices;
+                    }
+
+                    // Normal
+                    if(PmxNormal != null && PmxNormal.Count > 0)
+                    {
+                        int NumOfElm = PmxNormal.Count / 3;
+
+                        Vector3[] normals = new Vector3[NumOfElm];
+
+                        for (int elmIndex = 0; elmIndex < NumOfElm; elmIndex++)
+                        {
+                            normals[elmIndex] = new Vector3(
+                                PmxNormal[elmIndex * 3 + 0],
+                                PmxNormal[elmIndex * 3 + 1],
+                                PmxNormal[elmIndex * 3 + 2]
+                            );
+                        }
+
+                        //Array.Copy(PmxNormal.ToArray(), 0, normals, 0, PmxNormal.Count);
+
+                        mesh.normals = normals;
+                    }
+                    
+                    // UV
+                    if(PmxUV != null && PmxUV.Count > 0)
+                    {
+                        int NumOfElm = PmxUV.Count / 2;
+
+                        Vector2[] uv = new Vector2[NumOfElm];
+
+                        for (int elmIndex = 0; elmIndex < NumOfElm; elmIndex++)
+                        {
+                            uv[elmIndex] = new Vector2(
+                                PmxUV[elmIndex * 2 + 0],
+                                PmxUV[elmIndex * 2 + 1]
+                            );
+                        }
+
+                        //Array.Copy(PmxUV.ToArray(), 0, uv, 0, PmxUV.Count);
+
+                        mesh.uv = uv;
+                    }
+
+                    // Tangent
+                    if (PmxTangent != null && PmxTangent.Count > 0)
+                    {
+                        int NumOfElm = PmxTangent.Count / 4;
+
+                        Vector4[] tangents = new Vector4[NumOfElm];
+
+                        for (int elmIndex = 0; elmIndex < NumOfElm; elmIndex++)
+                        {
+                            tangents[elmIndex] = new Vector4(
+                                PmxTangent[elmIndex * 4 + 0],
+                                PmxTangent[elmIndex * 4 + 1],
+                                PmxTangent[elmIndex * 4 + 2],
+                                PmxTangent[elmIndex * 4 + 3]
+                            );
+                        }
+
+                        //Array.Copy(PmxTangent.ToArray(), 0, tangents, 0, PmxTangent.Count);
+
+                        mesh.tangents = tangents;
+                    }
+                    else
+                    {
+                        mesh.RecalculateTangents();
+                    }
+
+                    // BoneIndex(JointIndex)・BoneWieght
+                    List<BoneWeight> boneWeights = new List<BoneWeight>();
+
+                    var PmxByteBoneAttribute = PmxMesh.GetByteBoneAttribute();
+                    var PmxUShortBoneAttribute = PmxMesh.GetUShortBoneAttribute();
+                    var PmxUIntBoneAttribute = PmxMesh.GetUIntBoneAttribute();
+                    
+                    var PmxWeights = PmxMesh.GetWeightAttribute();
+
+                    for(int bwIndex = 0; bwIndex < (PmxWeights.Count / 4); bwIndex ++)
+                    {
+                        BoneWeight boneWeight = new BoneWeight();
+
+                        if (MetaData.BoneIndexSize == 1)
+                        {
+                            boneWeight.boneIndex0 = (int)PmxByteBoneAttribute[bwIndex * 4 + 0];
+                            boneWeight.boneIndex1 = (int)PmxByteBoneAttribute[bwIndex * 4 + 1];
+                            boneWeight.boneIndex2 = (int)PmxByteBoneAttribute[bwIndex * 4 + 2];
+                            boneWeight.boneIndex3 = (int)PmxByteBoneAttribute[bwIndex * 4 + 3];
+                        }
+                        else if (MetaData.BoneIndexSize == 2)
+                        {
+                            boneWeight.boneIndex0 = (int)PmxUShortBoneAttribute[bwIndex * 4 + 0];
+                            boneWeight.boneIndex1 = (int)PmxUShortBoneAttribute[bwIndex * 4 + 1];
+                            boneWeight.boneIndex2 = (int)PmxUShortBoneAttribute[bwIndex * 4 + 2];
+                            boneWeight.boneIndex3 = (int)PmxUShortBoneAttribute[bwIndex * 4 + 3];
+                        }
+                        else if (MetaData.BoneIndexSize == 4)
+                        {
+                            boneWeight.boneIndex0 = (int)PmxUIntBoneAttribute[bwIndex * 4 + 0];
+                            boneWeight.boneIndex1 = (int)PmxUIntBoneAttribute[bwIndex * 4 + 1];
+                            boneWeight.boneIndex2 = (int)PmxUIntBoneAttribute[bwIndex * 4 + 2];
+                            boneWeight.boneIndex3 = (int)PmxUIntBoneAttribute[bwIndex * 4 + 3];
+                        }
+
+                        boneWeight.weight0 = PmxWeights[bwIndex * 4 + 0];
+                        boneWeight.weight1 = PmxWeights[bwIndex * 4 + 1];
+                        boneWeight.weight2 = PmxWeights[bwIndex * 4 + 2];
+                        boneWeight.weight3 = PmxWeights[bwIndex * 4 + 3];
+
+                        boneWeights.Add(boneWeight);
+                    }
+
+                    mesh.boneWeights = boneWeights.ToArray();
+                }
+
+                // IndexBuffer
+                {
+                    int IndexBufferOffset = 0;
+
+                    var ByteIndices = PmxMesh.GetByteIndices();
+                    var UShortIndices = PmxMesh.GetUShortIndices();
+                    var UIntIndices = PmxMesh.GetUIntIndices();
+
+                    if (MetaData.VertexIndexSize == 1)
+                    {
+                        // byte型のインデックスの時はushortにキャストする
+                        mesh.indexFormat = IndexFormat.UInt16;
+                    }
+                    else if (MetaData.VertexIndexSize == 2)
+                    {
+                        mesh.indexFormat = IndexFormat.UInt16;
+                    }
+                    else if (MetaData.VertexIndexSize == 4)
+                    {
+                        mesh.indexFormat = IndexFormat.UInt32;
+                    }
+
+                    // サブメッシュ数を指定
+                    mesh.subMeshCount = PmxMaterialList.Count;
+
+                    // 頂点バッファをインデックスバッファで分けてサブメッシュを構築
+                    for (int SubMeshIndex = 0; SubMeshIndex < PmxMaterialList.Count; SubMeshIndex++)
+                    {
+                        var PmxMaterial = PmxMaterialList[SubMeshIndex];
+
+                        int IndiceCount = PmxMaterial.GetMatRefIndiceCount();
+
+                        if (MetaData.VertexIndexSize == 1)
+                        {
+                            // byte型のインデックスの時はushortにキャストする
+                            ushort[] indices = new ushort[IndiceCount];
+
+                            for(int n = 0; n < ByteIndices.Count; n++)
+                            {
+                                byte index = ByteIndices[n];
+
+                                indices[n] = (ushort)index;
+                            }
+
+                            mesh.SetIndices(indices, MeshTopology.Triangles, SubMeshIndex);
+                        }
+                        else if (MetaData.VertexIndexSize == 2)
+                        {
+                            ushort[] indices = new ushort[IndiceCount];
+
+                            Array.Copy(UShortIndices.ToArray(), IndexBufferOffset, indices, 0, IndiceCount);
+
+                            mesh.SetIndices(indices, MeshTopology.Triangles, SubMeshIndex);
+
+                        }
+                        else if (MetaData.VertexIndexSize == 4)
+                        {
+                            int[] indices = new int[IndiceCount];
+
+                            Array.Copy(UIntIndices.ToArray(), IndexBufferOffset, indices, 0, IndiceCount);
+
+                            mesh.SetIndices(indices, MeshTopology.Triangles, SubMeshIndex);
+                        }
+
+                        IndexBufferOffset += IndiceCount;
+                    }
+                }
+
+                // バウンディングボックスを再計算
+                mesh.RecalculateBounds();
+
+                // メッシュアセットを作成
+                string MeshAssetName = Path.Combine(MeshFolder, "BaseMesh");
+                MeshAssetName += ".mesh";
+
+                AssetDatabase.CreateAsset(mesh, MeshAssetName);
+
+                // スキンメッシュレンダラーを作成
+
+            }
+
+            return true;
+        }
+
+        // Helper
+        //bool memcpy)
     }
 
 }
