@@ -109,6 +109,31 @@ namespace mmdlib
             return true;
         }
 
+        public SPmxMetaData GetMetaData()
+        {
+            return m_MetaData;
+        }
+
+        public CPmxMesh GetPmxMesh()
+        {
+            return m_PmxMesh;
+        }
+
+        public List<CPmxTexture> GetPmxTextureList()
+        {
+            return m_PmxTextureList;
+        }
+
+        public List<CPmxMaterial> GetPmxMaterialList()
+        {
+            return m_PmxMaterialList;
+        }
+
+        public List<CPmxBone> GetPmxBoneList()
+        {
+            return m_PmxBoneList;
+        }
+
         bool AnalyseMetaData(ref CBinaryReader Analyser)
         {
             // 後続のメタデータの長さ(PMX 2.0では8に固定)
