@@ -604,6 +604,8 @@ namespace mmdlib
 
                 skinnedMeshRenderer.sharedMesh = mesh;
                 skinnedMeshRenderer.materials = MaterialList.ToArray();
+
+                skinnedMeshRenderer.localBounds = mesh.bounds;
             }
 
             return true;

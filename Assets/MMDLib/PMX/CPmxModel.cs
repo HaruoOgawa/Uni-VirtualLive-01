@@ -276,6 +276,9 @@ namespace mmdlib
                         float u = Analyser.GetFloat();
                         float v = Analyser.GetFloat();
 
+                        // UVÇ™è„â∫îΩì]ÇµÇƒÇ¢ÇÈÇÃÇ≈ï‚ê≥Ç∑ÇÈ
+                        v = 1.0f - v;
+
                         UVAttribute.Add(u);
                         UVAttribute.Add(v);
                     }
