@@ -5,17 +5,17 @@ namespace mmdlib
 {
     public struct SVMDFrame
     {
-        EHumanoidBones BoneName;
+        public EHumanoidBones BoneName;
 
-        int FrameIndex;
+        public int FrameIndex;
 
-        Vector3 Pos;
-        Quaternion Rot;
+        public Vector3 Pos;
+        public Quaternion Rot;
 
-        List<Vector2> XPointList;
-        List<Vector2> YPointList;
-        List<Vector2> ZPointList;
-        List<Vector2> RPointList;
+        public List<Vector2> XPointList;
+        public List<Vector2> YPointList;
+        public List<Vector2> ZPointList;
+        public List<Vector2> RPointList;
 
         public SVMDFrame(EHumanoidBones _boneName, int _frameIndex, Vector3 _pos, Quaternion _rot,
         List<Vector2> _XPointList, List<Vector2> _YPointList, List<Vector2> _ZPointList, List<Vector2> _RPointList)
