@@ -149,7 +149,9 @@ namespace mmdlib
                     localRot_W_Curve.keys = localRot_W_KeyFrameList.ToArray();
                 }
 
-                string BonePath = "TmpBonePath_" + Index.ToString();
+                //
+                EHumanoidBones HumanoidBone = Frame.Key;
+                string BonePath = CPmxSkeleton.GetFullLinkBoneName(HumanoidBone);
 
                 clip.SetCurve(BonePath, typeof(Transform), "localPosition.x", localPos_X_Curve);
                 clip.SetCurve(BonePath, typeof(Transform), "localPosition.y", localPos_Y_Curve);
@@ -175,8 +177,6 @@ namespace mmdlib
             
             return true;
         }
-
-        //static string CalcLinkBoneName(EHumanoidBones)
     }
 }
 

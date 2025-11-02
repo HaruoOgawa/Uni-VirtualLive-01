@@ -46,6 +46,7 @@ namespace mmdlib
     public enum EHumanoidBones
     {
         None = -1,
+
         Hips,
         LeftUpperLeg,
         RightUpperLeg,
@@ -101,35 +102,20 @@ namespace mmdlib
         RightLittleProximal,
         RightLittleIntermediate,
         RightLittleDistal,
+        AllParent, // 全ての親(MMD用) 
+        Center, // センター(MMD用)
+        Group, // グルーブ(MMD用)
+        LowerBody, // 下半身(MMD用)
+        RightLegIKParent, // 右足IK親(MMD用)
+        RightLegIK, // 右足ＩＫ(MMD用)
+        RightToesIK, // 右つま先ＩＫ(MMD用)
+        LeftLegIKParent, // 左足IK親(MMD用)
+        LeftLegIK, // 左足ＩＫ(MMD用)
+        LeftToesIK, // 左つま先ＩＫ(MMD用)
 
         // 最大ヒューマノイドボーン数
-        Max = 55,
-       
-        // MMD用の追加ボーンリスト ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // 全ての親(MMD用)
-        AllParent,
-        
-        // センター(MMD用)
-        Center,
-
-        // グルーブ(MMD用)
-        Group,
-
-        // 下半身(MMD用)
-        LowerBody,
-
-        // 右足ＩＫ(MMD用)
-        RightLegIK,
-
-        // 右つま先ＩＫ(MMD用)
-        RightToesIK,
-
-        // 左足ＩＫ(MMD用)
-        LeftLegIK,
-
-        // 左つま先ＩＫ(MMD用)
-        LeftToesIK,
-	};
+        Max = 64,
+    };
 
     public enum EBlendShapeName
     {

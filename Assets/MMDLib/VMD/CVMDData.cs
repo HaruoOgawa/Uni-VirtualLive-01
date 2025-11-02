@@ -241,7 +241,7 @@ namespace mmdlib
                 if (!Analyser.Skip(16 * 3)) return false;
 
                 // ボーン名を取得
-                EHumanoidBones BoneName = CastStringToBoneName(Name);
+                EHumanoidBones BoneName = CPmxSkeleton.CastStringToBoneName(Name);
 
                 // Noneはどのボーンに割り当てればいいかわからないのでスキップする
                 if (BoneName == EHumanoidBones.None) continue;
@@ -279,74 +279,6 @@ namespace mmdlib
         bool AnalyseSelfShadowData(ref CBinaryReader Analyser)
         {
             return true;
-        }
-
-        // Helper
-        static EHumanoidBones CastStringToBoneName(string boneName)
-        {
-            if (boneName == "右足ＩＫ") return EHumanoidBones.LeftLegIK;
-            else if (boneName == "右つま先ＩＫ") return EHumanoidBones.LeftToesIK;
-            else if (boneName == "左足ＩＫ") return EHumanoidBones.RightLegIK;
-            else if (boneName == "左つま先ＩＫ") return EHumanoidBones.RightToesIK;
-            else if (boneName == "全ての親") return EHumanoidBones.AllParent;
-            else if (boneName == "センター") return EHumanoidBones.Center;
-            else if (boneName == "グルーブ") return EHumanoidBones.Group;
-            else if (boneName == "腰") return EHumanoidBones.Hips;
-            else if (boneName == "下半身") return EHumanoidBones.LowerBody;
-            else if (boneName == "上半身") return EHumanoidBones.Spine;
-            else if (boneName == "上半身2") return EHumanoidBones.Chest;
-            else if (boneName == "首") return EHumanoidBones.Neck;
-            else if (boneName == "頭") return EHumanoidBones.Head;
-            else if (boneName == "左目") return EHumanoidBones.RightEye;
-            else if (boneName == "右目") return EHumanoidBones.LeftEye;
-            else if (boneName == "左肩") return EHumanoidBones.RightShoulder;
-            else if (boneName == "左腕") return EHumanoidBones.RightUpperArm;
-            else if (boneName == "左ひじ") return EHumanoidBones.RightLowerArm;
-            else if (boneName == "左手首") return EHumanoidBones.RightHand;
-            else if (boneName == "右肩") return EHumanoidBones.LeftShoulder;
-            else if (boneName == "右腕") return EHumanoidBones.LeftUpperArm;
-            else if (boneName == "右ひじ") return EHumanoidBones.LeftLowerArm;
-            else if (boneName == "右手首") return EHumanoidBones.LeftHand;
-            else if (boneName == "左足") return EHumanoidBones.RightUpperLeg;
-            else if (boneName == "左ひざ") return EHumanoidBones.RightLowerLeg;
-            else if (boneName == "左足首") return EHumanoidBones.RightFoot;
-            else if (boneName == "左つま先") return EHumanoidBones.RightToes;
-            else if (boneName == "右足") return EHumanoidBones.LeftUpperLeg;
-            else if (boneName == "右ひざ") return EHumanoidBones.LeftLowerLeg;
-            else if (boneName == "右足首") return EHumanoidBones.LeftFoot;
-            else if (boneName == "右つま先") return EHumanoidBones.LeftToes;
-            else if (boneName == "左親指０") return EHumanoidBones.RightThumbProximal;
-            else if (boneName == "左親指１") return EHumanoidBones.RightThumbIntermediate;
-            else if (boneName == "左親指２") return EHumanoidBones.RightThumbDistal;
-            else if (boneName == "左人指１") return EHumanoidBones.RightIndexProximal;
-            else if (boneName == "左人指２") return EHumanoidBones.RightIndexIntermediate;
-            else if (boneName == "左人指３") return EHumanoidBones.RightIndexDistal;
-            else if (boneName == "左中指１") return EHumanoidBones.RightMiddleProximal;
-            else if (boneName == "左中指２") return EHumanoidBones.RightMiddleIntermediate;
-            else if (boneName == "左中指３") return EHumanoidBones.RightMiddleDistal;
-            else if (boneName == "左薬指１") return EHumanoidBones.RightRingProximal;
-            else if (boneName == "左薬指２") return EHumanoidBones.RightRingIntermediate;
-            else if (boneName == "左薬指３") return EHumanoidBones.RightRingDistal;
-            else if (boneName == "左小指１") return EHumanoidBones.RightLittleProximal;
-            else if (boneName == "左小指２") return EHumanoidBones.RightLittleIntermediate;
-            else if (boneName == "左小指３") return EHumanoidBones.RightLittleDistal;
-            else if (boneName == "右親指0") return EHumanoidBones.LeftThumbProximal;
-            else if (boneName == "右親指１") return EHumanoidBones.LeftThumbIntermediate;
-            else if (boneName == "右親指２") return EHumanoidBones.LeftThumbDistal;
-            else if (boneName == "右人指１") return EHumanoidBones.LeftIndexProximal;
-            else if (boneName == "右人指２") return EHumanoidBones.LeftIndexIntermediate;
-            else if (boneName == "右人指３") return EHumanoidBones.LeftIndexDistal;
-            else if (boneName == "右中指１") return EHumanoidBones.LeftMiddleProximal;
-            else if (boneName == "右中指２") return EHumanoidBones.LeftMiddleIntermediate;
-            else if (boneName == "右中指３") return EHumanoidBones.LeftMiddleDistal;
-            else if (boneName == "右薬指１") return EHumanoidBones.LeftRingProximal;
-            else if (boneName == "右薬指２") return EHumanoidBones.LeftRingIntermediate;
-            else if (boneName == "右薬指３") return EHumanoidBones.LeftRingDistal;
-            else if (boneName == "右小指１") return EHumanoidBones.LeftLittleProximal;
-            else if (boneName == "右小指２") return EHumanoidBones.LeftLittleIntermediate;
-            else if (boneName == "右小指３") return EHumanoidBones.LeftLittleDistal;
-
-            return EHumanoidBones.None;
         }
     }
 }

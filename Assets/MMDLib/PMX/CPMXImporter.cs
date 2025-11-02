@@ -174,7 +174,10 @@ namespace mmdlib
                 if(PmxBone == null) continue;
 
                 // BoneNode�̍쐬
-                GameObject BoneNode = new GameObject(PmxBone.GetBoneName());
+                string BoneName = CPmxSkeleton.GetStrBoneName(PmxBone.GetHumanoidBone());
+                if (BoneName == string.Empty) BoneName = PmxBone.GetBoneName();
+
+                GameObject BoneNode = new GameObject(BoneName);
                 
                 Vector3 Pos = PmxBone.GetPos();
                 //Quaternion Rot = PmxBone->GetLocalAxis();
