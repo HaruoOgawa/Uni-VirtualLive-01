@@ -104,6 +104,16 @@ namespace mmdlib
                 FolderMap.Add("Textures", Folder);
             }
 
+            // アバター
+            {
+                string name = "Avatar";
+                string guid = AssetDatabase.CreateFolder(RootFolderName, name);
+
+                string Folder = AssetDatabase.GUIDToAssetPath(guid);
+
+                FolderMap.Add("Avatar", Folder);
+            }
+
             // プレファブ
             {
                 string name = "Prefab";
@@ -134,7 +144,7 @@ namespace mmdlib
             // Skeleton
             GameObject rootBone = null;
             List<Transform> BoneTransformList = new List<Transform>();
-            if (!CreateAnimationSkeleton(model, ref rootNode, ref rootBone, ref NodeList, ref BoneTransformList)) return false;
+            if (!CreateAnimationSkeleton(model, ref rootNode, ref rootBone, ref NodeList, ref BoneTransformList, FolderMap)) return false;
 
             // テクスチャリスト
             List<string> TexturePathList = new List<string>();
@@ -162,13 +172,16 @@ namespace mmdlib
         }
 
         static bool CreateAnimationSkeleton(CPmxModel model, ref GameObject rootNode, ref GameObject rootBone, 
-            ref List<GameObject> NodeList, ref List<Transform> BoneTransformList)
+            ref List<GameObject> NodeList, ref List<Transform> BoneTransformList, Dictionary<string, string> FolderMap)
         {
             var PmxBoneList = model.GetPmxBoneList();
-
+            
             List<(GameObject Node, CPmxBone PmxBone)> NodeBoneList = new List<(GameObject, CPmxBone)>();
 
-            for(int BoneIndex = 0; BoneIndex < PmxBoneList.Count; BoneIndex++)
+            List<SkeletonBone> UnitySkeletonBoneList = new List<SkeletonBone>();
+            List<HumanBone> UnityHumanBoneList = new List<HumanBone>();
+
+            for (int BoneIndex = 0; BoneIndex < PmxBoneList.Count; BoneIndex++)
             {
                 var PmxBone = PmxBoneList[BoneIndex];
                 if(PmxBone == null) continue;
@@ -206,6 +219,25 @@ namespace mmdlib
                 {
                     rootBone = BoneNode;
                 }
+
+                // Unityボーン
+                SkeletonBone uniSkeletonBone = new SkeletonBone();
+                uniSkeletonBone.name = BoneNode.name;
+                uniSkeletonBone.position = BoneNode.transform.position;
+                uniSkeletonBone.rotation = BoneNode.transform.rotation;
+                uniSkeletonBone.scale = BoneNode.transform.lossyScale;
+
+                UnitySkeletonBoneList.Add(uniSkeletonBone);
+
+                // Unityヒューマンボーン
+                if(PmxBone.GetHumanoidBone() != EHumanoidBones.None)
+                {
+                    HumanBone UniHumanBone = new HumanBone();
+                    UniHumanBone.boneName = BoneNode.name;
+                    UniHumanBone.humanName = BoneNode.name;
+
+                    UnityHumanBoneList.Add(UniHumanBone);
+                }
             }
 
             // ボーンの親子関係を構築
@@ -233,6 +265,23 @@ namespace mmdlib
                     // ルートノードを親とする
                     BoneNode.transform.parent = rootNode.transform;
                 }
+            }
+
+            // Avatar作成
+            string AvatarFolder = string.Empty;
+            if (rootBone != null && FolderMap.TryGetValue("Avatar", out AvatarFolder))
+            {
+                HumanDescription humanDesc = new HumanDescription();
+                humanDesc.skeleton = UnitySkeletonBoneList.ToArray();
+                humanDesc.human = UnityHumanBoneList.ToArray();
+
+                Avatar avatar = AvatarBuilder.BuildHumanAvatar(rootBone, humanDesc);
+
+                // アバターアセット作成
+                string AvatarAssetName = Path.Combine(AvatarFolder, rootNode.name);
+                AvatarAssetName += ".asset";
+
+                AssetDatabase.CreateAsset(avatar, AvatarAssetName);
             }
 
             return true;
