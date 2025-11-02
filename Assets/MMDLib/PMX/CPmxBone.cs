@@ -5,6 +5,7 @@ public class CPmxBone
 {
     string m_BoneName;
     string m_BoneName_EN;
+    EHumanoidBones m_HumanoidBone;
 
     Vector3 m_Pos;
 
@@ -36,10 +37,11 @@ public class CPmxBone
     // IK
     SIKParam m_IKParam;
 
-    public CPmxBone(string boneName, string boneNameEN, Vector3 pos, int parentBoneIndex, int deformLayer, ushort boneFlag)
+    public CPmxBone(string boneName, string boneNameEN, EHumanoidBones humanoidBone, Vector3 pos, int parentBoneIndex, int deformLayer, ushort boneFlag)
     {
         m_BoneName = boneName;
         m_BoneName_EN = boneNameEN;
+        m_HumanoidBone = humanoidBone;
         m_Pos = pos;
         m_ParentBoneIndex = parentBoneIndex;
         m_DeformLayer = deformLayer;
@@ -67,6 +69,11 @@ public class CPmxBone
     public string GetBoneName_EN()
     {
         return m_BoneName_EN;
+    }
+
+    public EHumanoidBones GetHumanoidBone()
+    {
+        return m_HumanoidBone;
     }
 
     public Vector3 GetPos()

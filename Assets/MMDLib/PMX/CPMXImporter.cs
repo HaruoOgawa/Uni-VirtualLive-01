@@ -132,7 +132,9 @@ namespace mmdlib
             NodeList.Add(rootNode);
 
             // Skeleton
-            if (!CreateAnimationSkeleton(model, ref rootNode, ref NodeList)) return false;
+            GameObject rootBone = null;
+            List<Transform> BoneTransformList = new List<Transform>();
+            if (!CreateAnimationSkeleton(model, ref rootNode, ref rootBone, ref NodeList, ref BoneTransformList)) return false;
 
             // テクスチャリスト
             List<string> TexturePathList = new List<string>();
@@ -143,7 +145,7 @@ namespace mmdlib
             if (!CreateMaterialList(model, ref NodeList, ref MaterialList, TexturePathList, FolderMap)) return false;
 
             // メッシュ
-            if (!CreateMeshList(model, ref rootNode, ref NodeList, MaterialList, FolderMap)) return false;
+            if (!CreateMeshList(model, ref rootNode, rootBone, ref NodeList, BoneTransformList, MaterialList, FolderMap)) return false;
 
             // 物理演算
 
@@ -159,11 +161,12 @@ namespace mmdlib
             return true;
         }
 
-        static bool CreateAnimationSkeleton(CPmxModel model, ref GameObject rootNode, ref List<GameObject> NodeList)
+        static bool CreateAnimationSkeleton(CPmxModel model, ref GameObject rootNode, ref GameObject rootBone, 
+            ref List<GameObject> NodeList, ref List<Transform> BoneTransformList)
         {
             var PmxBoneList = model.GetPmxBoneList();
 
-            List<(GameObject Node, CPmxBone PmxBone)> BoneList = new List<(GameObject, CPmxBone)>();
+            List<(GameObject Node, CPmxBone PmxBone)> NodeBoneList = new List<(GameObject, CPmxBone)>();
 
             for(int BoneIndex = 0; BoneIndex < PmxBoneList.Count; BoneIndex++)
             {
@@ -189,23 +192,33 @@ namespace mmdlib
 
                 BoneNode.transform.position = Pos;
 
-                BoneList.Add((BoneNode, PmxBone));
+                NodeBoneList.Add((BoneNode, PmxBone));
+
+                //
+                NodeList.Add(BoneNode);
+                BoneTransformList.Add(BoneNode.transform);
+
+                // 全ての親ならルートボーンとする
+                if(PmxBone.GetHumanoidBone() == EHumanoidBones.AllParent)
+                {
+                    rootBone = BoneNode;
+                }
             }
 
             // ボーンの親子関係を構築
-            foreach(var bonePair in BoneList)
+            foreach(var boneNonePair in NodeBoneList)
             {
-                GameObject BoneNode = bonePair.Node;
+                GameObject BoneNode = boneNonePair.Node;
                 if(BoneNode == null) continue;
 
-                CPmxBone PmxBone = bonePair.PmxBone;
+                CPmxBone PmxBone = boneNonePair.PmxBone;
                 if(PmxBone == null) continue;
 
                 // 親ボーンを取得
                 int ParentBoneIndex = PmxBone.GetParentBoneIndex();
                 if (ParentBoneIndex >= 0 && ParentBoneIndex < PmxBoneList.Count)
                 {
-                    var parentBonePair = BoneList[ParentBoneIndex];
+                    var parentBonePair = NodeBoneList[ParentBoneIndex];
 
                     GameObject ParentBoneNode = parentBonePair.Node;
                     if (ParentBoneNode == null) continue;
@@ -357,8 +370,8 @@ namespace mmdlib
             return true;
         }
 
-        static bool CreateMeshList(CPmxModel model, ref GameObject rootNode, ref List<GameObject> NodeList, 
-            List<Material> MaterialList, Dictionary<string, string> FolderMap)
+        static bool CreateMeshList(CPmxModel model, ref GameObject rootNode, GameObject rootBone, ref List<GameObject> NodeList,
+            List<Transform> BoneTransformList, List<Material> MaterialList, Dictionary<string, string> FolderMap)
         {
             string MeshFolder = string.Empty;
             if (!FolderMap.TryGetValue("Meshs", out MeshFolder)) return false;
@@ -591,6 +604,16 @@ namespace mmdlib
                 // バウンディングボックスを再計算
                 mesh.RecalculateBounds();
 
+                // 逆バインドポーズリストを作成
+                List<Matrix4x4> bindPoses = new List<Matrix4x4>();
+
+                foreach(var BoneTransform in BoneTransformList)
+                {
+                    bindPoses.Add(BoneTransform.localToWorldMatrix.inverse);
+                }
+
+                mesh.bindposes = bindPoses.ToArray();
+
                 // メッシュアセットを作成
                 string MeshAssetName = Path.Combine(MeshFolder, "BaseMesh");
                 MeshAssetName += ".mesh";
@@ -604,6 +627,10 @@ namespace mmdlib
 
                 skinnedMeshRenderer.sharedMesh = mesh;
                 skinnedMeshRenderer.materials = MaterialList.ToArray();
+
+                skinnedMeshRenderer.bones = BoneTransformList.ToArray();
+                //skinnedMeshRenderer.rootBone = rootBone.transform;
+                skinnedMeshRenderer.rootBone = rootNode.transform;
 
                 skinnedMeshRenderer.localBounds = mesh.bounds;
             }
