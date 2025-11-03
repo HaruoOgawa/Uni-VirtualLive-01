@@ -1,6 +1,7 @@
 using NUnit.Framework.Interfaces;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering.VirtualTexturing;
 
 namespace mmdlib
 {
@@ -29,7 +30,7 @@ namespace mmdlib
                 if (Bone.GetIKParam() != null)
                 {
                     CIKSolver IKSolver = new CIKSolver();
-                    //if (!IKSolver.Create(std::get < 1 > (Bone), m_BoneList)) continue;
+                    if (!IKSolver.Create(Bone, m_PmxBoneList)) continue;
 
                     m_IKSolverList.Add(IKSolver);
                     m_IKBoneList.Add(Bone);
@@ -64,8 +65,14 @@ namespace mmdlib
         }
 
         // IKåvéZ
-        void CalculateIK()
+        bool CalculateIK()
         {
+            foreach(var IKSolver in m_IKSolverList)
+		    {
+                if (!IKSolver.Solve()) return false;
+            }
+
+            return true;
         }
 
         // ïtó^É{Å[ÉìÇÃåvéZ

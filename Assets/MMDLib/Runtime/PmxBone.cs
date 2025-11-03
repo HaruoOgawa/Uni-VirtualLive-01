@@ -1,13 +1,16 @@
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
+using static UnityEditor.PlayerSettings;
+using static UnityEngine.Rendering.DebugUI.Table;
 
 namespace mmdlib
 {
     public class PmxBone : MonoBehaviour
     {
-		Vector3 m_DefaultPos = Vector3.zero;
-        Quaternion m_DefaultRot = Quaternion.identity;
-		Vector3 m_DefaultScale = Vector3.one;
+        Vector3 m_DefaultLocalPos = Vector3.zero;
+        Quaternion m_DefaultLocalRot = Quaternion.identity;
+        Vector3 m_DefaultLocalScale = Vector3.one;
 
         EHumanoidBones m_BoneName = EHumanoidBones.None;
 
@@ -30,20 +33,65 @@ namespace mmdlib
         // IK
         SIKParam m_IKParam = null;
 
-		public void SaveDefaultTransform()
+        public void SaveAsDefaultLocalTransform()
 		{
-			m_DefaultPos = this.gameObject.transform.localPosition;
-			m_DefaultRot = this.gameObject.transform.localRotation;
-			m_DefaultScale = this.gameObject.transform.localScale;
+			this.m_DefaultLocalPos = this.gameObject.transform.localPosition;
+			this.m_DefaultLocalRot = this.gameObject.transform.localRotation;
+            //this.m_DefaultLocalScale = this.gameObject.transform.localScale;
         }
 
-		public void ResetToDefaultTransform()
-		{
-			this.gameObject.transform.localPosition = m_DefaultPos;
-			this.gameObject.transform.localRotation = m_DefaultRot;
-			this.gameObject.transform.localScale	= m_DefaultScale;
-		}
+        public void SetWorldMatrix(Matrix4x4 worldMatrix)
+        {
+            this.gameObject.transform.position = worldMatrix.GetPosition();
+            this.gameObject.transform.rotation = worldMatrix.rotation;
+            //this.gameObject.transform.lossyScale = worldMatrix.lossyScale;
+        }
 
+        public Vector3 GetWorldPos()
+        {
+            return this.gameObject.transform.position;
+        }
+
+        public Matrix4x4 GetWorldMatrix()
+        {
+            return this.gameObject.transform.localToWorldMatrix;
+        }
+
+        public void SetLocalRot(Quaternion rot)
+        {
+            this.gameObject.transform.localRotation = rot;
+        }
+
+        public Quaternion GetLocalRot()
+        {
+            return this.gameObject.transform.localRotation;
+        }
+
+        public Matrix4x4 GetLocalMatrix()
+        {
+            Matrix4x4 modelMatrix =
+                Matrix4x4.Translate(this.gameObject.transform.localPosition) *
+                Matrix4x4.Rotate(this.gameObject.transform.localRotation) *
+                Matrix4x4.Scale(this.gameObject.transform.localScale);
+
+            return modelMatrix;
+        }
+
+
+        public void ResetToDefaultLocalTransform()
+		{
+            this.gameObject.transform.localPosition = this.m_DefaultLocalPos;
+            this.gameObject.transform.localRotation = this.m_DefaultLocalRot;
+            //this.gameObject.transform.localScale = this.m_DefaultLocalScale;
+        }
+
+        public PmxBone GetParentNode()
+        {
+            var parent = this.gameObject.transform.parent;
+            if (parent == null) return null;
+
+            return parent.GetComponent<PmxBone>();
+        }
 
         public EHumanoidBones GetBoneName()
 		{

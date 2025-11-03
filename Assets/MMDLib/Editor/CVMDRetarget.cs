@@ -190,6 +190,9 @@ public class CVMDRetarget : Editor
                     DstClip.SetCurve(pathData.BonePath, typeof(Transform), "localRotation.w", localRot_W_Curve);
                 }
 
+                //
+                DstClip.frameRate = SrcClip.frameRate;
+
                 // アセットを再生成
                 string SrcAssetPath = AssetDatabase.GetAssetPath(target);
 

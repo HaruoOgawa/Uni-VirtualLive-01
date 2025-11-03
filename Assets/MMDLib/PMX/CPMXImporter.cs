@@ -215,9 +215,9 @@ namespace mmdlib
                     // RuntimeのPMXスケルトンコンポーネントを追加
                     rootBone.AddComponent<PmxSkeleton>();
                 }
-                else
+
+                // RuntimeのPmxBoneを作成
                 {
-                    // RuntimeのPmxBoneを作成
                     BoneNode.AddComponent<PmxBone>();
 
                     PmxBone Bone = BoneNode.GetComponent<PmxBone>();
@@ -292,7 +292,7 @@ namespace mmdlib
 
                 // デフォルトトランスフォームを保存
                 PmxBone Bone = BoneNode.GetComponent<PmxBone>();
-                if(Bone != null) Bone.SaveDefaultTransform();
+                if(Bone != null) Bone.SaveAsDefaultLocalTransform();
             }
 
             // Avatar作成
