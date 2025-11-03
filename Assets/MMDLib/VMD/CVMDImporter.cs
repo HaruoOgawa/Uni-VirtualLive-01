@@ -163,8 +163,10 @@ namespace mmdlib
                 clip.SetCurve(BonePath, typeof(Transform), "localPosition.x", localPos_X_Curve);
                 clip.SetCurve(BonePath, typeof(Transform), "localPosition.y", localPos_Y_Curve);
                 clip.SetCurve(BonePath, typeof(Transform), "localPosition.z", localPos_Z_Curve);
+
                 clip.SetCurve(BonePath, typeof(Transform), "localRotation.x", localRot_X_Curve);
                 clip.SetCurve(BonePath, typeof(Transform), "localRotation.y", localRot_Y_Curve);
+                clip.SetCurve(BonePath, typeof(Transform), "localRotation.z", localRot_Z_Curve);
                 clip.SetCurve(BonePath, typeof(Transform), "localRotation.w", localRot_W_Curve);
 
                 Index++;

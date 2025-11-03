@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
@@ -219,25 +220,6 @@ namespace mmdlib
                 {
                     rootBone = BoneNode;
                 }
-
-                // Unityボーン
-                SkeletonBone uniSkeletonBone = new SkeletonBone();
-                uniSkeletonBone.name = BoneNode.name;
-                uniSkeletonBone.position = BoneNode.transform.position;
-                uniSkeletonBone.rotation = BoneNode.transform.rotation;
-                uniSkeletonBone.scale = BoneNode.transform.lossyScale;
-
-                UnitySkeletonBoneList.Add(uniSkeletonBone);
-
-                // Unityヒューマンボーン
-                if(PmxBone.GetHumanoidBone() != EHumanoidBones.None)
-                {
-                    HumanBone UniHumanBone = new HumanBone();
-                    UniHumanBone.boneName = BoneNode.name;
-                    UniHumanBone.humanName = BoneNode.name;
-
-                    UnityHumanBoneList.Add(UniHumanBone);
-                }
             }
 
             // ボーンの親子関係を構築
@@ -264,6 +246,25 @@ namespace mmdlib
                 {
                     // ルートノードを親とする
                     BoneNode.transform.parent = rootNode.transform;
+                }
+
+                // Unityボーン
+                SkeletonBone uniSkeletonBone = new SkeletonBone();
+                uniSkeletonBone.name = BoneNode.name;
+                uniSkeletonBone.position = BoneNode.transform.position;
+                uniSkeletonBone.rotation = BoneNode.transform.rotation;
+                uniSkeletonBone.scale = BoneNode.transform.lossyScale;
+
+                UnitySkeletonBoneList.Add(uniSkeletonBone);
+
+                // Unityヒューマンボーン
+                if (PmxBone.GetHumanoidBone() != EHumanoidBones.None && rootBone != null)
+                {
+                    HumanBone UniHumanBone = new HumanBone();
+                    UniHumanBone.boneName = BoneNode.name;
+                    UniHumanBone.humanName = BoneNode.name;
+
+                    UnityHumanBoneList.Add(UniHumanBone);
                 }
             }
 
@@ -436,6 +437,7 @@ namespace mmdlib
             // 明示的にMeshNodeを作成
             GameObject MeshNode = new GameObject("BaseMeshNode");
             MeshNode.transform.parent = rootNode.transform;
+            NodeList.Add(MeshNode);
 
             {
                 // メッシュを作成する
@@ -681,8 +683,7 @@ namespace mmdlib
                 skinnedMeshRenderer.materials = MaterialList.ToArray();
 
                 skinnedMeshRenderer.bones = BoneTransformList.ToArray();
-                //skinnedMeshRenderer.rootBone = rootBone.transform;
-                skinnedMeshRenderer.rootBone = rootNode.transform;
+                skinnedMeshRenderer.rootBone = rootBone.transform;
 
                 skinnedMeshRenderer.localBounds = mesh.bounds;
             }
