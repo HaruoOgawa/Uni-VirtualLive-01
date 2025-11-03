@@ -195,18 +195,8 @@ namespace mmdlib
                 
                 Vector3 Pos = PmxBone.GetPos();
                 //Quaternion Rot = PmxBone->GetLocalAxis();
-
-                // PMXのPos・Rotateはワールド座標系での値なので親ノードのワールドマトリックスを乗算してローカル座標系に戻す必要がある
-                int ParentBoneIndex = PmxBone.GetParentBoneIndex();
-                if (ParentBoneIndex >= 0 && ParentBoneIndex < PmxBoneList.Count)
-                {
-                    var ParentPmxBone = PmxBoneList[ParentBoneIndex];
-
-                    // Posはワールド座標系なのでローカル座標系に戻す必要がある
-                    // ただしRotは(存在すれば)ローカル軸から取得するので既にローカル座標系である
-                    Pos -= ParentPmxBone.GetPos();
-                }
-
+               
+                // PMXのPos・Rotateはワールド座標系なので直接Transformのワールドポジションに渡す
                 BoneNode.transform.position = Pos;
 
                 NodeBoneList.Add((BoneNode, PmxBone));
@@ -251,8 +241,8 @@ namespace mmdlib
                 // Unityボーン
                 SkeletonBone uniSkeletonBone = new SkeletonBone();
                 uniSkeletonBone.name = BoneNode.name;
-                uniSkeletonBone.position = BoneNode.transform.position;
-                uniSkeletonBone.rotation = BoneNode.transform.rotation;
+                uniSkeletonBone.position = BoneNode.transform.localPosition;
+                uniSkeletonBone.rotation = BoneNode.transform.localRotation;
                 uniSkeletonBone.scale = BoneNode.transform.lossyScale;
 
                 UnitySkeletonBoneList.Add(uniSkeletonBone);
