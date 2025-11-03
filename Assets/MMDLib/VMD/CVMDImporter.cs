@@ -93,6 +93,8 @@ namespace mmdlib
             AnimationClip clip = new AnimationClip();
             clip.name = AssetName;
 
+            clip.frameRate = FrameRate;
+
             int Index = 0;
 
             foreach (var Frame in VMDData.GetFrameMap())
