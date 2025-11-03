@@ -154,10 +154,11 @@ namespace mmdlib
                 Rot.z = Analyser.GetFloat();
                 Rot.w = Analyser.GetFloat();
 
+                // Unityではこの補正は不要
                 // VMDは鏡反転になっているので補正する
-                Pos.x *= -1.0f;
-                Rot.x *= -1.0f;
-                Rot.w *= -1.0f;
+                //Pos.x *= -1.0f;
+                //Rot.x *= -1.0f;
+                //Rot.w *= -1.0f;
 
                 // 補完パラメーター(ベジュ曲線に使用する) - Interpolation Params
                 if (!Analyser.IsValid(4 * 4 * 4)) return false;
@@ -241,7 +242,7 @@ namespace mmdlib
                 if (!Analyser.Skip(16 * 3)) return false;
 
                 // ボーン名を取得
-                EHumanoidBones BoneName = CPmxSkeleton.CastStringToBoneName(Name);
+                EHumanoidBones BoneName = CPmxHumanoidBoneMapper.CastStringToBoneName(Name);
 
                 // Noneはどのボーンに割り当てればいいかわからないのでスキップする
                 if (BoneName == EHumanoidBones.None) continue;

@@ -726,7 +726,7 @@ namespace mmdlib
 			    ushort BoneFlag = 0;
 			    if (!Analyser.GetUShort(ref BoneFlag)) return false;
 
-                EHumanoidBones humanoidBone = CPmxSkeleton.CastStringToBoneName(BoneName);
+                EHumanoidBones humanoidBone = CPmxHumanoidBoneMapper.CastStringToBoneName(BoneName);
 
                 // PmxBoneÇçÏê¨
                 CPmxBone PmxBone = new CPmxBone(BoneName, BoneName_EN, humanoidBone, Pos, ParentBoneIndex, DeformLayer, BoneFlag);

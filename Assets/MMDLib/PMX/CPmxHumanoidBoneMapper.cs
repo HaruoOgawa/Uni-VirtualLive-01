@@ -3,12 +3,8 @@ using System.Collections.Generic;
 
 namespace mmdlib
 {
-    public class CPmxSkeleton
+    public static class CPmxHumanoidBoneMapper
     {
-        public CPmxSkeleton()
-        {
-        }
-
         public static EHumanoidBones CastStringToBoneName(string boneName)
         {
             if (boneName == "ëSÇƒÇÃêe") return EHumanoidBones.AllParent;

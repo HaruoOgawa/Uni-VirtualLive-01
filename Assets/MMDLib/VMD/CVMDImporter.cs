@@ -154,7 +154,7 @@ namespace mmdlib
                 //
                 EHumanoidBones HumanoidBone = Frame.Key;
                 // 後でリターゲットできるようにインポート時はLinkではなく自身のボーン名のみカーブ名に使用する
-                string BonePath = CPmxSkeleton.GetStrBoneName(HumanoidBone);
+                string BonePath = CPmxHumanoidBoneMapper.GetStrBoneName(HumanoidBone);
                 if(BonePath == string.Empty)
                 {
                     Debug.LogWarning("[Warning] Invalid Bone Name Appeared!!");

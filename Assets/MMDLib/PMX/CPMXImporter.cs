@@ -188,7 +188,7 @@ namespace mmdlib
                 if(PmxBone == null) continue;
 
                 // BoneNodeの作成
-                string BoneName = CPmxSkeleton.GetStrBoneName(PmxBone.GetHumanoidBone());
+                string BoneName = CPmxHumanoidBoneMapper.GetStrBoneName(PmxBone.GetHumanoidBone());
                 if (BoneName == string.Empty) BoneName = PmxBone.GetBoneName();
 
                 GameObject BoneNode = new GameObject(BoneName);
@@ -273,6 +273,12 @@ namespace mmdlib
                 AvatarAssetName += ".asset";
 
                 AssetDatabase.CreateAsset(avatar, AvatarAssetName);
+            }
+
+            // RuntimeのPMXスケルトンコンポーネントを追加
+            if(rootBone != null)
+            {
+                rootBone.AddComponent<PmxSkeleton>();
             }
 
             return true;
