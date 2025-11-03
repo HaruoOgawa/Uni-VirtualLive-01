@@ -182,6 +182,8 @@ namespace mmdlib
             List<SkeletonBone> UnitySkeletonBoneList = new List<SkeletonBone>();
             List<HumanBone> UnityHumanBoneList = new List<HumanBone>();
 
+            List<PmxBone> RuntimePmxBoneList = new List<PmxBone>();
+
             for (int BoneIndex = 0; BoneIndex < PmxBoneList.Count; BoneIndex++)
             {
                 var PmxBone = PmxBoneList[BoneIndex];
@@ -194,7 +196,7 @@ namespace mmdlib
                 GameObject BoneNode = new GameObject(BoneName);
                 
                 Vector3 Pos = PmxBone.GetPos();
-                //Quaternion Rot = PmxBone->GetLocalAxis();
+                //Quaternion Rot = PmxBone.GetLocalAxis();
                
                 // PMXのPos・Rotateはワールド座標系なので直接Transformのワールドポジションに渡す
                 BoneNode.transform.position = Pos;
@@ -209,6 +211,37 @@ namespace mmdlib
                 if(PmxBone.GetHumanoidBone() == EHumanoidBones.AllParent)
                 {
                     rootBone = BoneNode;
+
+                    // RuntimeのPMXスケルトンコンポーネントを追加
+                    rootBone.AddComponent<PmxSkeleton>();
+                }
+                else
+                {
+                    // RuntimeのPmxBoneを作成
+                    BoneNode.AddComponent<PmxBone>();
+
+                    PmxBone Bone = BoneNode.GetComponent<PmxBone>();
+
+                    // BoneにBoneNameを割り当てる
+                    Bone.SetBoneName(PmxBone.GetHumanoidBone());
+
+                    // ボーンの付与
+                    if (PmxBone.IsRotateGrant())
+                    {
+                        // 回転付与
+                        Bone.SetRotateGrant(PmxBone.GetGrantParentBoneIndex(), PmxBone.GetGrantRate());
+                    }
+                    else if (PmxBone.IsMoveGrant())
+                    {
+                        // 移動付与
+                        Bone.SetMoveGrant(PmxBone.GetGrantParentBoneIndex(), PmxBone.GetGrantRate());
+                    }
+
+                    // IK
+                    Bone.SetIKParam(PmxBone.GetIKParam());
+
+                    //
+                    RuntimePmxBoneList.Add(Bone);
                 }
             }
 
@@ -243,7 +276,7 @@ namespace mmdlib
                 uniSkeletonBone.name = BoneNode.name;
                 uniSkeletonBone.position = BoneNode.transform.localPosition;
                 uniSkeletonBone.rotation = BoneNode.transform.localRotation;
-                uniSkeletonBone.scale = BoneNode.transform.lossyScale;
+                uniSkeletonBone.scale = BoneNode.transform.localScale;
 
                 UnitySkeletonBoneList.Add(uniSkeletonBone);
 
@@ -256,6 +289,10 @@ namespace mmdlib
 
                     UnityHumanBoneList.Add(UniHumanBone);
                 }
+
+                // デフォルトトランスフォームを保存
+                PmxBone Bone = BoneNode.GetComponent<PmxBone>();
+                if(Bone != null) Bone.SaveDefaultTransform();
             }
 
             // Avatar作成
@@ -275,10 +312,17 @@ namespace mmdlib
                 AssetDatabase.CreateAsset(avatar, AvatarAssetName);
             }
 
-            // RuntimeのPMXスケルトンコンポーネントを追加
-            if(rootBone != null)
+            // SkeltonにBoneListを追加
+            if (rootBone != null)
             {
-                rootBone.AddComponent<PmxSkeleton>();
+                // ボーンリストを追加
+                rootBone.GetComponent<PmxSkeleton>().SetPmxBoneList(RuntimePmxBoneList);
+
+                // IKボーンリストを作成
+                rootBone.GetComponent<PmxSkeleton>().MakeIKBoneList();
+
+                // 付与ボーンリストを作成
+                rootBone.GetComponent<PmxSkeleton>().MakeGrantBoneList();
             }
 
             return true;
