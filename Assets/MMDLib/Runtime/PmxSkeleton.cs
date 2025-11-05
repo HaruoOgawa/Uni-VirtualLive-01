@@ -7,22 +7,52 @@ namespace mmdlib
 {
     public class PmxSkeleton : MonoBehaviour
     {
-        List<PmxBone> m_PmxBoneList = new List<PmxBone>();
+        public List<PmxBone> m_PmxBoneList = new List<PmxBone>();
+
         List<PmxBone> m_GrantBoneList = new List<PmxBone>();
         List<PmxBone> m_IKBoneList = new List<PmxBone>();
         List<CIKSolver> m_IKSolverList = new List<CIKSolver>();
 
+        void Start()
+        {
+            // ボーンリストを追加
+            //CollectPmxBoneList(this.gameObject.transform);
+
+            // IKボーンリストを作成
+            MakeIKBoneList();
+
+            // 付与ボーンリストを作成
+            MakeGrantBoneList();
+        }
+
         // 全ボーン一覧
-        public void SetPmxBoneList(List<PmxBone> BoneList)
+        public void AddBoneList(List<PmxBone> BoneList)
         {
             m_PmxBoneList = BoneList;
         }
+        
+        void CollectPmxBoneList(Transform node)
+        {
+            PmxBone bone = node.GetComponent<PmxBone>();
+            if (bone != null)
+            {
+                m_PmxBoneList.Add(bone);
+            }
+
+            for(int c = 0; c < node.childCount; c++)
+            {
+                Transform childNode = node.GetChild(c);
+                if (childNode == null) continue;
+
+                CollectPmxBoneList(childNode);
+            }
+        }
 
         // IKボーン
-        public void MakeIKBoneList()
+        void MakeIKBoneList()
         {
-            foreach(var Bone in m_PmxBoneList)
-		{
+            foreach (var Bone in m_PmxBoneList)
+            {
                 // IKは重いのでひとまず標準ボーン以外は除外する
                 if (Bone.GetBoneName() == EHumanoidBones.None) continue;
 
@@ -39,20 +69,15 @@ namespace mmdlib
         }
 
         // 付与ボーン
-        public void MakeGrantBoneList()
+        void MakeGrantBoneList()
         {
-            foreach(var Bone in m_PmxBoneList)
-		    {
+            foreach (var Bone in m_PmxBoneList)
+            {
                 if (Bone.IsRotateGrant() || Bone.IsMoveGrant())
                 {
                     m_GrantBoneList.Add(Bone);
                 }
             }
-        }
-
-        void Start()
-        {
-
         }
 
         void LateUpdate()
@@ -67,7 +92,7 @@ namespace mmdlib
         // IK計算
         bool CalculateIK()
         {
-            foreach(var IKSolver in m_IKSolverList)
+            foreach (var IKSolver in m_IKSolverList)
 		    {
                 if (!IKSolver.Solve()) return false;
             }

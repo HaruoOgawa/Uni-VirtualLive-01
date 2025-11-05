@@ -5,6 +5,8 @@ using UnityEngine;
 
 namespace mmdlib
 {
+    [System.Serializable]
+
     public class SIKLink
     {
         // リンクボーンのボーンIndex
@@ -25,6 +27,8 @@ namespace mmdlib
     };
 
     // CCD-IKに則ったパラメーター
+    [System.Serializable]
+
     public class SIKParam
     {
         // IKターゲットボーンのボーンIndex

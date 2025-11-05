@@ -254,6 +254,8 @@ namespace mmdlib
                 CPmxBone PmxBone = boneNonePair.PmxBone;
                 if(PmxBone == null) continue;
 
+                PmxBone ParentBpne = null;
+
                 // 親ボーンを取得
                 int ParentBoneIndex = PmxBone.GetParentBoneIndex();
                 if (ParentBoneIndex >= 0 && ParentBoneIndex < PmxBoneList.Count)
@@ -264,6 +266,8 @@ namespace mmdlib
                     if (ParentBoneNode == null) continue;
 
                     BoneNode.transform.parent = ParentBoneNode.transform;
+
+                    ParentBpne = ParentBoneNode.GetComponent<PmxBone>();
                 }
                 else
                 {
@@ -290,9 +294,14 @@ namespace mmdlib
                     UnityHumanBoneList.Add(UniHumanBone);
                 }
 
-                // デフォルトトランスフォームを保存
+                // デフォルトトランスフォームを保存 
                 PmxBone Bone = BoneNode.GetComponent<PmxBone>();
-                if(Bone != null) Bone.SaveAsDefaultLocalTransform();
+                if(Bone != null)
+                {
+                    Bone.SaveAsDefaultLocalTransform();
+
+                    if (ParentBpne != null) Bone.SetParentBoneName(ParentBpne.GetBoneName());
+                }
             }
 
             // Avatar作成
@@ -312,17 +321,14 @@ namespace mmdlib
                 AssetDatabase.CreateAsset(avatar, AvatarAssetName);
             }
 
-            // SkeltonにBoneListを追加
+            // Skeletonにボーンリストを追加
             if (rootBone != null)
             {
-                // ボーンリストを追加
-                rootBone.GetComponent<PmxSkeleton>().SetPmxBoneList(RuntimePmxBoneList);
-
-                // IKボーンリストを作成
-                rootBone.GetComponent<PmxSkeleton>().MakeIKBoneList();
-
-                // 付与ボーンリストを作成
-                rootBone.GetComponent<PmxSkeleton>().MakeGrantBoneList();
+                PmxSkeleton skeleton = rootBone.GetComponent<PmxSkeleton>();
+                if (skeleton != null)
+                {
+                    skeleton.AddBoneList(RuntimePmxBoneList);
+                }
             }
 
             return true;

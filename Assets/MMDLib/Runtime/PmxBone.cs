@@ -8,30 +8,30 @@ namespace mmdlib
 {
     public class PmxBone : MonoBehaviour
     {
-        Vector3 m_DefaultLocalPos = Vector3.zero;
-        Quaternion m_DefaultLocalRot = Quaternion.identity;
-        Vector3 m_DefaultLocalScale = Vector3.one;
+        public Vector3 m_DefaultLocalPos = Vector3.zero;
+        public Quaternion m_DefaultLocalRot = Quaternion.identity;
+        public Vector3 m_DefaultLocalScale = Vector3.one;
 
-        EHumanoidBones m_BoneName = EHumanoidBones.None;
+        public EHumanoidBones m_BoneName = EHumanoidBones.None;
 
-        EHumanoidBones m_ParentBoneName = EHumanoidBones.None;
+        public EHumanoidBones m_ParentBoneName = EHumanoidBones.None;
 
         // 回転付与・移動付与
         // 付与とは他のボーンに付いて行くということ
         // 付与親ボーンのボーンIndex
-        int m_GrantParentBoneIndex = -1;
+        public int m_GrantParentBoneIndex = -1;
 
         // 付与率
-        float m_GrantRate = 0.0f;
+        public float m_GrantRate = 0.0f;
 
         // 回転付与
-        bool m_RotateGrant = false;
+        public bool m_RotateGrant = false;
 
         // 移動付与
-        bool m_MoveGrant = false;
+        public bool m_MoveGrant = false;
 
         // IK
-        SIKParam m_IKParam = null;
+        public SIKParam m_IKParam = null;
 
         public void SaveAsDefaultLocalTransform()
 		{

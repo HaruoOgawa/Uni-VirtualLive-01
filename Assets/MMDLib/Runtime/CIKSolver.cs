@@ -221,7 +221,7 @@ namespace mmdlib
                         PmxBone ParentNode = ReCalcNode.GetParentNode();
                         // 始点(先頭リンク)の親ワールド行列を無視する
                         // これを考慮すると例えば体を捻った時にIKが暴れてしまう
-                        if (!ParentNode || n == 0)
+                        if (ParentNode == null || n == 0)
                         {
                             // 親ノードがない時はローカル行列をワールド行列として渡す
                             ReCalcNode.SetWorldMatrix(ReCalcNode.GetLocalMatrix());
