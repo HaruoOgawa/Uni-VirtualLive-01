@@ -183,9 +183,69 @@ namespace mmdlib
             return true;
         }
         
-        static bool CreateBlendShapeClip(CVMDData vmd, string AssetFolder, string AssetName)
+        static bool CreateBlendShapeClip(CVMDData VMDData, string AssetFolder, string AssetName)
         {
-            
+            // MMDのアニメーションは30FPSで固定
+            const float FrameRate = 30.0f;
+
+            int MinFrameIndex = VMDData.GetMinFrameIndex();
+            int MaxFrameIndex = VMDData.GetMaxFrameIndex();
+
+            float StartTime = (float)(MinFrameIndex) * (1.0f / FrameRate);
+            float EndTime = (float)(MaxFrameIndex) * (1.0f / FrameRate);
+
+            AnimationClip clip = new AnimationClip();
+            clip.name = AssetName;
+
+            clip.frameRate = FrameRate;
+
+            int Index = 0;
+
+            foreach (var Frame in VMDData.GetSkinFrameMap())
+            {
+                AnimationCurve Weight_Curve = new AnimationCurve();
+
+                // Samplerを作成
+                {
+                    var FrameDataList = Frame.Value;
+
+                    // FrameIndex順に並び替える
+                    FrameDataList.Sort((a, b) => (a.FrameIndex.CompareTo(b.FrameIndex)));
+
+                    List<Keyframe> Weight_KeyFrameList = new List<Keyframe>();
+
+                    // KetFrame
+                    foreach (var FrameData in FrameDataList)
+                    {
+                        int FrameIndex = FrameData.FrameIndex;
+                        float CurrentTime = (float)(FrameIndex) * (1.0f / FrameRate);
+
+                        var weight = FrameData.Weight;
+
+                        Weight_KeyFrameList.Add(new Keyframe(CurrentTime, weight));
+
+                        // SamplerをClipに登録する
+                        Weight_Curve.keys = Weight_KeyFrameList.ToArray();
+                    }
+                }
+
+                // あとでリターゲットして適切なPathを割り当てる
+                // ブレンドシェイプの場合はルートノードからスキンメッシュレンダラーを持っているノードまでのパスを指定する
+                string MeshPath = "Mesh";
+                string blendShapeName = Frame.Key;
+                string property = "blendshape." + blendShapeName;
+
+                clip.SetCurve(MeshPath, typeof(SkinnedMeshRenderer), property, Weight_Curve);
+
+                Index++;
+            }
+
+            // アセットを生成
+            string ClipAssetName = Path.Combine(AssetFolder, AssetName);
+            ClipAssetName += "_blendShape.anim";
+
+            AssetDatabase.CreateAsset(clip, ClipAssetName);
+
             return true;
         }
     }

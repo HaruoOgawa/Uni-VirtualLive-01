@@ -33,10 +33,10 @@ namespace mmdlib
 
     public struct SVMDSkinFrame
     {
-        int FrameIndex;
-        float Weight;
+        public int FrameIndex;
+        public float Weight;
 
-        SVMDSkinFrame(int f = -1, float w = 0.0f)
+        public SVMDSkinFrame(int f = -1, float w = 0.0f)
         {
             this.FrameIndex = f;
             this.Weight = w;

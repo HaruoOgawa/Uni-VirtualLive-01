@@ -16,7 +16,7 @@ namespace mmdlib
         int m_MaxFrameIndex = int.MinValue;
 
         // 表情アニメーション
-        Dictionary<EBlendShapeName, List<SVMDSkinFrame>> m_SkinFrameMap = new Dictionary<EBlendShapeName, List<SVMDSkinFrame>>();
+        Dictionary<string, List<SVMDSkinFrame>> m_SkinFrameMap = new Dictionary<string, List<SVMDSkinFrame>>();
         int m_MinSkinFrameIndex;
         int m_MaxSkinFrameIndex;
 
@@ -41,7 +41,7 @@ namespace mmdlib
 	    }
 
 	    // 表情アニメーション
-	    public Dictionary<EBlendShapeName, List<SVMDSkinFrame>> GetSkinFrameMap()
+	    public Dictionary<string, List<SVMDSkinFrame>> GetSkinFrameMap()
 	    {
 		    return m_SkinFrameMap;
 	    }
@@ -264,6 +264,51 @@ namespace mmdlib
 
         bool AnalyseFacialExpressionData(ref CBinaryReader Analyser)
         {
+            /*
+            // 表情データ数
+            struct VMD_Skeleton_COUNT {
+            DWORD Count; // 表情データ数
+            } vmd_Skeleton_count;
+
+            // 表情データ
+            struct VMD_Skeleton { // 23 Bytes // 表情
+            char SkeletonName[15]; // 表情名
+            DWORD FlameNo; // フレーム番号
+            float Weight; // 表情の設定値(表情スライダーの値)
+            } vmd_Skeleton;
+            */
+
+            // 表情データ数
+            int ExpressionCount = 0;
+            if (!Analyser.GetInt(ref ExpressionCount)) return false;
+
+            for (int i = 0; i < ExpressionCount; i++)
+            {
+                // 表情名
+                string BlendShapeName = string.Empty;
+                if (!Analyser.GetSJISString(ref BlendShapeName, 15)) return false;
+
+                // フレームインデックス
+                int FrameIndex = -1;
+                if (!Analyser.GetInt(ref FrameIndex)) return false;
+                
+                m_MinSkinFrameIndex = Mathf.Min(FrameIndex, m_MinSkinFrameIndex);
+                m_MaxSkinFrameIndex = Mathf.Max(FrameIndex, m_MaxSkinFrameIndex);
+
+                // ウェイト
+                float Weight = 0.0f;
+                if (!Analyser.GetFloat(ref Weight)) return false;
+
+                // 登録
+                if (!m_SkinFrameMap.ContainsKey(BlendShapeName))
+                {
+                    m_SkinFrameMap.Add(BlendShapeName, new List<SVMDSkinFrame>());
+                }
+
+                SVMDSkinFrame SkinFrame = new SVMDSkinFrame(FrameIndex, Weight);
+                m_SkinFrameMap[BlendShapeName].Add(SkinFrame);
+            }
+
             return true;
         }
 
