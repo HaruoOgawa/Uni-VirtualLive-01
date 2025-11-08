@@ -703,6 +703,26 @@ namespace mmdlib
                     }
                 }
 
+                // BlendShape
+                {
+                    foreach(var MorphPair in model.GetPmxVertexMorphList())
+                    {
+                        string BlensShapeName = MorphPair.Key;
+                        CPmxMorphTarget morphTarget = MorphPair.Value;
+
+                        Vector3[] VertexMorphList = new Vector3[mesh.vertexCount];
+                        Array.Fill<Vector3>(VertexMorphList, Vector3.zero);
+
+                        foreach(var PmxVertexMorphPair in morphTarget.GetVertexMorphList())
+                        {
+                            VertexMorphList[PmxVertexMorphPair.Key] = PmxVertexMorphPair.Value;
+                        }
+
+                        mesh.AddBlendShapeFrame(BlensShapeName, 100.0f, VertexMorphList, null, null);
+                    }
+
+                }
+
                 // バウンディングボックスを再計算
                 mesh.RecalculateBounds();
 
