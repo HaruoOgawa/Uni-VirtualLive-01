@@ -6,7 +6,6 @@ using UnityEngine;
 namespace mmdlib
 {
     [System.Serializable]
-
     public class SIKLink
     {
         // リンクボーンのボーンIndex

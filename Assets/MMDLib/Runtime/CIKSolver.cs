@@ -5,11 +5,12 @@ using UnityEngine;
 
 namespace mmdlib
 {
+    [System.Serializable]
     public class CIKSolver
     {
-        SIKParam m_IKParam = null;
-        PmxBone m_IKTarget = null;
-        List<PmxBone> m_IKChainList = new List<PmxBone>();
+        public SIKParam m_IKParam = null;
+        public PmxBone m_IKTarget = null;
+        public List<PmxBone> m_IKChainList = new List<PmxBone>();
 
 		public CIKSolver()
 		{
@@ -43,6 +44,8 @@ namespace mmdlib
 
 		public bool Solve()
         {
+            CPmxTransform[] PmxTransformList = new CPmxTransform[m_IKChainList.Count];
+
             // まずLinkNodeを初期姿勢に戻す
             // T-Pose(元の姿勢)にリセットして演算を行うことで演算結果が安定するようになる
             // このようにしないと途中で変な方向を向いたりぶるぶるしたりして不安定になる
@@ -50,22 +53,30 @@ namespace mmdlib
             {
                 PmxBone LinkNode = m_IKChainList[n];
 
-                LinkNode.ResetToDefaultLocalTransform();
+                PmxTransformList[n] = new CPmxTransform();
+
+                PmxTransformList[n].SetLocalPos(LinkNode.m_DefaultLocalPos);
+                PmxTransformList[n].SetLocalRot(LinkNode.m_DefaultLocalRot);
+                PmxTransformList[n].SetLocalScale(LinkNode.m_DefaultLocalScale);
+
+                Matrix4x4 LocalMatrix = PmxTransformList[n].GetLocalMatrix();
 
                 // Linkノードのワールド行列を再計算する
                 PmxBone ParentNode = LinkNode.GetParentNode();
                 // 始点(先頭リンク)の親ワールド行列を無視する
                 // これを考慮すると例えば体を捻った時にIKが暴れてしまう
-                if (!ParentNode || n == 0)
+                if (ParentNode == null || n == 0)
                 {
                     // 親ノードがない時はローカル行列をワールド行列として渡す
-                    LinkNode.SetWorldMatrix(LinkNode.GetLocalMatrix());
+                    PmxTransformList[n].SetWorldMatrix(LocalMatrix);
 
                     continue;
                 }
 
-                Matrix4x4 NewWorldMatrix = ParentNode.GetWorldMatrix() * LinkNode.GetLocalMatrix();
-                LinkNode.SetWorldMatrix(NewWorldMatrix);
+                //Matrix4x4 NewWorldMatrix = ParentNode.GetWorldMatrix() * LocalMatrix;
+                // IKの親子関係はLinkBoneで繋がっていると仮定して1つ前のノードを親とする
+                Matrix4x4 NewWorldMatrix = PmxTransformList[n - 1].GetWorldMatrix() * LocalMatrix;
+                PmxTransformList[n].SetWorldMatrix(NewWorldMatrix);
             }
 
             // CCD-IKを採用
@@ -75,11 +86,11 @@ namespace mmdlib
             int EndIndex = NumOfLink - 1;
 
             float Threshold = 0.01f;
-            
+
             // 始点(先頭リンク)の親ワールド行列を無視する(つまり始点を原点としてIK計算を行う)
             // これを考慮すると例えば体を捻った時にIKが暴れてしまう
-            Matrix4x4 TargetMat = Matrix4x4.Inverse(m_IKChainList[0].GetParentNode().GetWorldMatrix()) * m_IKTarget.GetWorldMatrix();
-            Vector3 TargetPos = new Vector3(TargetMat.m30, TargetMat.m31, TargetMat.m32);
+            Matrix4x4 TargetMat = Matrix4x4.Inverse(m_IKChainList[0].GetParentNode().transform.localToWorldMatrix) * m_IKTarget.transform.localToWorldMatrix;
+            Vector3 TargetPos = TargetMat.GetPosition();
 
             // ターゲットに届くかサイクルの最大値に達するまで計算を繰り返す
             int CurrentLoopNum = 0;
@@ -87,11 +98,9 @@ namespace mmdlib
 
             int MaxLoopNum = m_IKParam.IKLoopCount;
 
-            PmxBone EndNode = m_IKChainList[EndIndex];
-
             while (DoLoop && CurrentLoopNum < MaxLoopNum)
             {
-                Vector3 EndPos = EndNode.GetWorldPos();
+                Vector3 EndPos = PmxTransformList[EndIndex].GetWorldPos();
                 
                 // 既に接触しているなら終了
                 if (Vector3.Distance(TargetPos, EndPos) < Threshold)
@@ -102,9 +111,9 @@ namespace mmdlib
 
                 for (int i = NumOfLink - 2; i >= 0; i--)
                 {
-                    PmxBone LinkNode = m_IKChainList[i];
+                    CPmxTransform LinkTrans = PmxTransformList[i];
 
-                    Vector3 LinkPos = LinkNode.GetWorldPos();
+                    Vector3 LinkPos = LinkTrans.GetWorldPos();
                     
                     Vector3 e_i = Vector3.Normalize(EndPos - LinkPos);
                     Vector3 t_i = Vector3.Normalize(TargetPos - LinkPos);
@@ -180,9 +189,9 @@ namespace mmdlib
                     }
 
                     // 角度制限前にいったん反映する
-                    LinkNode.SetLocalRot(rot * LinkNode.GetLocalRot());
+                    LinkTrans.SetLocalRot(rot * LinkTrans.GetLocalRot());
 
-                    Quaternion ResultRot = LinkNode.GetLocalRot();
+                    Quaternion ResultRot = LinkTrans.GetLocalRot();
 
                     // 演算終了後の回転に対して角度を制限行う
                     // 制限を行うことで例えば膝が変な方向に曲がらないようにする
@@ -204,7 +213,7 @@ namespace mmdlib
 
                         ResultRot = Quaternion.Euler(euler);
 
-                        LinkNode.SetLocalRot(ResultRot);
+                        LinkTrans.SetLocalRot(ResultRot);
 
                         if (math.isnan(ResultRot.x) || math.isnan(ResultRot.y) || math.isnan(ResultRot.z) || math.isnan(ResultRot.w))
                         {
@@ -213,28 +222,36 @@ namespace mmdlib
                         }
                     }
 
+                    // もう一度反映
+                    PmxTransformList[i] = LinkTrans;
+
                     // Linkノードのワールド行列を再計算する
                     for (int n = i; n < NumOfLink; n++)
                     {
                         PmxBone ReCalcNode = m_IKChainList[n];
 
                         PmxBone ParentNode = ReCalcNode.GetParentNode();
+
+                        Matrix4x4 LocalMatrix = PmxTransformList[n].GetLocalMatrix();
+
                         // 始点(先頭リンク)の親ワールド行列を無視する
                         // これを考慮すると例えば体を捻った時にIKが暴れてしまう
                         if (ParentNode == null || n == 0)
                         {
                             // 親ノードがない時はローカル行列をワールド行列として渡す
-                            ReCalcNode.SetWorldMatrix(ReCalcNode.GetLocalMatrix());
+                            PmxTransformList[n].SetWorldMatrix(LocalMatrix);
 
                             continue;
                         }
 
-                        Matrix4x4 NewWorldMatrix = ParentNode.GetWorldMatrix() * ReCalcNode.GetLocalMatrix();
-                        ReCalcNode.SetWorldMatrix(NewWorldMatrix);
+                        //Matrix4x4 NewWorldMatrix = ParentNode.GetWorldMatrix() * ReCalcNode.GetLocalMatrix();
+                        // IKの親子関係はLinkBoneで繋がっていると仮定して1つ前のノードを親とする
+                        Matrix4x4 NewWorldMatrix = PmxTransformList[n - 1].GetWorldMatrix() * LocalMatrix;
+                        PmxTransformList[n].SetWorldMatrix(NewWorldMatrix);
                     }
 
                     // EndNodeの座標を更新
-                    EndPos = EndNode.GetWorldPos();
+                    EndPos = PmxTransformList[EndIndex].GetWorldPos();
 
                     // 接触しているなら終了
                     if (Vector3.Distance(TargetPos, EndPos) < 0.01f)
@@ -258,20 +275,28 @@ namespace mmdlib
             }
 
             // 始点(先頭Link)の親ワールド行列を考慮したうえで再計算する
-            foreach(PmxBone LinkNode in m_IKChainList)
+            for (int n = 0; n < m_IKChainList.Count; n++)
             {
+                PmxBone LinkNode = m_IKChainList[n];
+
+                Matrix4x4 LocalMatrix = PmxTransformList[n].GetLocalMatrix();
+
                 // Linkノードのワールド行列を再計算する
                 PmxBone ParentNode = LinkNode.GetParentNode();
-                if (!ParentNode)
+                if (ParentNode == null)
                 {
                     // 親ノードがない時はローカル行列をワールド行列として渡す
-                    LinkNode.SetWorldMatrix(LinkNode.GetLocalMatrix());
+                    LinkNode.transform.position = LocalMatrix.GetPosition();
+                    LinkNode.transform.rotation = LocalMatrix.rotation;
+                    //LinkNode.SetWorldMatrix(LinkNode.GetLocalMatrix());
 
                     continue;
                 }
 
-                Matrix4x4 NewWorldMatrix = ParentNode.GetWorldMatrix() * LinkNode.GetLocalMatrix();
-                LinkNode.SetWorldMatrix(NewWorldMatrix);
+                Matrix4x4 NewWorldMatrix = ParentNode.transform.localToWorldMatrix * LocalMatrix;
+                LinkNode.transform.position = NewWorldMatrix.GetPosition();
+                LinkNode.transform.rotation = NewWorldMatrix.rotation;
+                //LinkNode.SetWorldMatrix(NewWorldMatrix);
             }
 
             return true;

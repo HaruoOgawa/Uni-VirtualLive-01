@@ -8,48 +8,22 @@ namespace mmdlib
     public class PmxSkeleton : MonoBehaviour
     {
         public List<PmxBone> m_PmxBoneList = new List<PmxBone>();
-
-        List<PmxBone> m_GrantBoneList = new List<PmxBone>();
-        List<PmxBone> m_IKBoneList = new List<PmxBone>();
-        List<CIKSolver> m_IKSolverList = new List<CIKSolver>();
+        public List<PmxBone> m_GrantBoneList = new List<PmxBone>();
+        public List<PmxBone> m_IKBoneList = new List<PmxBone>();
+        public List<CIKSolver> m_IKSolverList = new List<CIKSolver>();
 
         void Start()
         {
-            // ボーンリストを追加
-            //CollectPmxBoneList(this.gameObject.transform);
-
-            // IKボーンリストを作成
-            MakeIKBoneList();
-
-            // 付与ボーンリストを作成
-            MakeGrantBoneList();
         }
 
         // 全ボーン一覧
-        public void AddBoneList(List<PmxBone> BoneList)
+        public void SetBoneList(List<PmxBone> BoneList)
         {
             m_PmxBoneList = BoneList;
         }
-        
-        void CollectPmxBoneList(Transform node)
-        {
-            PmxBone bone = node.GetComponent<PmxBone>();
-            if (bone != null)
-            {
-                m_PmxBoneList.Add(bone);
-            }
-
-            for(int c = 0; c < node.childCount; c++)
-            {
-                Transform childNode = node.GetChild(c);
-                if (childNode == null) continue;
-
-                CollectPmxBoneList(childNode);
-            }
-        }
 
         // IKボーン
-        void MakeIKBoneList()
+        public void MakeIKBoneList()
         {
             foreach (var Bone in m_PmxBoneList)
             {
@@ -57,7 +31,7 @@ namespace mmdlib
                 if (Bone.GetBoneName() == EHumanoidBones.None) continue;
 
                 // IKParamを持っていればリストに追加する
-                if (Bone.GetIKParam() != null)
+                if (Bone.IsIKEnabled())
                 {
                     CIKSolver IKSolver = new CIKSolver();
                     if (!IKSolver.Create(Bone, m_PmxBoneList)) continue;
@@ -69,7 +43,7 @@ namespace mmdlib
         }
 
         // 付与ボーン
-        void MakeGrantBoneList()
+        public void MakeGrantBoneList()
         {
             foreach (var Bone in m_PmxBoneList)
             {

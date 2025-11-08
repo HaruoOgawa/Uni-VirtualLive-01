@@ -327,7 +327,9 @@ namespace mmdlib
                 PmxSkeleton skeleton = rootBone.GetComponent<PmxSkeleton>();
                 if (skeleton != null)
                 {
-                    skeleton.AddBoneList(RuntimePmxBoneList);
+                    skeleton.SetBoneList(RuntimePmxBoneList);
+                    skeleton.MakeIKBoneList();
+                    skeleton.MakeGrantBoneList();
                 }
             }
 

@@ -33,56 +33,15 @@ namespace mmdlib
         // IK
         public SIKParam m_IKParam = null;
 
+        //
+        CPmxTransform m_LocalTransform = new CPmxTransform();
+        Matrix4x4 m_WorldMatrix = Matrix4x4.identity;
+
         public void SaveAsDefaultLocalTransform()
 		{
 			this.m_DefaultLocalPos = this.gameObject.transform.localPosition;
 			this.m_DefaultLocalRot = this.gameObject.transform.localRotation;
-            //this.m_DefaultLocalScale = this.gameObject.transform.localScale;
-        }
-
-        public void SetWorldMatrix(Matrix4x4 worldMatrix)
-        {
-            this.gameObject.transform.position = worldMatrix.GetPosition();
-            this.gameObject.transform.rotation = worldMatrix.rotation;
-            //this.gameObject.transform.lossyScale = worldMatrix.lossyScale;
-        }
-
-        public Vector3 GetWorldPos()
-        {
-            return this.gameObject.transform.position;
-        }
-
-        public Matrix4x4 GetWorldMatrix()
-        {
-            return this.gameObject.transform.localToWorldMatrix;
-        }
-
-        public void SetLocalRot(Quaternion rot)
-        {
-            this.gameObject.transform.localRotation = rot;
-        }
-
-        public Quaternion GetLocalRot()
-        {
-            return this.gameObject.transform.localRotation;
-        }
-
-        public Matrix4x4 GetLocalMatrix()
-        {
-            Matrix4x4 modelMatrix =
-                Matrix4x4.Translate(this.gameObject.transform.localPosition) *
-                Matrix4x4.Rotate(this.gameObject.transform.localRotation) *
-                Matrix4x4.Scale(this.gameObject.transform.localScale);
-
-            return modelMatrix;
-        }
-
-
-        public void ResetToDefaultLocalTransform()
-		{
-            this.gameObject.transform.localPosition = this.m_DefaultLocalPos;
-            this.gameObject.transform.localRotation = this.m_DefaultLocalRot;
-            //this.gameObject.transform.localScale = this.m_DefaultLocalScale;
+            this.m_DefaultLocalScale = this.gameObject.transform.localScale;
         }
 
         public PmxBone GetParentNode()
@@ -154,6 +113,13 @@ namespace mmdlib
 		}
 
         // IK
+        public bool IsIKEnabled()
+        {
+            if (m_IKParam == null) return false;
+
+            return (m_IKParam.IKLinkList.Count > 0);
+        }
+
         public SIKParam GetIKParam()
 		{
 			return m_IKParam;
