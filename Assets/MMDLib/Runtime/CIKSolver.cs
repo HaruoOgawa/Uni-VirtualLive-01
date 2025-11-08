@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Data;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -167,16 +168,19 @@ namespace mmdlib
                             }
 
                             // ‰ñ“]Šp“x‚ª‚¨‚©‚µ‚­‚È‚Á‚Ä‚µ‚Ü‚¤‚Ì‚Å‰ñ“]Žæ“¾‘O‚É‚¿‚á‚ñ‚ÆŽ²‚ð³‹K‰»‚µ‚Ä‚¨‚­
-                            rot = Quaternion.AngleAxis(3.1415f, Vector3.Normalize(SubAxis)); 
+                            rot = Quaternion.AngleAxis(Mathf.Rad2Deg * 3.1415f, Vector3.Normalize(SubAxis)); 
                         }
                     }
                     else
                     {
                         // ’Êí’Ê‚è“àÏŒ‹‰Ê‚©‚ç‰ñ“]
-                        float angle = Mathf.Acos(dot);
+                        float angle = Mathf.Rad2Deg * Mathf.Acos(dot);
+
+                        // LimitedAngle‚Í-180 ` 180 ‚Å•\Œ»‚³‚ê‚é‚Ì‚Å 0 ` 360‚Ìeuler‚à‚»‚Ì‚æ‚¤‚É’¼‚·
+                        angle = ConvertDegreeAngle360To180(angle);
 
                         // ’PˆÊŠp‚Å‰ñ“]—Ê‚ð§ŒÀBLimitedAngle‚Íƒ‰ƒWƒAƒ“
-                        angle = Mathf.Min(angle, m_IKParam.LimitedAngle);
+                        angle = Mathf.Min(angle, Mathf.Rad2Deg * m_IKParam.LimitedAngle);
 
                         // ‰ñ“]Šp“x‚ª‚¨‚©‚µ‚­‚È‚Á‚Ä‚µ‚Ü‚¤‚Ì‚Å‰ñ“]Žæ“¾‘O‚É‚¿‚á‚ñ‚ÆŽ²‚ð³‹K‰»‚µ‚Ä‚¨‚­
                         rot = Quaternion.AngleAxis(angle, Vector3.Normalize(axis)); 
@@ -200,17 +204,22 @@ namespace mmdlib
 
                     if (IKLink.IsLimitAngle)
                     {
-                        Vector3 LowerAngle = IKLink.LowerAngle;
-                        Vector3 UpperAngle = IKLink.UpperAngle;
+                        Vector3 LowerAngle = Mathf.Rad2Deg * IKLink.LowerAngle;
+                        Vector3 UpperAngle = Mathf.Rad2Deg * IKLink.UpperAngle;
 
                         Vector3 euler = ResultRot.eulerAngles;
+
+                        // LowerAngle‚ÆUpperAngle‚Í-180 ` 180 ‚Å•\Œ»‚³‚ê‚é‚Ì‚Å 0 ` 360‚Ìeuler‚à‚»‚Ì‚æ‚¤‚É’¼‚·
+                        euler.x = ConvertDegreeAngle360To180(euler.x);
+                        euler.y = ConvertDegreeAngle360To180(euler.y);
+                        euler.z = ConvertDegreeAngle360To180(euler.z);
 
                         // ƒIƒCƒ‰[Šp‚É‘Î‚µ‚ÄŠp“x§ŒÀ‚ðs‚¤
                         // LowerAngle‚ÆUpperAngle‚Íƒ‰ƒWƒAƒ“
                         euler.x = Mathf.Clamp(euler.x, LowerAngle.x, UpperAngle.x);
                         euler.y = Mathf.Clamp(euler.y, LowerAngle.y, UpperAngle.y);
                         euler.z = Mathf.Clamp(euler.z, LowerAngle.z, UpperAngle.z);
-
+                        
                         ResultRot = Quaternion.Euler(euler);
 
                         LinkTrans.SetLocalRot(ResultRot);
@@ -300,6 +309,24 @@ namespace mmdlib
             }
 
             return true;
+        }
+
+        // 0“x`360“x‚Ì”ÍˆÍ‚ÌŠp“x‚ð-180“x‚©‚ç180“x‚Ì”ÍˆÍ‚ÌŠp“x‚É’¼‚·
+        static float ConvertDegreeAngle360To180(float SrcAngle)
+        {
+            float DstAngle = SrcAngle;
+
+            // ‚Ü‚¸0 ‚©‚ç 360‚Ì”ÍˆÍ‚É‚·‚é
+            DstAngle = math.fmod(DstAngle, 360.0f);
+
+            // 180“x‚ð‰z‚µ‚Ä‚¢‚½‚ç0‚©‚ç180‚ÌŠÔ‚É’¼‚µ‚Ä•„†‚ð”½“]‚·‚é
+            if(DstAngle > 180.0f)
+            {
+                DstAngle = 360.0f - DstAngle;
+                DstAngle *= -1.0f;
+            }
+
+            return DstAngle;
         }
     }
 }
