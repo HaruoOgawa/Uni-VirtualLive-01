@@ -389,7 +389,7 @@ namespace mmdlib
                 MaterialAssetName += ".mat";
 
                 AssetDatabase.CreateAsset(material, MaterialAssetName);
-
+                
                 // 次のエディタフレームで実行するコールバック
                 EditorApplication.delayCall += () =>
                 {
@@ -399,6 +399,9 @@ namespace mmdlib
                     if (PmxMaterial.IsDrawDoubleSlided()) cullMode = CullMode.Off;
 
                     material.SetInteger("_Cull", (int)cullMode);
+
+                    // アウトライン
+                    material.SetInt("_DrawEdge", (PmxMaterial.IsDrawEdge() ? 1 : 0));
 
                     // ShaderUniformをセット
                     material.SetFloat("_EdgeSize", PmxMaterial.GetEdgeSize());

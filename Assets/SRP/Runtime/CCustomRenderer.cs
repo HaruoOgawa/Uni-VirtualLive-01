@@ -94,6 +94,7 @@ namespace srp
             // ForegroundPass
             {
                 m_ForegroundPass.AddShaderTag("SRPDefaultUnlit");
+                m_ForegroundPass.AddShaderTag("SRPDefaultUnlit_Outline");
                 m_ForegroundPass.AddShaderTag("Always");
                 m_ForegroundPass.AddShaderTag("ForwardBase");
                 m_ForegroundPass.AddShaderTag("PrepassBase");
@@ -110,6 +111,7 @@ namespace srp
             // MainResultPass
             {
                 m_MainResultPass.AddShaderTag("SRPDefaultUnlit");
+                m_MainResultPass.AddShaderTag("SRPDefaultUnlit_Outline");
                 m_MainResultPass.AddShaderTag("Always");
                 m_MainResultPass.AddShaderTag("ForwardBase");
                 m_MainResultPass.AddShaderTag("PrepassBase");

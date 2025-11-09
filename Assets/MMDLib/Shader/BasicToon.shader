@@ -16,6 +16,8 @@ Shader "MMDLib/BasicToon"
         _ToonTexture("ToonTexture", 2D) = "white"{}
         _SphereTexture("SphereTexture", 2D) = "white"{}
 
+        _DrawEdge("_DrawEdge", Int) = 0
+
         [Enum(UnityEngine.Rendering.CullMode)] _Cull("Cull", Integer) = 1
         [Enum(UnityEngine.Rendering.BlendMode)] _BlendSrc("BlendSrc", Integer) = 1
         [Enum(UnityEngine.Rendering.BlendMode)] _BlendDst("BlendDst", Integer) = 1
@@ -124,7 +126,7 @@ Shader "MMDLib/BasicToon"
         {
             Cull Front
 
-            Tags{ "LightMode" = "SRPDefaultUnlit" }
+            Tags{ "LightMode" = "SRPDefaultUnlit_Outline" }
 
             HLSLPROGRAM
 
@@ -152,7 +154,7 @@ Shader "MMDLib/BasicToon"
                 float3 WorldPos    = (mul(unity_ObjectToWorld, float4(IN.positionOS.xyz, 1.0))).xyz;
                 float3 WorldNormal = (mul(unity_ObjectToWorld, float4(IN.normal, 0.0)) ).xyz;
 
-                WorldPos.xyz += normalize(WorldNormal) * _EdgeSize;
+                WorldPos.xyz += normalize(WorldNormal) * _EdgeSize * 0.001;
 
                 Varyings OUT;
                 OUT.positionHCS = mul(unity_MatrixVP, float4(WorldPos, 1.0));
@@ -160,11 +162,17 @@ Shader "MMDLib/BasicToon"
             }
 
             float4 _EdgeColor;
+            int _DrawEdge;
 
             half4 frag(Varyings IN) : SV_Target
             {
                 float4 col = _EdgeColor;
                 col.a = 1.0;
+
+                if(_DrawEdge == 0) 
+                {
+                    discard;
+                }
 
                 return col;
             }
