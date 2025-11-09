@@ -16,6 +16,8 @@ namespace mmdlib
         List<CPmxMaterial> m_PmxMaterialList = new List<CPmxMaterial>();
         List<CPmxBone> m_PmxBoneList = new List<CPmxBone>();
         Dictionary<string, CPmxMorphTarget> m_PmxVertexMorphList = new Dictionary<string, CPmxMorphTarget>();
+        List<SPmxRigidbody> m_PmxRigidbodyList = new List<SPmxRigidbody>();
+        List<SPmxJoint> m_PmxJointList = new List<SPmxJoint>();
 
         public bool Analyse(string fileName)
         {
@@ -138,6 +140,16 @@ namespace mmdlib
         public Dictionary<string, CPmxMorphTarget> GetPmxVertexMorphList()
         {
             return m_PmxVertexMorphList;
+        }
+
+        public List<SPmxRigidbody> GetPmxRigidbodyList()
+        {
+            return m_PmxRigidbodyList;
+        }
+
+        public List<SPmxJoint> GetPmxJointList()
+        {
+            return m_PmxJointList;
         }
 
         bool AnalyseMetaData(ref CBinaryReader Analyser)
@@ -1224,16 +1236,307 @@ namespace mmdlib
 
         bool AnalyseDisplayFrame(ref CBinaryReader Analyser)
         {
+            // 表示枠数
+            int NumOfDisplayFrame = 0;
+            if (!Analyser.GetInt(ref NumOfDisplayFrame)) return false;
+
+            for (int i = 0; i < NumOfDisplayFrame; i++)
+            {
+                // 枠名
+                string FrameName = string.Empty;
+                {
+                    int ByteLength = 0;
+                    if (!Analyser.GetInt(ref ByteLength)) return false;
+
+                    if (m_MetaData.EncodeType == EPmxEncodeType.UTF8)
+                    {
+                        if (!Analyser.GetString(ref FrameName, ByteLength)) return false;
+                    }
+                    else if (m_MetaData.EncodeType == EPmxEncodeType.UTF16)
+                    {
+                        if (!Analyser.GetUTF16String(ref FrameName, ByteLength)) return false;
+                    }
+                }
+
+                // 枠名EN
+                string FrameNameEN = string.Empty;
+                {
+                    int ByteLength = 0;
+                    if (!Analyser.GetInt(ref ByteLength)) return false;
+
+                    if (m_MetaData.EncodeType == EPmxEncodeType.UTF8)
+                    {
+                        if (!Analyser.GetString(ref FrameName, ByteLength)) return false;
+                    }
+                    else if (m_MetaData.EncodeType == EPmxEncodeType.UTF16)
+                    {
+                        if (!Analyser.GetUTF16String(ref FrameName, ByteLength)) return false;
+                    }
+                }
+
+                // 特殊枠フラグ - 0:通常枠 1:特殊枠
+                byte SpetialFrame = 0;
+                if (!Analyser.GetByte(ref SpetialFrame)) return false;
+
+                // 枠内要素数
+                int NumOfInnerFrameElem = 0;
+                if (!Analyser.GetInt(ref NumOfInnerFrameElem)) return false;
+
+                for (int e = 0; e < NumOfInnerFrameElem; e++)
+                {
+                    // 要素対象 0:ボーン 1:モーフ
+                    byte ElementTarget = 0;
+                    if (!Analyser.GetByte(ref ElementTarget)) return false;
+
+                    if (ElementTarget == 0)
+                    {
+                        int BoneIndex = GetMultiTypeValueAsInterger(ref Analyser, m_MetaData.BoneIndexSize);
+                    }
+                    else if (ElementTarget == 1)
+                    {
+                        int MorphIndex = GetMultiTypeValueAsInterger(ref Analyser, m_MetaData.MorphIndexSize);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+
             return true;
         }
 
         bool AnalyseRigidbody(ref CBinaryReader Analyser)
         {
+            // 剛体数
+            int NumOfRigidbody = 0;
+            if (!Analyser.GetInt(ref NumOfRigidbody)) return false;
+
+            for (int i = 0; i < NumOfRigidbody; i++)
+            {
+                // 剛体名
+                string RigidbodyName = string.Empty;
+                {
+                    int ByteLength = 0;
+                    if (!Analyser.GetInt(ref ByteLength)) return false;
+
+                    if (m_MetaData.EncodeType == EPmxEncodeType.UTF8)
+                    {
+                        if (!Analyser.GetString(ref RigidbodyName, ByteLength)) return false;
+                    }
+                    else if (m_MetaData.EncodeType == EPmxEncodeType.UTF16)
+                    {
+                        if (!Analyser.GetUTF16String(ref RigidbodyName, ByteLength)) return false;
+                    }
+                }
+
+                // 剛体名EN
+                string RigidbodyNameEN = string.Empty;
+                {
+                    int ByteLength = 0;
+                    if (!Analyser.GetInt(ref ByteLength)) return false;
+
+                    if (m_MetaData.EncodeType == EPmxEncodeType.UTF8)
+                    {
+                        if (!Analyser.GetString(ref RigidbodyNameEN, ByteLength)) return false;
+                    }
+                    else if (m_MetaData.EncodeType == EPmxEncodeType.UTF16)
+                    {
+                        if (!Analyser.GetUTF16String(ref RigidbodyNameEN, ByteLength)) return false;
+                    }
+                }
+
+                // 関連ボーンIndex - 関連なしの場合は-1
+                int RelationBoneIndex = GetMultiTypeValueAsInterger(ref Analyser, m_MetaData.BoneIndexSize, true);
+
+                // グループ
+                // ここのバイナリに入っているのは左シフト数
+                byte shiftCount = 0;
+                if (!Analyser.GetByte(ref shiftCount)) return false;
+
+                // シフト演算を実行してグループを取得する
+                ushort group = (ushort)(0x01 << shiftCount);
+
+                // 非衝突グループフラグ
+                ushort NoneCollideGroupFlag = 0;
+                if (!Analyser.GetUShort(ref NoneCollideGroupFlag)) return false;
+
+                // フラグが立っていると当たらないということにする
+                NoneCollideGroupFlag = (ushort)(~NoneCollideGroupFlag);
+
+                // 形状 - 0:球 1:箱 2:カプセル
+                byte Shape = 0;
+                if (!Analyser.GetByte(ref Shape)) return false;
+
+                EPmxPhysicsShape PhysicsShape = (EPmxPhysicsShape)((int)(Shape));
+
+                // サイズ(x,y,z)
+                if (!Analyser.IsValid(4 * 3)) return false;
+                Vector3 Size = new Vector3(Analyser.GetFloat(), Analyser.GetFloat(), Analyser.GetFloat());
+
+                // 位置(x,y,z)
+                if (!Analyser.IsValid(4 * 3)) return false;
+                Vector3 Pos = new Vector3(Analyser.GetFloat(), Analyser.GetFloat(), Analyser.GetFloat());
+
+                // 回転(x,y,z) -> ラジアン角
+                if (!Analyser.IsValid(4 * 3)) return false;
+                Vector3 Rotate = new Vector3(Analyser.GetFloat(), Analyser.GetFloat(), Analyser.GetFloat());
+
+                // 質量
+                float Mass = 0.0f;
+                if (!Analyser.GetFloat(ref Mass)) return false;
+
+                // 移動減衰
+                float TransDamping = 0.0f;
+                if (!Analyser.GetFloat(ref TransDamping)) return false;
+
+                // 回転減衰
+                float RotateDamping = 0.0f;
+                if (!Analyser.GetFloat(ref RotateDamping)) return false;
+
+                // 反発力
+                float Repulsion = 0.0f;
+                if (!Analyser.GetFloat(ref Repulsion)) return false;
+
+                // 摩擦力
+                float Friction = 0.0f;
+                if (!Analyser.GetFloat(ref Friction)) return false;
+
+                // 剛体の物理演算 - 0:ボーン追従(static) 1:物理演算(dynamic) 2:物理演算 + Bone位置合わせ
+                byte PhysicsType = 0;
+                if (!Analyser.GetByte(ref PhysicsType)) return false;
+
+                // 剛体を登録
+                SPmxRigidbody PmxRigidbody = new SPmxRigidbody();
+                PmxRigidbody.RigidbodyName = RigidbodyName;
+                PmxRigidbody.RigidbodyNameEN = RigidbodyNameEN;
+                PmxRigidbody.RelationBoneIndex = RelationBoneIndex;
+                PmxRigidbody.group = group;
+                PmxRigidbody.NoneCollideGroupFlag = NoneCollideGroupFlag;
+                PmxRigidbody.PhysicsShape = PhysicsShape;
+                PmxRigidbody.Size = Size;
+                PmxRigidbody.Pos = Pos;
+                PmxRigidbody.Rotate = Rotate;
+                PmxRigidbody.Mass = Mass;
+                PmxRigidbody.TransDamping = TransDamping;
+                PmxRigidbody.RotateDamping = RotateDamping;
+                PmxRigidbody.Repulsion = Repulsion;
+                PmxRigidbody.Friction = Friction;
+                PmxRigidbody.PhysicsType = (EPmxPhysicsType)((int)(PhysicsType));
+
+                m_PmxRigidbodyList.Add(PmxRigidbody);
+            }
+
             return true;
         }
 
         bool AnalyseJoint(ref CBinaryReader Analyser)
         {
+            // Joint数
+            int NumOfJoint = 0;
+            if (!Analyser.GetInt(ref NumOfJoint)) return false;
+
+            for (int i = 0; i < NumOfJoint; i++)
+            {
+                SPmxJoint PmxJoint = new SPmxJoint();
+
+                // Joint名
+                string JointName = string.Empty;
+                {
+                    int ByteLength = 0;
+                    if (!Analyser.GetInt(ref ByteLength)) return false;
+
+                    if (m_MetaData.EncodeType == EPmxEncodeType.UTF8)
+                    {
+                        if (!Analyser.GetString(ref JointName, ByteLength)) return false;
+                    }
+                    else if (m_MetaData.EncodeType == EPmxEncodeType.UTF16)
+                    {
+                        if (!Analyser.GetUTF16String(ref JointName, ByteLength)) return false;
+                    }
+                }
+
+                PmxJoint.JointName = JointName;
+
+                // Joint名EN
+                string JointNameEN = string.Empty;
+                {
+                    int ByteLength = 0;
+                    if (!Analyser.GetInt(ref ByteLength)) return false;
+
+                    if (m_MetaData.EncodeType == EPmxEncodeType.UTF8)
+                    {
+                        if (!Analyser.GetString(ref JointNameEN, ByteLength)) return false;
+                    }
+                    else if (m_MetaData.EncodeType == EPmxEncodeType.UTF16)
+                    {
+                        if (!Analyser.GetUTF16String(ref JointNameEN, ByteLength)) return false;
+                    }
+                }
+
+                PmxJoint.JointNameEN = JointNameEN;
+
+                // Joint種類 - 0:スプリング6DOF   | PMX2.0では 0 のみ(拡張用)
+                // 2.1以降で6Dof以外の時はいったんエラーを出して伝える → その後実装する？
+                byte JointType = 0;
+                if (!Analyser.GetByte(ref JointType)) return false;
+
+                PmxJoint.PmxJointType = (EPmxJointType)((int)(JointType));
+
+                // 0: ﾊﾞﾈ付6DOF: btGeneric6DofSpringConstraint
+                // 1: 6DOF: btGeneric6DofConstraint
+                // 2: P2P: btPoint2PointConstraint
+                // 3: ConeTwist: btConeTwistConstraint
+                // 5: Slider: btSliderConstraint
+
+                // 関連剛体AのIndex - 関連なしの場合は-1
+                PmxJoint.BodyAIndex = GetMultiTypeValueAsInterger(ref Analyser, m_MetaData.RigidIndexSize);
+
+                // 関連剛体BのIndex - 関連なしの場合は-1
+                PmxJoint.BodyBIndex = GetMultiTypeValueAsInterger(ref Analyser, m_MetaData.RigidIndexSize);
+
+                // 位置(x,y,z)
+                if (!Analyser.IsValid(4 * 3)) return false;
+                PmxJoint.Pos = new Vector3(Analyser.GetFloat(), Analyser.GetFloat(), Analyser.GetFloat());
+
+                // 回転(x,y,z) -> ラジアン角
+                if (!Analyser.IsValid(4 * 3)) return false;
+                PmxJoint.Rotate = new Vector3(Analyser.GetFloat(), Analyser.GetFloat(), Analyser.GetFloat());
+
+                if (JointType != 2)
+                {
+                    // 移動制限-下限(x,y,z)
+                    if (!Analyser.IsValid(4 * 3)) return false;
+                    PmxJoint.LowerTransLimit = new Vector3(Analyser.GetFloat(), Analyser.GetFloat(), Analyser.GetFloat());
+
+                    // 移動制限-上限(x,y,z)
+                    if (!Analyser.IsValid(4 * 3)) return false;
+                    PmxJoint.UpperTransLimit = new Vector3(Analyser.GetFloat(), Analyser.GetFloat(), Analyser.GetFloat());
+
+                    // 回転制限-下限(x,y,z) -> ラジアン角
+                    if (!Analyser.IsValid(4 * 3)) return false;
+                    PmxJoint.LowerRotateLimit = new Vector3(Analyser.GetFloat(), Analyser.GetFloat(), Analyser.GetFloat());
+
+                    // 回転制限-上限(x,y,z) -> ラジアン角
+                    if (!Analyser.IsValid(4 * 3)) return false;
+                    PmxJoint.UpperRotateLimit = new Vector3(Analyser.GetFloat(), Analyser.GetFloat(), Analyser.GetFloat());
+
+                    if (JointType != 1)
+                    {
+                        // バネ定数-移動(x,y,z)
+                        if (!Analyser.IsValid(4 * 3)) return false;
+                        PmxJoint.TransSpring = new Vector3(Analyser.GetFloat(), Analyser.GetFloat(), Analyser.GetFloat());
+
+                        // バネ定数-回転(x,y,z)
+                        if (!Analyser.IsValid(4 * 3)) return false;
+                        PmxJoint.RotateSpring = new Vector3(Analyser.GetFloat(), Analyser.GetFloat(), Analyser.GetFloat());
+                    }
+                }
+
+                // Jointを登録
+                m_PmxJointList.Add(PmxJoint);
+            }
+
             return true;
         }
 

@@ -314,16 +314,62 @@ namespace mmdlib
 
         bool AnalyseCameraData(ref CBinaryReader Analyser)
         {
+            /*
+		    // カメラデータ数
+		    struct VMD_CAMERA_COUNT {
+		    DWORD Count; // カメラデータ数
+		    } vmd_camera_count;
+
+		    // カメラデータ
+		    struct VMD_CAMERA { // 61 Bytes // カメラ
+		    DWORD FlameNo; // フレーム番号
+		    float Length; // -(距離)
+		    float Location[3]; // 位置
+		    float Rotation[3]; // オイラー角 // X軸は符号が反転しているので注意 // 回転
+		    BYTE Interpolation[24]; // おそらく[6][4](未検証) // 補完
+		    DWORD ViewingAngle; // 視界角
+		    BYTE Perspective; // 0:on 1:off // パースペクティブ
+		    } vmd_camera;
+		    */
+
             return true;
         }
 
         bool AnalyseLightData(ref CBinaryReader Analyser)
         {
+            /*
+		    // 照明データ数
+		    struct VMD_LIGHT_COUNT {
+		    DWORD Count; // 照明データ数
+		    } vmd_light_count;
+
+		    // 照明データ
+		    struct VMD_LIGHT { // 28 Bytes // 照明
+		    DWORD FlameNo; // フレーム番号
+		    float RGB[3]; // RGB各値/256 // 赤、緑、青
+		    float Location[3]; // X, Y, Z
+		    } vmd_light;
+		    */
+
             return true;
         }
 
         bool AnalyseSelfShadowData(ref CBinaryReader Analyser)
         {
+            /*
+		    // セルフシャドウデータ数
+		    struct VMD_SELF_SHADOW_COUNT {
+		    DWORD Count; // セルフシャドウデータ数
+		    } vmd_self_shadow_count;
+
+		    // セルフシャドウデータ
+		    struct VMD_SELF_SHADOW { // 9 Bytes // セルフシャドー
+		    DWORD FlameNo; // フレーム番号
+		    BYTE Mode; // 00-02 // モード
+		    float Distance; // 0.1 - (dist * 0.00001) // 距離
+		    } vmd_self_shadow;
+		    */
+
             return true;
         }
     }
