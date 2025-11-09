@@ -400,13 +400,6 @@ namespace mmdlib
 
                     material.SetInteger("_Cull", (int)cullMode);
 
-                    // ブレンドモード
-                    BlendMode blendSrc = BlendMode.SrcAlpha;
-                    material.SetInteger("_BlendSrc", (int)blendSrc);
-
-                    BlendMode blendDst = BlendMode.OneMinusSrcAlpha;
-                    material.SetInteger("_BlendDst", (int)blendDst);
-
                     // ShaderUniformをセット
                     material.SetFloat("_EdgeSize", PmxMaterial.GetEdgeSize());
                     material.SetFloat("_SpecularIntensity", PmxMaterial.GetSpecularCoef());
@@ -415,6 +408,9 @@ namespace mmdlib
                     material.SetColor("_AmbientFactor", PmxMaterial.GetAmbient());
                     material.SetColor("_SpecularFactor", PmxMaterial.GetSpecular());
                     material.SetColor("_EdgeColor", PmxMaterial.GetEdgeColor());
+
+                    // アルファレンダリングを行うか
+                    bool UseAlpha = (PmxMaterial.GetDiffuse().w > 0.0f);
 
                     // MainTexture
                     int MainTexIndex = PmxMaterial.GetMainTexIndex();
@@ -425,7 +421,27 @@ namespace mmdlib
                         // 使うと消えてしまうので遅延コールバック内でAssetDatabase.LoadAssetAtPathで新規ロードする
                         string path = TexturePathList[MainTexIndex];
 
-                        material.SetTexture("_MainTexture", AssetDatabase.LoadAssetAtPath<Texture>(path));
+                        Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+
+                        material.SetTexture("_MainTexture", texture);
+
+                        // メインテクスチャがアルファチャンネルを持っているかチェックする
+                        if(!UseAlpha)
+                        {
+                            for (int y = 0; y < texture.height; y++)
+                            {
+                                for (int x = 0; x < texture.width; x++)
+                                {
+                                    Color col = texture.GetPixel(x, y);
+
+                                    if(col.a < 1.0f)
+                                    {
+                                        UseAlpha = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     // ToonTexture
@@ -465,6 +481,21 @@ namespace mmdlib
 
                         material.SetTexture("_SphereTexture", AssetDatabase.LoadAssetAtPath<Texture>(path));
                     }
+
+                    // ブレンドモード
+                    BlendMode blendSrc = (UseAlpha)? BlendMode.SrcAlpha : BlendMode.One;
+                    material.SetInteger("_BlendSrc", (int)blendSrc);
+
+                    BlendMode blendDst = (UseAlpha) ? BlendMode.OneMinusSrcAlpha : BlendMode.Zero;
+                    material.SetInteger("_BlendDst", (int)blendDst);
+
+                    // RenderType
+                    string RenderType = (UseAlpha) ? "Transparent" : "Opaque";
+                    material.SetOverrideTag("RenderType", RenderType);
+
+                    // Queue
+                    RenderQueue renderQueue = (UseAlpha) ? RenderQueue.Transparent : RenderQueue.Geometry;
+                    material.renderQueue = (int)renderQueue;
 
                     // マテリアルの変更を保存する(テクスチャのバインドを保持しておくために必要。これがないとテクスチャが消える)
                     EditorUtility.SetDirty(material);
