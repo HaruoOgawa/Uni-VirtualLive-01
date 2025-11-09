@@ -97,7 +97,12 @@ namespace mmdlib
 
             int Index = 0;
 
-            foreach (var Frame in VMDData.GetFrameMap())
+            var FrameMap = VMDData.GetFrameMap();
+
+            // ボーンアニメーションのフレームが存在しなければクリップを生成しない
+            if (FrameMap == null || FrameMap.Count == 0) return true;
+
+            foreach (var Frame in FrameMap)
 		    {
                 AnimationCurve localPos_X_Curve = new AnimationCurve();
                 AnimationCurve localPos_Y_Curve = new AnimationCurve();
@@ -201,7 +206,12 @@ namespace mmdlib
 
             int Index = 0;
 
-            foreach (var Frame in VMDData.GetSkinFrameMap())
+            var FrameMap = VMDData.GetSkinFrameMap();
+
+            // ブレンドシェイプアニメーションのフレームが存在しなければクリップを生成しない
+            if (FrameMap == null || FrameMap.Count == 0) return true;
+
+            foreach (var Frame in FrameMap)
             {
                 AnimationCurve Weight_Curve = new AnimationCurve();
 
@@ -220,7 +230,10 @@ namespace mmdlib
                         int FrameIndex = FrameData.FrameIndex;
                         float CurrentTime = (float)(FrameIndex) * (1.0f / FrameRate);
 
-                        var weight = FrameData.Weight;
+                        float weight = FrameData.Weight;
+
+                        // Unityのウェイトは0～100の値なので0～1のVMDを補正する
+                        weight *= 100.0f;
 
                         Weight_KeyFrameList.Add(new Keyframe(CurrentTime, weight));
 
@@ -233,7 +246,7 @@ namespace mmdlib
                 // ブレンドシェイプの場合はルートノードからスキンメッシュレンダラーを持っているノードまでのパスを指定する
                 string MeshPath = "Mesh";
                 string blendShapeName = Frame.Key;
-                string property = "blendshape." + blendShapeName;
+                string property = "blendShape." + blendShapeName;
 
                 clip.SetCurve(MeshPath, typeof(SkinnedMeshRenderer), property, Weight_Curve);
 
