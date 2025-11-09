@@ -22,6 +22,11 @@ namespace mmdlib
             m_PmxBoneList = BoneList;
         }
 
+        public List<PmxBone> GetPmxBoneList()
+        {
+            return m_PmxBoneList;
+        }
+
         // IKÉ{Å[Éì
         public void MakeIKBoneList()
         {

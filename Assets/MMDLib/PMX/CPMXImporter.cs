@@ -159,6 +159,10 @@ namespace mmdlib
             if (!CreateMeshList(model, ref rootNode, rootBone, ref NodeList, BoneTransformList, MaterialList, FolderMap)) return false;
 
             // 物理演算
+            List<Transform> PhysicsObjectList = new List<Transform>();
+            if (!CreateRigidbody(model, rootBone.GetComponent<PmxSkeleton>(), ref PhysicsObjectList)) return false;
+
+            if (!CreateJoint(model, rootBone.GetComponent<PmxSkeleton>(), PhysicsObjectList)) return false;
 
             // プレファブを生成
             string PrefabFolder = string.Empty;
@@ -759,8 +763,111 @@ namespace mmdlib
             return true;
         }
 
-        // Helper
-        //bool memcpy)
+        static bool CreateRigidbody(CPmxModel model, PmxSkeleton Skeleton, ref List<Transform> PhysicsObjectList)
+	    {
+		    var BoneList = Skeleton.GetPmxBoneList();
+
+            foreach(var PmxRigidbody in model.GetPmxRigidbodyList())
+		    {
+                if (PmxRigidbody.RelationBoneIndex < 0 || PmxRigidbody.RelationBoneIndex >= BoneList.Count) continue;
+
+                Transform BoneTrans = BoneList[PmxRigidbody.RelationBoneIndex].transform;
+                if(BoneTrans == null) continue;
+
+                // 物理オブジェクトを作成
+                Vector3 Pos = PmxRigidbody.Pos;
+                Vector3 Rotate = PmxRigidbody.Rotate;
+                Vector3 Size = PmxRigidbody.Size;
+
+                // 物理オブジェクトを割り当てる
+                if (PmxRigidbody.PhysicsShape == EPmxPhysicsShape.SPHERE)
+			    {
+                    BoneTrans.AddComponent<SphereCollider>();
+
+                    SphereCollider collider = BoneTrans.GetComponent<SphereCollider>();
+
+                    collider.center = Pos - BoneTrans.transform.position;
+                    collider.radius = Size.x;
+			    }
+                else if (PmxRigidbody.PhysicsShape == EPmxPhysicsShape.BOX)
+                {
+                    BoneTrans.AddComponent<BoxCollider>();
+
+                    BoxCollider collider = BoneTrans.GetComponent<BoxCollider>();
+
+                    collider.center = Pos - BoneTrans.transform.position;
+                    collider.size = Size;
+                }
+                else if (PmxRigidbody.PhysicsShape == EPmxPhysicsShape.CAPSULE)
+                {
+                    BoneTrans.AddComponent<CapsuleCollider>();
+
+                    CapsuleCollider collider = BoneTrans.GetComponent<CapsuleCollider>();
+
+                    collider.center = Pos - BoneTrans.transform.position;
+                    collider.radius = Size.x;
+                    collider.height = Size.y;
+                    //collider.direction = new Vec
+                }
+                else
+                {
+                    continue;
+                }
+
+                // RigidBodyを追加
+                if(BoneTrans.GetComponent<Rigidbody>() == null)
+                {
+                    BoneTrans.AddComponent<Rigidbody>();
+                }
+
+                Rigidbody rigidbody = BoneTrans.GetComponent<Rigidbody>();
+                rigidbody.isKinematic = (PmxRigidbody.PhysicsType == EPmxPhysicsType.STATIC);
+                rigidbody.mass = PmxRigidbody.Mass;
+
+                PhysicsObjectList.Add(BoneTrans);
+		    }
+
+		    return true;
+	    }
+
+        static bool CreateJoint(CPmxModel model, PmxSkeleton Skeleton, List<Transform> PhysicsObjectList)
+	    {
+		    var PmxRigidbodyList = model.GetPmxRigidbodyList();
+
+		    foreach(var PmxJoint in model.GetPmxJointList())
+		    {
+			    // PhysicsObjectを取得
+			    // BodyA
+			    int BodyAIndex = PmxJoint.BodyAIndex;
+			    if (BodyAIndex < 0 || BodyAIndex >= PmxRigidbodyList.Count) continue;
+
+			    var PhysicsObjA = PhysicsObjectList[BodyAIndex];
+
+			    // BodyB
+			    int BodyBIndex = PmxJoint.BodyBIndex;
+			    if (BodyBIndex < 0 || BodyBIndex >= PmxRigidbodyList.Count) continue;
+
+                var PhysicsObjB = PhysicsObjectList[BodyBIndex];
+                SPmxRigidbody pmxRigidbodyB = PmxRigidbodyList[BodyBIndex];
+
+
+                if (PhysicsObjA == null || PhysicsObjB == null) continue;
+
+                // SpringBoneを追加
+                PhysicsObjB.AddComponent<SpringJoint>();
+
+                SpringJoint springJoint = PhysicsObjB.GetComponent<SpringJoint>();
+                springJoint.enableCollision = true;
+                springJoint.damper = pmxRigidbodyB.TransDamping;
+                springJoint.spring = PmxJoint.TransSpring.x;
+                springJoint.connectedBody = PhysicsObjA.GetComponent<Rigidbody>();
+
+                // UseCollideMask, group,               NoneCollideGroupFlag
+                // true,           PmxRigidbody.group,  PmxRigidbody.NoneCollideGroupFlag
+		    }
+
+		    return true;
+	    }
     }
 
 }
