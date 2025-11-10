@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -15,6 +16,9 @@ namespace mmdlib
         public EHumanoidBones m_BoneName = EHumanoidBones.None;
 
         public EHumanoidBones m_ParentBoneName = EHumanoidBones.None;
+
+        // 物理オブジェクト
+        public List<(EPmxPhysicsType PhysicsType, GameObject PhysicsObj)> m_PhysicsObjectList = new List<(EPmxPhysicsType PhysicsType, GameObject PhysicsObj)> ();
 
         // 回転付与・移動付与
         // 付与とは他のボーンに付いて行くということ
@@ -56,6 +60,14 @@ namespace mmdlib
 		{
 			return m_BoneName;
 		}
+
+        // 物理オブジェクト
+        public void AddPhysicsObject(EPmxPhysicsType PhysicsType, GameObject PhysicsObj)
+	    {
+		    if (PhysicsObj == null) return;
+
+		    m_PhysicsObjectList.Add((PhysicsType, PhysicsObj));
+	    }
 
         public void SetBoneName(EHumanoidBones BoneName)
 		{
