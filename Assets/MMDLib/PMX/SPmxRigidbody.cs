@@ -10,12 +10,14 @@ namespace mmdlib
 		CAPSULE = 2,
 	};
 
+    [System.Serializable]
     public enum EPmxPhysicsType
     {
-        STATIC = 0,
-		DYNAMIC = 1,
-		DYNAMIC_JOINT = 2,
-	};
+        STATIC = 0, // ƒ{[ƒ“’Ç](static)
+        DYNAMIC = 1, // •¨—‰‰Z(dynamic)
+        DYNAMIC_BONE_ALIGNMENT = 2, // •¨—‰‰Z + BoneˆÊ’u‡‚í‚¹
+    };
+
 
     public class SPmxRigidbody
     {

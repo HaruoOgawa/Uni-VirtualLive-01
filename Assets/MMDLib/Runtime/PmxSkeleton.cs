@@ -59,13 +59,35 @@ namespace mmdlib
             }
         }
 
-        void LateUpdate()
+        // イベントの実行順
+        // https://docs.unity3d.com/ja/2018.4/Manual/ExecutionOrder.html
+        // FixedUpdate → 物理演算 → アニメーション更新 → Update → LateUpdate 
+
+        void FixedUpdate()
+        {
+            // 物理演算実行前に物理オブジェクトの位置をボーンと合わせる
+            foreach(var Bone in m_PmxBoneList)
+            {
+                Bone.ApplyBoneToPhysics();
+            }
+        }
+
+        void Update()
         {
             // IKの計算を行う
             CalculateIK();
 
             // 付与ボーンの位置を計算
             CalculateGrantBone();
+        }
+
+        void LateUpdate()
+        {
+            // 物理エンジンの計算結果をボーンに反映
+            foreach (var Bone in m_PmxBoneList)
+            {
+                Bone.ApplyPhysicsToBone();
+            }
         }
 
         // IK計算

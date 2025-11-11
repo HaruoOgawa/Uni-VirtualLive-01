@@ -18,7 +18,7 @@ namespace mmdlib
         public EHumanoidBones m_ParentBoneName = EHumanoidBones.None;
 
         // 物理オブジェクト
-        public List<(EPmxPhysicsType PhysicsType, GameObject PhysicsObj)> m_PhysicsObjectList = new List<(EPmxPhysicsType PhysicsType, GameObject PhysicsObj)> ();
+        public List<CPmxPhysicsObject> m_PhysicsObjectList = new List<CPmxPhysicsObject> ();
 
         // 回転付与・移動付与
         // 付与とは他のボーンに付いて行くということ
@@ -66,7 +66,7 @@ namespace mmdlib
 	    {
 		    if (PhysicsObj == null) return;
 
-		    m_PhysicsObjectList.Add((PhysicsType, PhysicsObj));
+		    m_PhysicsObjectList.Add(new CPmxPhysicsObject(PhysicsType, PhysicsObj));
 	    }
 
         public void SetBoneName(EHumanoidBones BoneName)
@@ -141,5 +141,31 @@ namespace mmdlib
 		{
 			m_IKParam = Param;
 		}
+
+        // 物理演算実行前に物理オブジェクトの位置をボーンと合わせる
+        public void ApplyBoneToPhysics()
+        {
+            foreach(var pair in m_PhysicsObjectList)
+            {
+                // Staticもしくはボーン付与の物理オブジェクトのみ反映する
+                if (pair.PhysicsType != EPmxPhysicsType.STATIC && pair.PhysicsType != EPmxPhysicsType.DYNAMIC_BONE_ALIGNMENT) continue;
+
+                pair.PhysicsObj.transform.position = this.transform.position;
+                pair.PhysicsObj.transform.rotation = this.transform.rotation;
+            }
+        }
+
+        // 物理エンジンの計算結果をボーンに反映
+        public void ApplyPhysicsToBone()
+        {
+            foreach (var pair in m_PhysicsObjectList)
+            {
+                // ダイナミックもしくはボーン付与の物理オブジェクトのみ反映する
+                if (pair.PhysicsType != EPmxPhysicsType.DYNAMIC && pair.PhysicsType != EPmxPhysicsType.DYNAMIC_BONE_ALIGNMENT) continue;
+
+                this.transform.position = pair.PhysicsObj.transform.position;
+                this.transform.rotation = pair.PhysicsObj.transform.rotation;
+            }
+        }
     }
 }

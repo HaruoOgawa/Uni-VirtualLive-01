@@ -819,20 +819,31 @@ namespace mmdlib
 
                 PhysicsObject.transform.localPosition = Pos;
                 PhysicsObject.transform.localRotation = Quaternion.Euler(Mathf.Rad2Deg * Rotate);
-                PhysicsObject.transform.localScale = Size;
+                //PhysicsObject.transform.localScale = Size;
 
                 // 物理オブジェクトを割り当てる
                 if (PmxRigidbody.PhysicsShape == EPmxPhysicsShape.SPHERE)
 			    {
                     PhysicsObject.AddComponent<SphereCollider>();
-			    }
+
+                    SphereCollider collider = PhysicsObject.GetComponent<SphereCollider>();
+                    collider.radius = Size.x;
+
+                }
                 else if (PmxRigidbody.PhysicsShape == EPmxPhysicsShape.BOX)
                 {
                     PhysicsObject.AddComponent<BoxCollider>();
+
+                    BoxCollider collider = PhysicsObject.GetComponent<BoxCollider>();
+                    collider.size = Size;
                 }
                 else if (PmxRigidbody.PhysicsShape == EPmxPhysicsShape.CAPSULE)
                 {
                     PhysicsObject.AddComponent<CapsuleCollider>();
+
+                    CapsuleCollider collider = PhysicsObject.GetComponent<CapsuleCollider>();
+                    collider.radius = Size.x;
+                    collider.height = Size.y;
                 }
                 else
                 {
@@ -843,7 +854,7 @@ namespace mmdlib
                 PhysicsObject.AddComponent<Rigidbody>();
 
                 Rigidbody rigidbody = PhysicsObject.GetComponent<Rigidbody>();
-                rigidbody.isKinematic = (PmxRigidbody.PhysicsType == EPmxPhysicsType.STATIC);
+                rigidbody.isKinematic = (PmxRigidbody.PhysicsType == EPmxPhysicsType.STATIC || PmxRigidbody.Mass == 0.0);
                 rigidbody.mass = PmxRigidbody.Mass;
                 rigidbody.linearDamping = PmxRigidbody.TransDamping;
                 rigidbody.angularDamping = PmxRigidbody.RotateDamping;
@@ -871,35 +882,62 @@ namespace mmdlib
 		    foreach(var PmxJoint in model.GetPmxJointList())
 		    {
 			    // PhysicsObjectを取得
-			    // BodyA
+			    // BodyA(Fixed)
 			    int BodyAIndex = PmxJoint.BodyAIndex;
 			    if (BodyAIndex < 0 || BodyAIndex >= PmxRigidbodyList.Count) continue;
 
-			    var PhysicsObjA = PhysicsObjectList[BodyAIndex];
+			    var FixedPhysicsObj = PhysicsObjectList[BodyAIndex];
 
-			    // BodyB
+			    // BodyB(Dynamic)
 			    int BodyBIndex = PmxJoint.BodyBIndex;
 			    if (BodyBIndex < 0 || BodyBIndex >= PmxRigidbodyList.Count) continue;
 
-                var PhysicsObjB = PhysicsObjectList[BodyBIndex];
+                var DynamicPhysicsObj = PhysicsObjectList[BodyBIndex];
                 SPmxRigidbody pmxRigidbodyB = PmxRigidbodyList[BodyBIndex];
 
+                if (FixedPhysicsObj == null || DynamicPhysicsObj == null) continue;
 
-                if (PhysicsObjA == null || PhysicsObjB == null) continue;
 
                 // SpringBoneを追加
-                PhysicsObjB.AddComponent<SpringJoint>();
+                DynamicPhysicsObj.AddComponent<SpringJoint>();
 
-                SpringJoint springJoint = PhysicsObjB.GetComponent<SpringJoint>();
+                SpringJoint springJoint = DynamicPhysicsObj.GetComponent<SpringJoint>();
+                springJoint.connectedBody = FixedPhysicsObj.GetComponent<Rigidbody>();
                 springJoint.enableCollision = true;
                 springJoint.damper = pmxRigidbodyB.TransDamping;
                 springJoint.spring = PmxJoint.TransSpring.x;
-                springJoint.connectedBody = PhysicsObjA.GetComponent<Rigidbody>();
 
-                
-		    }
+                //springJoint.anchor
+                //springJoint.maxDistance
+                //springJoint.tolerance
 
-		    return true;
+                // 移動できる範囲・回転できる範囲を設定
+                // bulletではLimitのLowerとUpperが同じ値ならその軸は固定される
+                // http://bulletjpn.web.fc2.com/08_Constraints.html
+                /*
+                 Lowerlimit == Upperlimit -> この軸はロックされます。
+                 Lowerlimit > Upperlimit -> この軸は自由に動けます。
+                 Lowerlimit < Upperlimit -> この軸の角度は制限されます。
+                 */
+                Rigidbody rigidbody = DynamicPhysicsObj.GetComponent<Rigidbody>();
+
+                if (rigidbody != null) 
+                {
+                    RigidbodyConstraints constraints = RigidbodyConstraints.None;
+
+                    if (PmxJoint.LowerTransLimit.x == PmxJoint.UpperTransLimit.x) constraints |= RigidbodyConstraints.FreezePositionX;
+                    if (PmxJoint.LowerTransLimit.y == PmxJoint.UpperTransLimit.y) constraints |= RigidbodyConstraints.FreezePositionY;
+                    if (PmxJoint.LowerTransLimit.z == PmxJoint.UpperTransLimit.z) constraints |= RigidbodyConstraints.FreezePositionZ;
+
+                    if (PmxJoint.LowerRotateLimit.x == PmxJoint.UpperRotateLimit.x) constraints |= RigidbodyConstraints.FreezeRotationX;
+                    if (PmxJoint.LowerRotateLimit.y == PmxJoint.UpperRotateLimit.y) constraints |= RigidbodyConstraints.FreezeRotationY;
+                    if (PmxJoint.LowerRotateLimit.z == PmxJoint.UpperRotateLimit.z) constraints |= RigidbodyConstraints.FreezeRotationZ;
+
+                    rigidbody.constraints = constraints;
+                }
+            }
+
+            return true;
 	    }
     }
 
