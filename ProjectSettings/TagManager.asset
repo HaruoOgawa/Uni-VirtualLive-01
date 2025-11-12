@@ -2,30 +2,30 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
-  serializedVersion: 2
+  serializedVersion: 3
   tags: []
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - PMX_PHYSICS_LAYER_1
   - Water
   - UI
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
+  - PMX_PHYSICS_LAYER_2
+  - PMX_PHYSICS_LAYER_3
+  - PMX_PHYSICS_LAYER_4
+  - PMX_PHYSICS_LAYER_5
+  - PMX_PHYSICS_LAYER_6
+  - PMX_PHYSICS_LAYER_7
+  - PMX_PHYSICS_LAYER_8
+  - PMX_PHYSICS_LAYER_9
+  - PMX_PHYSICS_LAYER_10
+  - PMX_PHYSICS_LAYER_11
+  - PMX_PHYSICS_LAYER_12
+  - PMX_PHYSICS_LAYER_13
+  - PMX_PHYSICS_LAYER_14
+  - PMX_PHYSICS_LAYER_15
+  - PMX_PHYSICS_LAYER_16
   - 
   - 
   - 
@@ -50,27 +50,3 @@ TagManager:
   - Light Layer 5
   - Light Layer 6
   - Light Layer 7
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 

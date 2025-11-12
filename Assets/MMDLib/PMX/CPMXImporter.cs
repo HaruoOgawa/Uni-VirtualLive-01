@@ -799,6 +799,10 @@ namespace mmdlib
 
         static bool CreateRigidbody(CPmxModel model, ref GameObject rootNode, PmxSkeleton Skeleton, ref List<GameObject> PhysicsObjectList)
 	    {
+            // 物理演算グループ分け用のレイヤーを作成
+            AddPhysicsGroupLayer();
+
+            //
             GameObject PhysicsRoot = new GameObject("PhysicsObjectList");
             PhysicsRoot.transform.parent = rootNode.transform;
 
@@ -874,6 +878,56 @@ namespace mmdlib
 
 		    return true;
 	    }
+
+        static void AddPhysicsGroupLayer()
+        {
+            // SerializedObject : https://docs.unity3d.com/ja/560/ScriptReference/SerializedObject.html
+            // UnityのObjectをシリアライズ(データ化)された状態で読むためのAPI
+            // これを介してUnity Objectのテキスト情報を読み取ったり編集したりすることができる
+            // Unity Object(.assetだったり.animだったりUnityでファイルとして扱えるもの全般)はUnity独自のYAML形式で表される
+            // SerializedObjectはこれを読み書きする
+
+            // TagManagerにlayer情報が書き込まれているのでこれを取ってくる
+            SerializedObject TagManager = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
+
+            var layers = TagManager.FindProperty("layers");
+            
+            List<SerializedProperty> EmptyPropList = new List<SerializedProperty>();
+            const string PMX_PHYSICS_LAYER = "PMX_PHYSICS_LAYER";
+
+            for (int i = 0; i < layers.arraySize; i++)
+            {
+                SerializedProperty prop = layers.GetArrayElementAtIndex(i);
+                
+                if(prop.stringValue == "" || prop.stringValue == string.Empty)
+                {
+                    // 空レイヤーが残ていれば後ほどの新規登録用に保持しておく
+                    EmptyPropList.Add(prop);
+                }
+                else if(prop.stringValue.IndexOf(PMX_PHYSICS_LAYER) != -1)
+                {
+                    // PMX_PHYSICS_LAYERというレイヤーが1つでもあればレイヤー追加を終了する
+                    return;
+                }
+            }
+
+            // 空のレイヤーが足りない時はエラーにする
+            if(EmptyPropList.Count < 16)
+            {
+                throw new Exception("There are not enough empty layers to add PMX physics layers.");
+            }
+
+            // PMX_PHYSICS_LAYERを16個分作成
+            for(int i = 0; i < 16; i++)
+            {
+                int LayerIndex = i + 1;
+
+                EmptyPropList[i].stringValue = PMX_PHYSICS_LAYER + "_" + LayerIndex.ToString();
+            }
+
+            // 反映
+            TagManager.ApplyModifiedProperties();
+        }
 
         static bool CreateJoint(CPmxModel model, PmxSkeleton Skeleton, List<GameObject> PhysicsObjectList)
 	    {
