@@ -17,6 +17,8 @@ namespace mmdlib
     [ScriptedImporter(1, "pmx")]
     public class CPMXImporter : ScriptedImporter
     {
+        const string PMX_PHYSICS_LAYER = "PMX_PHYSICS_LAYER";
+
         public override void OnImportAsset(AssetImportContext ctx)
         {
             if (ctx == null) return;
@@ -863,9 +865,13 @@ namespace mmdlib
                 rigidbody.linearDamping = PmxRigidbody.TransDamping;
                 rigidbody.angularDamping = PmxRigidbody.RotateDamping;
 
-                // 衝突グループ未対応
-                // UseCollideMask, group,               NoneCollideGroupFlag
-                // true,           PmxRigidbody.group,  PmxRigidbody.NoneCollideGroupFlag
+                // 自身の衝突グループ(レイヤー)を設定
+                List<string> SelfGroup = GetPmxPhysicsLayerList(PmxRigidbody.group);
+                if(SelfGroup.Count == 1) PhysicsObject.layer = LayerMask.NameToLayer(SelfGroup[0]);
+
+                // 非衝突グループ(レイヤー)リストのビットマスクを設定
+                List<string> NoCollideGroupList = GetPmxPhysicsLayerList(PmxRigidbody.NoneCollideGroupFlag);
+                rigidbody.excludeLayers = LayerMask.GetMask(NoCollideGroupList.ToArray());
 
                 // 関連ボーンに物理オブジェクトを追加
                 if (PmxRigidbody.RelationBoneIndex >= 0 && PmxRigidbody.RelationBoneIndex < BoneList.Count)
@@ -893,7 +899,6 @@ namespace mmdlib
             var layers = TagManager.FindProperty("layers");
             
             List<SerializedProperty> EmptyPropList = new List<SerializedProperty>();
-            const string PMX_PHYSICS_LAYER = "PMX_PHYSICS_LAYER";
 
             for (int i = 0; i < layers.arraySize; i++)
             {
@@ -927,6 +932,26 @@ namespace mmdlib
 
             // 反映
             TagManager.ApplyModifiedProperties();
+        }
+
+        static List<string> GetPmxPhysicsLayerList(ushort byteOrder)
+        {
+            List<string> LayerNameList = new List<string>();
+
+            for(int i = 0; i < 16; i++)
+            {
+                // 0000 0000 0000 0001 (0x0001) の16ビットをレイヤーの数だけシフト演算してそれが存在するかチェックする
+                bool Exist = ((0x0001 << i) & byteOrder) != 0;
+                if (Exist)
+                {
+                    int LayerIndex = i + 1;
+
+                    string LayerName = PMX_PHYSICS_LAYER + "_" + LayerIndex.ToString();
+                    LayerNameList.Add(LayerName);
+                }
+            }
+
+            return LayerNameList;
         }
 
         static bool CreateJoint(CPmxModel model, PmxSkeleton Skeleton, List<GameObject> PhysicsObjectList)
