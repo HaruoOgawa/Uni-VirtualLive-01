@@ -814,18 +814,27 @@ namespace mmdlib
 		    {
                 if(PmxRigidbody == null) continue;
 
+                // 関連ンボーンを取得
+                if (PmxRigidbody.RelationBoneIndex < 0 || PmxRigidbody.RelationBoneIndex >= BoneList.Count) continue;
+                PmxBone Bone = BoneList[PmxRigidbody.RelationBoneIndex];
+                Vector3 BonePos = Bone.transform.position;
+
+                //
                 GameObject PhysicsObject = new GameObject(PmxRigidbody.RigidbodyName);
                 PhysicsObject.transform.parent = PhysicsRoot.transform;
                 PhysicsObjectList.Add(PhysicsObject);
 
                 // 物理オブジェクトを作成
-                Vector3 Pos = PmxRigidbody.Pos;
-                Vector3 Rotate = PmxRigidbody.Rotate;
-                Vector3 Size = PmxRigidbody.Size;
+                Vector3 RBPos = PmxRigidbody.Pos;
+                Vector3 RBRotate = PmxRigidbody.Rotate;
+                Vector3 RBSize = PmxRigidbody.Size;
 
-                PhysicsObject.transform.localPosition = Pos;
-                PhysicsObject.transform.localRotation = Quaternion.Euler(Mathf.Rad2Deg * Rotate);
-                //PhysicsObject.transform.localScale = Size;
+                // 位置にはボーンの位置を反映し、BonePosとRBPosの差分をColliderのオフセット(Center)として使用する
+                PhysicsObject.transform.localPosition = BonePos;
+                Vector3 ColliderOffset = RBPos - BonePos;
+
+                PhysicsObject.transform.localRotation = Quaternion.Euler(Mathf.Rad2Deg * RBRotate);
+                //PhysicsObject.transform.localScale = RBSize;
 
                 // 物理オブジェクトを割り当てる
                 if (PmxRigidbody.PhysicsShape == EPmxPhysicsShape.SPHERE)
@@ -833,7 +842,8 @@ namespace mmdlib
                     PhysicsObject.AddComponent<SphereCollider>();
 
                     SphereCollider collider = PhysicsObject.GetComponent<SphereCollider>();
-                    collider.radius = Size.x;
+                    collider.center = ColliderOffset;
+                    collider.radius = RBSize.x;
 
                 }
                 else if (PmxRigidbody.PhysicsShape == EPmxPhysicsShape.BOX)
@@ -841,15 +851,17 @@ namespace mmdlib
                     PhysicsObject.AddComponent<BoxCollider>();
 
                     BoxCollider collider = PhysicsObject.GetComponent<BoxCollider>();
-                    collider.size = Size;
+                    collider.center = ColliderOffset;
+                    collider.size = RBSize;
                 }
                 else if (PmxRigidbody.PhysicsShape == EPmxPhysicsShape.CAPSULE)
                 {
                     PhysicsObject.AddComponent<CapsuleCollider>();
 
                     CapsuleCollider collider = PhysicsObject.GetComponent<CapsuleCollider>();
-                    collider.radius = Size.x;
-                    collider.height = Size.y;
+                    collider.center = ColliderOffset;
+                    collider.radius = RBSize.x;
+                    collider.height = RBSize.y;
                 }
                 else
                 {
@@ -874,12 +886,7 @@ namespace mmdlib
                 rigidbody.excludeLayers = LayerMask.GetMask(NoCollideGroupList.ToArray());
 
                 // 関連ボーンに物理オブジェクトを追加
-                if (PmxRigidbody.RelationBoneIndex >= 0 && PmxRigidbody.RelationBoneIndex < BoneList.Count)
-                {
-                    PmxBone Bone = BoneList[PmxRigidbody.RelationBoneIndex];
-
-                    Bone.AddPhysicsObject(PmxRigidbody.PhysicsType, PhysicsObject);
-                }
+                Bone.AddPhysicsObject(PmxRigidbody.PhysicsType, PhysicsObject);
             }
 
 		    return true;
