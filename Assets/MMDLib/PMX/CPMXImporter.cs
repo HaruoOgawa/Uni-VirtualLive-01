@@ -836,6 +836,9 @@ namespace mmdlib
                 PhysicsObject.transform.localRotation = Quaternion.Euler(Mathf.Rad2Deg * RBRotate);
                 //PhysicsObject.transform.localScale = RBSize;
 
+                // Offsetに回転を考慮する
+                ColliderOffset = Matrix4x4.Rotate(PhysicsObject.transform.localRotation).inverse * ColliderOffset;
+
                 // 物理オブジェクトを割り当てる
                 if (PmxRigidbody.PhysicsShape == EPmxPhysicsShape.SPHERE)
 			    {
@@ -884,6 +887,11 @@ namespace mmdlib
                 // 非衝突グループ(レイヤー)リストのビットマスクを設定
                 List<string> NoCollideGroupList = GetPmxPhysicsLayerList(PmxRigidbody.NoneCollideGroupFlag);
                 rigidbody.excludeLayers = LayerMask.GetMask(NoCollideGroupList.ToArray());
+
+                // 非衝突グループ以外のレイヤーを衝突グループとしてビットマスクを設定
+                ushort CollideGroupFlag = BitConverter.ToUInt16(BitConverter.GetBytes(~PmxRigidbody.NoneCollideGroupFlag), 0);
+                List<string> CollideGroupList = GetPmxPhysicsLayerList(CollideGroupFlag);
+                rigidbody.includeLayers = LayerMask.GetMask(CollideGroupList.ToArray());
 
                 // 関連ボーンに物理オブジェクトを追加
                 Bone.AddPhysicsObject(PmxRigidbody.PhysicsType, PhysicsObject);
@@ -987,11 +995,24 @@ namespace mmdlib
                 // SpringBoneを追加
                 DynamicPhysicsObj.AddComponent<SpringJoint>();
 
-                SpringJoint springJoint = DynamicPhysicsObj.GetComponent<SpringJoint>();
-                springJoint.connectedBody = FixedPhysicsObj.GetComponent<Rigidbody>();
-                springJoint.enableCollision = true;
-                springJoint.damper = pmxRigidbodyB.TransDamping;
-                springJoint.spring = PmxJoint.TransSpring.x;
+                SpringJoint[] springJointList = DynamicPhysicsObj.GetComponents<SpringJoint>();
+
+                foreach(var springJoint in springJointList)
+                {
+                    if (springJoint == null) continue;
+
+                    // SpringJointを複数個持たせる可能性があるのでconnectedBodyが常に設定されていたら他も設定済みということにしてスキップする
+                    if (springJoint.connectedBody != null) continue;
+
+                    springJoint.connectedBody = FixedPhysicsObj.GetComponent<Rigidbody>();
+                    springJoint.enableCollision = true;
+                    springJoint.damper = pmxRigidbodyB.TransDamping;
+                    springJoint.spring = PmxJoint.TransSpring.x;
+
+                    break;
+                }
+
+                
 
                 //springJoint.anchor
                 //springJoint.maxDistance
