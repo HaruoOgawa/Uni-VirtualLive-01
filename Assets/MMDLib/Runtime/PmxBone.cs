@@ -151,7 +151,8 @@ namespace mmdlib
                 if (pair.PhysicsType != EPmxPhysicsType.STATIC && pair.PhysicsType != EPmxPhysicsType.DYNAMIC_BONE_ALIGNMENT) continue;
 
                 pair.PhysicsObj.transform.position = this.transform.position;
-                pair.PhysicsObj.transform.rotation = this.transform.rotation;
+                // Rigidbody‘¤“ÆŽ©‚Ì‰ñ“]‚Æ‚©Collider‚ÌƒIƒtƒZƒbƒg‚Æ‚©‚ª‚ ‚é‚Ì‚Å‰ñ“]‚Í”½‰f‚µ‚È‚¢
+                //pair.PhysicsObj.transform.rotation = this.transform.rotation;
             }
         }
 
@@ -164,7 +165,8 @@ namespace mmdlib
                 if (pair.PhysicsType != EPmxPhysicsType.DYNAMIC && pair.PhysicsType != EPmxPhysicsType.DYNAMIC_BONE_ALIGNMENT) continue;
 
                 this.transform.position = pair.PhysicsObj.transform.position;
-                this.transform.rotation = pair.PhysicsObj.transform.rotation;
+                // Rigidbody‘¤“ÆŽ©‚Ì‰ñ“]‚Æ‚©Collider‚ÌƒIƒtƒZƒbƒg‚Æ‚©‚ª‚ ‚é‚Ì‚Å‰ñ“]‚Í”½‰f‚µ‚È‚¢
+                //this.transform.rotation = pair.PhysicsObj.transform.rotation;
             }
         }
     }

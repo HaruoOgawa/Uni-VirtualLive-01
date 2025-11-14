@@ -279,6 +279,8 @@ namespace mmdlib
 
         static void FindChild(Transform currentBone, ref Dictionary<string, Transform> BoneMap)
         {
+            if (BoneMap.ContainsKey(currentBone.name)) return;
+
             BoneMap.Add(currentBone.name, currentBone);
 
             for (int i = 0; i < currentBone.childCount; i++)
