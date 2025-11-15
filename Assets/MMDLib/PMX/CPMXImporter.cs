@@ -854,7 +854,8 @@ namespace mmdlib
 
                     BoxCollider collider = PhysicsNode.GetComponent<BoxCollider>();
                     collider.center = ColliderOffset;
-                    collider.size = RBSize;
+                    // PMXÇÃBoxColliderÇÃSizeÇÕOBBÇÃHalfSizeÇ›ÇΩÇ¢Ç»Ç‚Ç¬Ç»ÇÃÇ≈ÇQî{ÇµÇƒUnityÇ…çáÇ§ê≥ÇµÇ¢ÉTÉCÉYÇ…Ç∑ÇÈ
+                    collider.size = RBSize * 2.0f;
                 }
                 else if (PmxRigidbody.PhysicsShape == EPmxPhysicsShape.CAPSULE)
                 {
