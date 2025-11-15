@@ -161,10 +161,10 @@ namespace mmdlib
             if (!CreateMeshList(model, ref rootNode, rootBone, ref NodeList, BoneTransformList, MaterialList, FolderMap)) return false;
 
             // 物理演算
-            List<PmxPhysicsObject> PhysicsObjectList = new List<PmxPhysicsObject>();
-            if (!CreateRigidbody(model, ref rootNode, rootBone.GetComponent<PmxSkeleton>(), ref PhysicsObjectList)) return false;
+            List<PmxRigidBodyComponent> PhysicsObjectList = new List<PmxRigidBodyComponent>();
+            if (!CreateRigidbody(model, ref rootNode, rootBone.GetComponent<PmxSkeletonComponent>(), ref PhysicsObjectList)) return false;
 
-            if (!CreateJoint(model, rootBone.GetComponent<PmxSkeleton>(), PhysicsObjectList)) return false;
+            if (!CreateJoint(model, rootBone.GetComponent<PmxSkeletonComponent>(), PhysicsObjectList)) return false;
 
             // プレファブを生成
             string PrefabFolder = string.Empty;
@@ -188,7 +188,7 @@ namespace mmdlib
             List<SkeletonBone> UnitySkeletonBoneList = new List<SkeletonBone>();
             List<HumanBone> UnityHumanBoneList = new List<HumanBone>();
 
-            List<PmxBone> RuntimePmxBoneList = new List<PmxBone>();
+            List<PmxBoneComponent> RuntimePmxBoneList = new List<PmxBoneComponent>();
 
             for (int BoneIndex = 0; BoneIndex < PmxBoneList.Count; BoneIndex++)
             {
@@ -219,14 +219,14 @@ namespace mmdlib
                     rootBone = BoneNode;
 
                     // RuntimeのPMXスケルトンコンポーネントを追加
-                    rootBone.AddComponent<PmxSkeleton>();
+                    rootBone.AddComponent<PmxSkeletonComponent>();
                 }
 
                 // RuntimeのPmxBoneを作成
                 {
-                    BoneNode.AddComponent<PmxBone>();
+                    BoneNode.AddComponent<PmxBoneComponent>();
 
-                    PmxBone Bone = BoneNode.GetComponent<PmxBone>();
+                    PmxBoneComponent Bone = BoneNode.GetComponent<PmxBoneComponent>();
 
                     // BoneにBoneNameを割り当てる
                     Bone.SetBoneName(PmxBone.GetHumanoidBone());
@@ -260,7 +260,7 @@ namespace mmdlib
                 CPmxBone PmxBone = boneNonePair.PmxBone;
                 if(PmxBone == null) continue;
 
-                PmxBone ParentBpne = null;
+                PmxBoneComponent ParentBpne = null;
 
                 // 親ボーンを取得
                 int ParentBoneIndex = PmxBone.GetParentBoneIndex();
@@ -273,7 +273,7 @@ namespace mmdlib
 
                     BoneNode.transform.parent = ParentBoneNode.transform;
 
-                    ParentBpne = ParentBoneNode.GetComponent<PmxBone>();
+                    ParentBpne = ParentBoneNode.GetComponent<PmxBoneComponent>();
                 }
                 else
                 {
@@ -301,7 +301,7 @@ namespace mmdlib
                 }
 
                 // デフォルトトランスフォームを保存 
-                PmxBone Bone = BoneNode.GetComponent<PmxBone>();
+                PmxBoneComponent Bone = BoneNode.GetComponent<PmxBoneComponent>();
                 if(Bone != null)
                 {
                     Bone.SaveAsDefaultLocalTransform();
@@ -330,7 +330,7 @@ namespace mmdlib
             // Skeletonにボーンリストを追加
             if (rootBone != null)
             {
-                PmxSkeleton skeleton = rootBone.GetComponent<PmxSkeleton>();
+                PmxSkeletonComponent skeleton = rootBone.GetComponent<PmxSkeletonComponent>();
                 if (skeleton != null)
                 {
                     skeleton.SetBoneList(RuntimePmxBoneList);
@@ -799,7 +799,7 @@ namespace mmdlib
             return true;
         }
 
-        static bool CreateRigidbody(CPmxModel model, ref GameObject rootNode, PmxSkeleton Skeleton, ref List<PmxPhysicsObject> PhysicsObjectList)
+        static bool CreateRigidbody(CPmxModel model, ref GameObject rootNode, PmxSkeletonComponent Skeleton, ref List<PmxRigidBodyComponent> PhysicsObjectList)
 	    {
             // 物理演算グループ分け用のレイヤーを作成
             AddPhysicsGroupLayer();
@@ -816,7 +816,7 @@ namespace mmdlib
 
                 // 関連ンボーンを取得
                 if (PmxRigidbody.RelationBoneIndex < 0 || PmxRigidbody.RelationBoneIndex >= BoneList.Count) continue;
-                PmxBone Bone = BoneList[PmxRigidbody.RelationBoneIndex];
+                PmxBoneComponent Bone = BoneList[PmxRigidbody.RelationBoneIndex];
                 Vector3 BonePos = Bone.transform.position;
 
                 //
@@ -893,16 +893,16 @@ namespace mmdlib
                 List<string> CollideGroupList = GetPmxPhysicsLayerList(CollideGroupFlag);
                 rigidbody.includeLayers = LayerMask.GetMask(CollideGroupList.ToArray());
 
-                // PmxPhysicsObjectを作成
-                PhysicsNode.AddComponent<PmxPhysicsObject>();
+                // PmxRigidBodyComponent
+                PhysicsNode.AddComponent<PmxRigidBodyComponent>();
 
-                PmxPhysicsObject PhysicsObject = PhysicsNode.GetComponent<PmxPhysicsObject>();
-                PhysicsObject.Init(PmxRigidbody.PhysicsType, PhysicsNode);
+                PmxRigidBodyComponent pmxRigidBodyComponent = PhysicsNode.GetComponent<PmxRigidBodyComponent>();
+                pmxRigidBodyComponent.Init(PmxRigidbody.PhysicsType, PhysicsNode);
 
-                PhysicsObjectList.Add(PhysicsObject);
+                PhysicsObjectList.Add(pmxRigidBodyComponent);
 
                 // 関連ボーンに物理オブジェクトを追加
-                Bone.AddPhysicsObject(PhysicsObject);
+                Bone.AddPhysicsObject(pmxRigidBodyComponent);
             }
 
 		    return true;
@@ -977,7 +977,7 @@ namespace mmdlib
             return LayerNameList;
         }
 
-        static bool CreateJoint(CPmxModel model, PmxSkeleton Skeleton, List<PmxPhysicsObject> PhysicsObjectList)
+        static bool CreateJoint(CPmxModel model, PmxSkeletonComponent Skeleton, List<PmxRigidBodyComponent> PhysicsObjectList)
 	    {
 		    var PmxRigidbodyList = model.GetPmxRigidbodyList();
 
@@ -1020,8 +1020,6 @@ namespace mmdlib
                     break;
                 }
 
-                
-
                 //springJoint.anchor
                 //springJoint.maxDistance
                 //springJoint.tolerance
@@ -1034,7 +1032,8 @@ namespace mmdlib
                  Lowerlimit > Upperlimit -> この軸は自由に動けます。
                  Lowerlimit < Upperlimit -> この軸の角度は制限されます。
                  */
-                Rigidbody rigidbody = DynamicPhysicsObj.GetComponent<Rigidbody>();
+                // 軸フリーズは使わない。PMXBoneでJointの相対の位置制限・回転制限を行う
+                /*Rigidbody rigidbody = DynamicPhysicsObj.GetComponent<Rigidbody>();
 
                 if (rigidbody != null) 
                 {
@@ -1049,7 +1048,10 @@ namespace mmdlib
                     if (PmxJoint.LowerRotateLimit.z == PmxJoint.UpperRotateLimit.z) constraints |= RigidbodyConstraints.FreezeRotationZ;
 
                     rigidbody.constraints = constraints;
-                }
+                }*/
+
+                DynamicPhysicsObj.SetLimit(PmxJoint.LowerTransLimit, PmxJoint.UpperTransLimit, PmxJoint.LowerRotateLimit * Mathf.Rad2Deg, PmxJoint.UpperRotateLimit * Mathf.Rad2Deg);
+
             }
 
             return true;

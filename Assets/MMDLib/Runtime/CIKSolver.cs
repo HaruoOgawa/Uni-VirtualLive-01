@@ -10,14 +10,14 @@ namespace mmdlib
     public class CIKSolver
     {
         public SIKParam m_IKParam = null;
-        public PmxBone m_IKTarget = null;
-        public List<PmxBone> m_IKChainList = new List<PmxBone>();
+        public PmxBoneComponent m_IKTarget = null;
+        public List<PmxBoneComponent> m_IKChainList = new List<PmxBoneComponent>();
 
 		public CIKSolver()
 		{
 		}
 
-        public bool Create(PmxBone IKTargetBone, List<PmxBone> BoneList)
+        public bool Create(PmxBoneComponent IKTargetBone, List<PmxBoneComponent> BoneList)
 		{
 			m_IKTarget = IKTargetBone;
 			m_IKParam = IKTargetBone.GetIKParam();
@@ -52,7 +52,7 @@ namespace mmdlib
             // このようにしないと途中で変な方向を向いたりぶるぶるしたりして不安定になる
             for (int n = 0; n < m_IKChainList.Count; n++)
             {
-                PmxBone LinkNode = m_IKChainList[n];
+                PmxBoneComponent LinkNode = m_IKChainList[n];
 
                 PmxTransformList[n] = new CPmxTransform();
 
@@ -63,7 +63,7 @@ namespace mmdlib
                 Matrix4x4 LocalMatrix = PmxTransformList[n].GetLocalMatrix();
 
                 // Linkノードのワールド行列を再計算する
-                PmxBone ParentNode = LinkNode.GetParentNode();
+                PmxBoneComponent ParentNode = LinkNode.GetParentNode();
                 // 始点(先頭リンク)の親ワールド行列を無視する
                 // これを考慮すると例えば体を捻った時にIKが暴れてしまう
                 if (ParentNode == null || n == 0)
@@ -237,9 +237,9 @@ namespace mmdlib
                     // Linkノードのワールド行列を再計算する
                     for (int n = i; n < NumOfLink; n++)
                     {
-                        PmxBone ReCalcNode = m_IKChainList[n];
+                        PmxBoneComponent ReCalcNode = m_IKChainList[n];
 
-                        PmxBone ParentNode = ReCalcNode.GetParentNode();
+                        PmxBoneComponent ParentNode = ReCalcNode.GetParentNode();
 
                         Matrix4x4 LocalMatrix = PmxTransformList[n].GetLocalMatrix();
 
@@ -286,12 +286,12 @@ namespace mmdlib
             // 始点(先頭Link)の親ワールド行列を考慮したうえで再計算する
             for (int n = 0; n < m_IKChainList.Count; n++)
             {
-                PmxBone LinkNode = m_IKChainList[n];
+                PmxBoneComponent LinkNode = m_IKChainList[n];
 
                 Matrix4x4 LocalMatrix = PmxTransformList[n].GetLocalMatrix();
 
                 // Linkノードのワールド行列を再計算する
-                PmxBone ParentNode = LinkNode.GetParentNode();
+                PmxBoneComponent ParentNode = LinkNode.GetParentNode();
                 if (ParentNode == null)
                 {
                     // 親ノードがない時はローカル行列をワールド行列として渡す

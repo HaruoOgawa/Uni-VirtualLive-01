@@ -5,11 +5,11 @@ using UnityEngine.Rendering.VirtualTexturing;
 
 namespace mmdlib
 {
-    public class PmxSkeleton : MonoBehaviour
+    public class PmxSkeletonComponent : MonoBehaviour
     {
-        public List<PmxBone> m_PmxBoneList = new List<PmxBone>();
-        public List<PmxBone> m_GrantBoneList = new List<PmxBone>();
-        public List<PmxBone> m_IKBoneList = new List<PmxBone>();
+        public List<PmxBoneComponent> m_PmxBoneList = new List<PmxBoneComponent>();
+        public List<PmxBoneComponent> m_GrantBoneList = new List<PmxBoneComponent>();
+        public List<PmxBoneComponent> m_IKBoneList = new List<PmxBoneComponent>();
         public List<CIKSolver> m_IKSolverList = new List<CIKSolver>();
 
         void Start()
@@ -17,12 +17,12 @@ namespace mmdlib
         }
 
         // ëSÉ{Å[ÉìàÍóó
-        public void SetBoneList(List<PmxBone> BoneList)
+        public void SetBoneList(List<PmxBoneComponent> BoneList)
         {
             m_PmxBoneList = BoneList;
         }
 
-        public List<PmxBone> GetPmxBoneList()
+        public List<PmxBoneComponent> GetPmxBoneList()
         {
             return m_PmxBoneList;
         }

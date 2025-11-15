@@ -7,7 +7,7 @@ using static UnityEngine.Rendering.DebugUI.Table;
 
 namespace mmdlib
 {
-    public class PmxBone : MonoBehaviour
+    public class PmxBoneComponent : MonoBehaviour
     {
         public Vector3 m_DefaultLocalPos = Vector3.zero;
         public Quaternion m_DefaultLocalRot = Quaternion.identity;
@@ -18,7 +18,7 @@ namespace mmdlib
         public EHumanoidBones m_ParentBoneName = EHumanoidBones.None;
 
         // 物理オブジェクト
-        public List<PmxPhysicsObject> m_PhysicsObjectList = new List<PmxPhysicsObject> ();
+        public List<PmxRigidBodyComponent> m_PhysicsObjectList = new List<PmxRigidBodyComponent> ();
 
         // 回転付与・移動付与
         // 付与とは他のボーンに付いて行くということ
@@ -48,12 +48,12 @@ namespace mmdlib
             this.m_DefaultLocalScale = this.gameObject.transform.localScale;
         }
 
-        public PmxBone GetParentNode()
+        public PmxBoneComponent GetParentNode()
         {
             var parent = this.gameObject.transform.parent;
             if (parent == null) return null;
 
-            return parent.GetComponent<PmxBone>();
+            return parent.GetComponent<PmxBoneComponent>();
         }
 
         public EHumanoidBones GetBoneName()
@@ -62,9 +62,9 @@ namespace mmdlib
 		}
 
         // 物理オブジェクト
-        public void AddPhysicsObject(PmxPhysicsObject PhysicsObject)
+        public void AddPhysicsObject(PmxRigidBodyComponent pmxRigidBodyComponent)
 	    {
-		    m_PhysicsObjectList.Add(PhysicsObject);
+		    m_PhysicsObjectList.Add(pmxRigidBodyComponent);
 	    }
 
         public void SetBoneName(EHumanoidBones BoneName)
@@ -149,8 +149,34 @@ namespace mmdlib
                 if (PhysicsObj.PhysicsType != EPmxPhysicsType.STATIC && PhysicsObj.PhysicsType != EPmxPhysicsType.DYNAMIC_BONE_ALIGNMENT) continue;
 
                 PhysicsObj.transform.position = this.transform.position;
-                // Rigidbody側独自の回転とかColliderのオフセットとかがあるので回転は反映しない
+                // コライダーのオフセットをPhysicsObjのローカル回転を基準に作っているのでその姿勢から如何に回転させるかを考える
                 PhysicsObj.transform.rotation = this.transform.rotation * PhysicsObj.DefaultTransform.m_LocalRotate;
+
+                // これらはジョイントの接続点の相対位置を見て制限を加える機能
+                // なのでrigidbody.constraintsによるフリーズは使わない(重力落下とかが効かなくなる)
+                // LowerTransLimit, UpperTransLimit はジョイントの接続点でどれぐらい離れることができるか
+                // LowerRotateLimit, UpperRotateLimitはジョイントの接続点がどれぐらいねじれる(回転する)ことができるか
+                /*// 位置制限
+                {
+                    Vector3 position = PhysicsObj.transform.position;
+
+                    if (PhysicsObj.MinPos.x != PhysicsObj.MaxPos.x) position.x = Mathf.Clamp(position.x, PhysicsObj.MinPos.x, PhysicsObj.MaxPos.x);
+                    if (PhysicsObj.MinPos.y != PhysicsObj.MaxPos.y) position.y = Mathf.Clamp(position.y, PhysicsObj.MinPos.y, PhysicsObj.MaxPos.y);
+                    if (PhysicsObj.MinPos.z != PhysicsObj.MaxPos.z) position.z = Mathf.Clamp(position.z, PhysicsObj.MinPos.z, PhysicsObj.MaxPos.z);
+
+                    PhysicsObj.transform.position = position;
+                }
+
+                // 回転制限
+                {
+                    Vector3 eulerAngles = PhysicsObj.transform.eulerAngles;
+
+                    if (PhysicsObj.MinRot.x != PhysicsObj.MaxRot.x) eulerAngles.x = Mathf.Clamp(eulerAngles.x, PhysicsObj.MinRot.x, PhysicsObj.MaxRot.x);
+                    if (PhysicsObj.MinRot.y != PhysicsObj.MaxRot.y) eulerAngles.y = Mathf.Clamp(eulerAngles.y, PhysicsObj.MinRot.y, PhysicsObj.MaxRot.y);
+                    if (PhysicsObj.MinRot.z != PhysicsObj.MaxRot.z) eulerAngles.z = Mathf.Clamp(eulerAngles.z, PhysicsObj.MinRot.z, PhysicsObj.MaxRot.z);
+
+                    PhysicsObj.transform.eulerAngles = eulerAngles;
+                }*/
             }
         }
 
@@ -159,11 +185,13 @@ namespace mmdlib
         {
             foreach (var PhysicsObj in m_PhysicsObjectList)
             {
+                
+
                 // ダイナミックもしくはボーン付与の物理オブジェクトのみ反映する
                 if (PhysicsObj.PhysicsType != EPmxPhysicsType.DYNAMIC && PhysicsObj.PhysicsType != EPmxPhysicsType.DYNAMIC_BONE_ALIGNMENT) continue;
                 
                 this.transform.position = PhysicsObj.transform.position;
-                // Rigidbody側独自の回転とかColliderのオフセットとかがあるので回転は反映しない
+                // 元のボーンにはPhysicsObjの回転は不要なので除去した回転を反映
                 this.transform.rotation = PhysicsObj.transform.rotation * Quaternion.Inverse(PhysicsObj.DefaultTransform.m_LocalRotate);
             }
         }
