@@ -2,16 +2,24 @@ using UnityEngine;
 
 namespace mmdlib
 {
+    [System.Serializable]
     public class CPmxTransform
     {
-        Vector3 m_LocalPos = new Vector3();
-        Quaternion m_LocalRotate = Quaternion.identity;
-        Vector3 m_LocalScale = Vector3.one;
+        public Vector3 m_LocalPos = new Vector3();
+        public Quaternion m_LocalRotate = Quaternion.identity;
+        public Vector3 m_LocalScale = Vector3.one;
 
-        Matrix4x4 m_WorldMatrix = Matrix4x4.identity;
+        public Matrix4x4 m_WorldMatrix = Matrix4x4.identity;
 
         public CPmxTransform()
         {
+        }
+
+        public CPmxTransform(Vector3 LocalPos, Quaternion LocalRotate, Vector3 LocalScale)
+        {
+            this.m_LocalPos = LocalPos;
+            this.m_LocalRotate = LocalRotate;
+            this.m_LocalScale = LocalScale;
         }
 
         public Matrix4x4 GetLocalMatrix()

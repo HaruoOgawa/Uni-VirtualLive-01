@@ -161,7 +161,7 @@ namespace mmdlib
             if (!CreateMeshList(model, ref rootNode, rootBone, ref NodeList, BoneTransformList, MaterialList, FolderMap)) return false;
 
             // 物理演算
-            List<GameObject> PhysicsObjectList = new List<GameObject>();
+            List<PmxPhysicsObject> PhysicsObjectList = new List<PmxPhysicsObject>();
             if (!CreateRigidbody(model, ref rootNode, rootBone.GetComponent<PmxSkeleton>(), ref PhysicsObjectList)) return false;
 
             if (!CreateJoint(model, rootBone.GetComponent<PmxSkeleton>(), PhysicsObjectList)) return false;
@@ -799,7 +799,7 @@ namespace mmdlib
             return true;
         }
 
-        static bool CreateRigidbody(CPmxModel model, ref GameObject rootNode, PmxSkeleton Skeleton, ref List<GameObject> PhysicsObjectList)
+        static bool CreateRigidbody(CPmxModel model, ref GameObject rootNode, PmxSkeleton Skeleton, ref List<PmxPhysicsObject> PhysicsObjectList)
 	    {
             // 物理演算グループ分け用のレイヤーを作成
             AddPhysicsGroupLayer();
@@ -820,9 +820,8 @@ namespace mmdlib
                 Vector3 BonePos = Bone.transform.position;
 
                 //
-                GameObject PhysicsObject = new GameObject(PmxRigidbody.RigidbodyName);
-                PhysicsObject.transform.parent = PhysicsRoot.transform;
-                PhysicsObjectList.Add(PhysicsObject);
+                GameObject PhysicsNode = new GameObject(PmxRigidbody.RigidbodyName);
+                PhysicsNode.transform.parent = PhysicsRoot.transform;
 
                 // 物理オブジェクトを作成
                 Vector3 RBPos = PmxRigidbody.Pos;
@@ -830,38 +829,38 @@ namespace mmdlib
                 Vector3 RBSize = PmxRigidbody.Size;
 
                 // 位置にはボーンの位置を反映し、BonePosとRBPosの差分をColliderのオフセット(Center)として使用する
-                PhysicsObject.transform.localPosition = BonePos;
+                PhysicsNode.transform.localPosition = BonePos;
                 Vector3 ColliderOffset = RBPos - BonePos;
 
-                PhysicsObject.transform.localRotation = Quaternion.Euler(Mathf.Rad2Deg * RBRotate);
-                //PhysicsObject.transform.localScale = RBSize;
+                PhysicsNode.transform.localRotation = Quaternion.Euler(Mathf.Rad2Deg * RBRotate);
+                //PhysicsNode.transform.localScale = RBSize;
 
                 // Offsetに回転を考慮する
-                ColliderOffset = Matrix4x4.Rotate(PhysicsObject.transform.localRotation).inverse * ColliderOffset;
+                ColliderOffset = Matrix4x4.Rotate(PhysicsNode.transform.localRotation).inverse * ColliderOffset;
 
                 // 物理オブジェクトを割り当てる
                 if (PmxRigidbody.PhysicsShape == EPmxPhysicsShape.SPHERE)
 			    {
-                    PhysicsObject.AddComponent<SphereCollider>();
+                    PhysicsNode.AddComponent<SphereCollider>();
 
-                    SphereCollider collider = PhysicsObject.GetComponent<SphereCollider>();
+                    SphereCollider collider = PhysicsNode.GetComponent<SphereCollider>();
                     collider.center = ColliderOffset;
                     collider.radius = RBSize.x;
 
                 }
                 else if (PmxRigidbody.PhysicsShape == EPmxPhysicsShape.BOX)
                 {
-                    PhysicsObject.AddComponent<BoxCollider>();
+                    PhysicsNode.AddComponent<BoxCollider>();
 
-                    BoxCollider collider = PhysicsObject.GetComponent<BoxCollider>();
+                    BoxCollider collider = PhysicsNode.GetComponent<BoxCollider>();
                     collider.center = ColliderOffset;
                     collider.size = RBSize;
                 }
                 else if (PmxRigidbody.PhysicsShape == EPmxPhysicsShape.CAPSULE)
                 {
-                    PhysicsObject.AddComponent<CapsuleCollider>();
+                    PhysicsNode.AddComponent<CapsuleCollider>();
 
-                    CapsuleCollider collider = PhysicsObject.GetComponent<CapsuleCollider>();
+                    CapsuleCollider collider = PhysicsNode.GetComponent<CapsuleCollider>();
                     collider.center = ColliderOffset;
                     collider.radius = RBSize.x;
                     collider.height = RBSize.y;
@@ -872,9 +871,9 @@ namespace mmdlib
                 }
 
                 // RigidBodyを追加
-                PhysicsObject.AddComponent<Rigidbody>();
+                PhysicsNode.AddComponent<Rigidbody>();
 
-                Rigidbody rigidbody = PhysicsObject.GetComponent<Rigidbody>();
+                Rigidbody rigidbody = PhysicsNode.GetComponent<Rigidbody>();
                 rigidbody.isKinematic = (PmxRigidbody.PhysicsType == EPmxPhysicsType.STATIC || PmxRigidbody.Mass == 0.0);
                 rigidbody.mass = PmxRigidbody.Mass;
                 rigidbody.linearDamping = PmxRigidbody.TransDamping;
@@ -882,7 +881,7 @@ namespace mmdlib
 
                 // 自身の衝突グループ(レイヤー)を設定
                 List<string> SelfGroup = GetPmxPhysicsLayerList(PmxRigidbody.group);
-                if(SelfGroup.Count == 1) PhysicsObject.layer = LayerMask.NameToLayer(SelfGroup[0]);
+                if(SelfGroup.Count == 1) PhysicsNode.layer = LayerMask.NameToLayer(SelfGroup[0]);
 
                 // 非衝突グループ(レイヤー)リストのビットマスクを設定
                 List<string> NoCollideGroupList = GetPmxPhysicsLayerList(PmxRigidbody.NoneCollideGroupFlag);
@@ -893,8 +892,16 @@ namespace mmdlib
                 List<string> CollideGroupList = GetPmxPhysicsLayerList(CollideGroupFlag);
                 rigidbody.includeLayers = LayerMask.GetMask(CollideGroupList.ToArray());
 
+                // PmxPhysicsObjectを作成
+                PhysicsNode.AddComponent<PmxPhysicsObject>();
+
+                PmxPhysicsObject PhysicsObject = PhysicsNode.GetComponent<PmxPhysicsObject>();
+                PhysicsObject.Init(PmxRigidbody.PhysicsType, PhysicsNode);
+
+                PhysicsObjectList.Add(PhysicsObject);
+
                 // 関連ボーンに物理オブジェクトを追加
-                Bone.AddPhysicsObject(PmxRigidbody.PhysicsType, PhysicsObject);
+                Bone.AddPhysicsObject(PhysicsObject);
             }
 
 		    return true;
@@ -969,7 +976,7 @@ namespace mmdlib
             return LayerNameList;
         }
 
-        static bool CreateJoint(CPmxModel model, PmxSkeleton Skeleton, List<GameObject> PhysicsObjectList)
+        static bool CreateJoint(CPmxModel model, PmxSkeleton Skeleton, List<PmxPhysicsObject> PhysicsObjectList)
 	    {
 		    var PmxRigidbodyList = model.GetPmxRigidbodyList();
 
