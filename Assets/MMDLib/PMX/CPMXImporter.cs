@@ -8,6 +8,7 @@ using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 using UnityEngine.Rendering;
+using static UnityEditor.PlayerSettings;
 
 // ScriptedImporter
 // https://docs.unity3d.com/6000.2/Documentation/ScriptReference/AssetImporters.ScriptedImporter.html
@@ -107,7 +108,7 @@ namespace mmdlib
                 FolderMap.Add("Textures", Folder);
             }
 
-            // アバター
+            /*// アバター
             {
                 string name = "Avatar";
                 string guid = AssetDatabase.CreateFolder(RootFolderName, name);
@@ -115,7 +116,7 @@ namespace mmdlib
                 string Folder = AssetDatabase.GUIDToAssetPath(guid);
 
                 FolderMap.Add("Avatar", Folder);
-            }
+            }*/
 
             // プレファブ
             {
@@ -310,7 +311,7 @@ namespace mmdlib
                 }
             }
 
-            // Avatar作成
+            /*// Avatar作成
             string AvatarFolder = string.Empty;
             if (rootBone != null && FolderMap.TryGetValue("Avatar", out AvatarFolder))
             {
@@ -325,7 +326,7 @@ namespace mmdlib
                 AvatarAssetName += ".asset";
 
                 AssetDatabase.CreateAsset(avatar, AvatarAssetName);
-            }
+            }*/
 
             // Skeletonにボーンリストを追加
             if (rootBone != null)
@@ -1003,78 +1004,86 @@ namespace mmdlib
                 if (FixedPmxRigidBody == null || DynamicPmxRigidBody == null) continue;
 
                 // SpringBoneを追加
-                DynamicPmxRigidBody.AddComponent<SpringJoint>();
+                DynamicPmxRigidBody.AddComponent<ConfigurableJoint>();
 
-                SpringJoint springJoint = DynamicPmxRigidBody.GetComponent<SpringJoint>();
+                ConfigurableJoint[] jointList = DynamicPmxRigidBody.GetComponents<ConfigurableJoint>();
 
-                if (springJoint != null)
+                foreach (var joint in jointList)
                 {
-                    // SpringJointを複数個持たせる可能性があるのでconnectedBodyが常に設定されていたら他も設定済みということにしてスキップする
-                    if (springJoint.connectedBody != null) continue;
+                    if (joint == null) continue;
 
-                    springJoint.connectedBody = FixedPmxRigidBody.GetComponent<Rigidbody>();
-                    springJoint.enableCollision = true;
-                    springJoint.damper = pmxRigidbodyB.TransDamping;
-                    springJoint.spring = PmxJoint.TransSpring.x;
+                    // jointを複数個持たせる可能性があるのでconnectedBodyが既に設定されていたら他も設定済みということにしてスキップする
+                    if (joint.connectedBody != null) continue;
 
-                    // FixedPmxRigidBody・DynamicPmxRigidBodyの子要素にそれぞれの接続点の位置を示すノードを追加
-                    GameObject FixedConnetedNode = null;
-                    GameObject DynamicConnetedNode = null;
+                    if (joint != null)
                     {
-                        // Fixed
-                        FixedConnetedNode = new GameObject(FixedPmxRigidBody.name + "_FixedConnetedPos");
-                        FixedConnetedNode.transform.parent = FixedPmxRigidBody.transform;
-                        FixedConnetedNode.transform.localPosition = springJoint.connectedAnchor;
+                        // SpringJointを複数個持たせる可能性があるのでconnectedBodyが常に設定されていたら他も設定済みということにしてスキップする
+                        if (joint.connectedBody != null) continue;
 
-                        // Dynamic
-                        DynamicConnetedNode = new GameObject(DynamicPmxRigidBody.name + "_DynamicConnetedPos");
-                        DynamicConnetedNode.transform.parent = DynamicPmxRigidBody.transform;
-                        // Fixedのワールドをそのまま反映する
-                        DynamicConnetedNode.transform.position = FixedConnetedNode.transform.position;
-                        DynamicConnetedNode.transform.rotation = FixedConnetedNode.transform.rotation;
-                    }
+                        joint.connectedBody = FixedPmxRigidBody.GetComponent<Rigidbody>();
+                        joint.enableCollision = true;
 
-                    // PMXJointを作成
-                    if(FixedConnetedNode != null && DynamicConnetedNode != null)
-                    {
-                        DynamicPmxRigidBody.AddComponent<PmxJointComponent>();
+                        joint.linearLimitSpring = new SoftJointLimitSpring()
+                        {
+                            spring = Mathf.Max(Mathf.Max(PmxJoint.TransSpring.x, PmxJoint.TransSpring.y), PmxJoint.TransSpring.z),
+                            damper = pmxRigidbodyB.TransDamping
+                        };
 
-                        PmxJointComponent _pmxJointComponent = DynamicPmxRigidBody.GetComponent<PmxJointComponent>();
+                        joint.angularXLimitSpring = new SoftJointLimitSpring()
+                        {
+                            spring = PmxJoint.RotateSpring.x,
+                            damper = pmxRigidbodyB.RotateDamping
+                        };
 
-                        _pmxJointComponent.Init(FixedPmxRigidBody, DynamicPmxRigidBody, FixedConnetedNode, DynamicConnetedNode,
-                            PmxJoint.LowerTransLimit, PmxJoint.UpperTransLimit, PmxJoint.LowerRotateLimit * Mathf.Rad2Deg, PmxJoint.UpperRotateLimit * Mathf.Rad2Deg);
+                        joint.angularYZLimitSpring = new SoftJointLimitSpring()
+                        {
+                            spring = Mathf.Max(PmxJoint.RotateSpring.y, PmxJoint.RotateSpring.z),
+                            damper = pmxRigidbodyB.RotateDamping
+                        };
+
+                        // 位置制限
+                        {
+                            joint.xMotion = ConfigurableJointMotion.Limited;
+                            joint.yMotion = ConfigurableJointMotion.Limited;
+                            joint.zMotion = ConfigurableJointMotion.Limited;
+
+                            // 位置制限はXYZ全て共通で球形の範囲しか指定できないので一番小さいものにする
+                            float LinearLimitX = Mathf.Min(Math.Abs(PmxJoint.LowerTransLimit.x), Math.Abs(PmxJoint.UpperTransLimit.x));
+                            float LinearLimitY = Mathf.Min(Math.Abs(PmxJoint.LowerTransLimit.y), Math.Abs(PmxJoint.UpperTransLimit.y));
+                            float LinearLimitZ = Mathf.Min(Math.Abs(PmxJoint.LowerTransLimit.z), Math.Abs(PmxJoint.UpperTransLimit.z));
+
+                            joint.linearLimit = new SoftJointLimit() { limit = Mathf.Min(Math.Min(LinearLimitX, LinearLimitY), LinearLimitZ) };
+
+                            if (PmxJoint.LowerTransLimit.x == PmxJoint.UpperTransLimit.x) joint.xMotion = ConfigurableJointMotion.Locked;
+                            if (PmxJoint.LowerTransLimit.y == PmxJoint.UpperTransLimit.y) joint.yMotion = ConfigurableJointMotion.Locked;
+                            if (PmxJoint.LowerTransLimit.z == PmxJoint.UpperTransLimit.z) joint.zMotion = ConfigurableJointMotion.Locked;
+                        }
+
+                        // 回転制限
+                        {
+                            Vector3 LowerRotateLimit = PmxJoint.LowerRotateLimit * Mathf.Rad2Deg;
+                            Vector3 UpperRotateLimit = PmxJoint.UpperRotateLimit * Mathf.Rad2Deg;
+
+                            joint.angularXMotion = ConfigurableJointMotion.Limited;
+                            joint.angularYMotion = ConfigurableJointMotion.Limited;
+                            joint.angularZMotion = ConfigurableJointMotion.Limited;
+
+                            // X制限
+                            joint.lowAngularXLimit = new SoftJointLimit() { limit = LowerRotateLimit.x };
+                            joint.highAngularXLimit = new SoftJointLimit() { limit = UpperRotateLimit.x };
+
+                            // Y制限
+                            joint.angularYLimit = new SoftJointLimit() { limit = Mathf.Min(Mathf.Abs(LowerRotateLimit.y), Mathf.Abs(UpperRotateLimit.y)) };
+
+                            // Z制限
+                            joint.angularZLimit = new SoftJointLimit() { limit = Mathf.Min(Mathf.Abs(LowerRotateLimit.z), Mathf.Abs(UpperRotateLimit.z)) };
+
+                            if (LowerRotateLimit.x == UpperRotateLimit.x) joint.angularXMotion = ConfigurableJointMotion.Locked;
+                            if (LowerRotateLimit.y == UpperRotateLimit.y) joint.angularXMotion = ConfigurableJointMotion.Locked;
+                            if (LowerRotateLimit.z == UpperRotateLimit.z) joint.angularXMotion = ConfigurableJointMotion.Locked;
+                        }
                     }
                 }
-
-                //springJoint.anchor
-                //springJoint.maxDistance
-                //springJoint.tolerance
-
-                // 移動できる範囲・回転できる範囲を設定
-                // bulletではLimitのLowerとUpperが同じ値ならその軸は固定される
-                // http://bulletjpn.web.fc2.com/08_Constraints.html
-                /*
-                 Lowerlimit == Upperlimit -> この軸はロックされます。
-                 Lowerlimit > Upperlimit -> この軸は自由に動けます。
-                 Lowerlimit < Upperlimit -> この軸の角度は制限されます。
-                 */
-                // 軸フリーズは使わない。PMXBoneでJointの相対の位置制限・回転制限を行う
-                /*Rigidbody rigidbody = DynamicPmxRigidBody.GetComponent<Rigidbody>();
-
-                if (rigidbody != null) 
-                {
-                    RigidbodyConstraints constraints = RigidbodyConstraints.None;
-
-                    if (PmxJoint.LowerTransLimit.x == PmxJoint.UpperTransLimit.x) constraints |= RigidbodyConstraints.FreezePositionX;
-                    if (PmxJoint.LowerTransLimit.y == PmxJoint.UpperTransLimit.y) constraints |= RigidbodyConstraints.FreezePositionY;
-                    if (PmxJoint.LowerTransLimit.z == PmxJoint.UpperTransLimit.z) constraints |= RigidbodyConstraints.FreezePositionZ;
-
-                    if (PmxJoint.LowerRotateLimit.x == PmxJoint.UpperRotateLimit.x) constraints |= RigidbodyConstraints.FreezeRotationX;
-                    if (PmxJoint.LowerRotateLimit.y == PmxJoint.UpperRotateLimit.y) constraints |= RigidbodyConstraints.FreezeRotationY;
-                    if (PmxJoint.LowerRotateLimit.z == PmxJoint.UpperRotateLimit.z) constraints |= RigidbodyConstraints.FreezeRotationZ;
-
-                    rigidbody.constraints = constraints;
-                }*/
             }
 
             return true;
