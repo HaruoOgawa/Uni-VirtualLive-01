@@ -854,6 +854,7 @@ namespace mmdlib
 
                     BoxCollider collider = PhysicsNode.GetComponent<BoxCollider>();
                     collider.center = ColliderOffset;
+
                     // PMXÇÃBoxColliderÇÃSizeÇÕOBBÇÃHalfSizeÇ›ÇΩÇ¢Ç»Ç‚Ç¬Ç»ÇÃÇ≈ÇQî{ÇµÇƒUnityÇ…çáÇ§ê≥ÇµÇ¢ÉTÉCÉYÇ…Ç∑ÇÈ
                     collider.size = RBSize * 2.0f;
                 }
@@ -864,7 +865,9 @@ namespace mmdlib
                     CapsuleCollider collider = PhysicsNode.GetComponent<CapsuleCollider>();
                     collider.center = ColliderOffset;
                     collider.radius = RBSize.x;
-                    collider.height = RBSize.y;
+
+                    // PMXÇÃCapsuleColliderÇÃheightÇ…è„â∫ÇÃîºãÖÇÃîºåaï™Ç‡â¡Ç¶ÇÈÇ±Ç∆Ç≈Ç‚Ç¡Ç∆UnityÇÃHeightÇ…Ç»ÇÈ
+                    collider.height = RBSize.y + collider.radius * 2.0f;
                 }
                 else
                 {
@@ -999,7 +1002,6 @@ namespace mmdlib
 
                 if (FixedPhysicsObj == null || DynamicPhysicsObj == null) continue;
 
-
                 // SpringBoneÇí«â¡
                 DynamicPhysicsObj.AddComponent<SpringJoint>();
 
@@ -1050,8 +1052,12 @@ namespace mmdlib
                     rigidbody.constraints = constraints;
                 }*/
 
-                DynamicPhysicsObj.SetLimit(PmxJoint.LowerTransLimit, PmxJoint.UpperTransLimit, PmxJoint.LowerRotateLimit * Mathf.Rad2Deg, PmxJoint.UpperRotateLimit * Mathf.Rad2Deg);
+                DynamicPhysicsObj.AddComponent<PmxJointComponent>();
 
+                PmxJointComponent _pmxJointComponent = DynamicPhysicsObj.GetComponent<PmxJointComponent>();
+                
+                _pmxJointComponent.Init(FixedPhysicsObj, DynamicPhysicsObj,
+                    PmxJoint.LowerTransLimit, PmxJoint.UpperTransLimit, PmxJoint.LowerRotateLimit * Mathf.Rad2Deg, PmxJoint.UpperRotateLimit * Mathf.Rad2Deg);
             }
 
             return true;

@@ -149,6 +149,7 @@ namespace mmdlib
                 if (PhysicsObj.PhysicsType != EPmxPhysicsType.STATIC && PhysicsObj.PhysicsType != EPmxPhysicsType.DYNAMIC_BONE_ALIGNMENT) continue;
 
                 PhysicsObj.transform.position = this.transform.position;
+
                 // コライダーのオフセットをPhysicsObjのローカル回転を基準に作っているのでその姿勢から如何に回転させるかを考える
                 PhysicsObj.transform.rotation = this.transform.rotation * PhysicsObj.DefaultTransform.m_LocalRotate;
 
@@ -185,12 +186,11 @@ namespace mmdlib
         {
             foreach (var PhysicsObj in m_PhysicsObjectList)
             {
-                
-
                 // ダイナミックもしくはボーン付与の物理オブジェクトのみ反映する
                 if (PhysicsObj.PhysicsType != EPmxPhysicsType.DYNAMIC && PhysicsObj.PhysicsType != EPmxPhysicsType.DYNAMIC_BONE_ALIGNMENT) continue;
                 
                 this.transform.position = PhysicsObj.transform.position;
+
                 // 元のボーンにはPhysicsObjの回転は不要なので除去した回転を反映
                 this.transform.rotation = PhysicsObj.transform.rotation * Quaternion.Inverse(PhysicsObj.DefaultTransform.m_LocalRotate);
             }
