@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using UnityEngine;
@@ -219,6 +220,35 @@ namespace binary
             Dst = System.Text.Encoding.Unicode.GetString(bin);
 
             UpdatePointer(byteSize);
+
+            return true;
+        }
+
+        public bool GetSJISString(ref string Dst, int byteSize, bool ReduceZero = true, bool ToUnicode = true)
+        {
+            if (!IsValid(byteSize)) return false;
+
+            byte[] bin = memcpy(byteSize);
+            
+            Dst = System.Text.Encoding.GetEncoding("Shift-JIS").GetString(bin);
+
+            UpdatePointer(byteSize);
+
+            // •¶š—ñ––”ö‚Ìu\0v‚ğ‘S‚Äœ‚­
+            if(ReduceZero)
+            {
+                int index = Dst.IndexOf('\0');
+
+                Dst = Dst.Substring(0, index);
+            }
+
+            // Shit-JIS‚ğUnicode‚É•ÏŠ·
+            if(ToUnicode)
+            {
+                byte[] unicodeBytes = System.Text.Encoding.Unicode.GetBytes(Dst);
+
+                Dst = System.Text.Encoding.Unicode.GetString(unicodeBytes);
+            }
 
             return true;
         }

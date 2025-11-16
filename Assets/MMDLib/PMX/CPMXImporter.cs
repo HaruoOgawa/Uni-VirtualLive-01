@@ -3,10 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 using UnityEngine.Rendering;
+using static UnityEditor.PlayerSettings;
 
 // ScriptedImporter
 // https://docs.unity3d.com/6000.2/Documentation/ScriptReference/AssetImporters.ScriptedImporter.html
@@ -16,6 +18,8 @@ namespace mmdlib
     [ScriptedImporter(1, "pmx")]
     public class CPMXImporter : ScriptedImporter
     {
+        const string PMX_PHYSICS_LAYER = "PMX_PHYSICS_LAYER";
+
         public override void OnImportAsset(AssetImportContext ctx)
         {
             if (ctx == null) return;
@@ -104,6 +108,16 @@ namespace mmdlib
                 FolderMap.Add("Textures", Folder);
             }
 
+            /*// アバター
+            {
+                string name = "Avatar";
+                string guid = AssetDatabase.CreateFolder(RootFolderName, name);
+
+                string Folder = AssetDatabase.GUIDToAssetPath(guid);
+
+                FolderMap.Add("Avatar", Folder);
+            }*/
+
             // プレファブ
             {
                 string name = "Prefab";
@@ -132,7 +146,9 @@ namespace mmdlib
             NodeList.Add(rootNode);
 
             // Skeleton
-            if (!CreateAnimationSkeleton(model, ref rootNode, ref NodeList)) return false;
+            GameObject rootBone = null;
+            List<Transform> BoneTransformList = new List<Transform>();
+            if (!CreateAnimationSkeleton(model, ref rootNode, ref rootBone, ref NodeList, ref BoneTransformList, FolderMap)) return false;
 
             // テクスチャリスト
             List<string> TexturePathList = new List<string>();
@@ -143,9 +159,13 @@ namespace mmdlib
             if (!CreateMaterialList(model, ref NodeList, ref MaterialList, TexturePathList, FolderMap)) return false;
 
             // メッシュ
-            if (!CreateMeshList(model, ref rootNode, ref NodeList, MaterialList, FolderMap)) return false;
+            if (!CreateMeshList(model, ref rootNode, rootBone, ref NodeList, BoneTransformList, MaterialList, FolderMap)) return false;
 
             // 物理演算
+            List<PmxRigidBodyComponent> PhysicsObjectList = new List<PmxRigidBodyComponent>();
+            if (!CreateRigidbody(model, ref rootNode, rootBone.GetComponent<PmxSkeletonComponent>(), ref PhysicsObjectList)) return false;
+
+            if (!CreateJoint(model, rootBone.GetComponent<PmxSkeletonComponent>(), PhysicsObjectList)) return false;
 
             // プレファブを生成
             string PrefabFolder = string.Empty;
@@ -159,63 +179,164 @@ namespace mmdlib
             return true;
         }
 
-        static bool CreateAnimationSkeleton(CPmxModel model, ref GameObject rootNode, ref List<GameObject> NodeList)
+        static bool CreateAnimationSkeleton(CPmxModel model, ref GameObject rootNode, ref GameObject rootBone, 
+            ref List<GameObject> NodeList, ref List<Transform> BoneTransformList, Dictionary<string, string> FolderMap)
         {
             var PmxBoneList = model.GetPmxBoneList();
+            
+            List<(GameObject Node, CPmxBone PmxBone)> NodeBoneList = new List<(GameObject, CPmxBone)>();
 
-            List<(GameObject Node, CPmxBone PmxBone)> BoneList = new List<(GameObject, CPmxBone)>();
+            List<SkeletonBone> UnitySkeletonBoneList = new List<SkeletonBone>();
+            List<HumanBone> UnityHumanBoneList = new List<HumanBone>();
 
-            for(int BoneIndex = 0; BoneIndex < PmxBoneList.Count; BoneIndex++)
+            List<PmxBoneComponent> RuntimePmxBoneList = new List<PmxBoneComponent>();
+
+            for (int BoneIndex = 0; BoneIndex < PmxBoneList.Count; BoneIndex++)
             {
                 var PmxBone = PmxBoneList[BoneIndex];
                 if(PmxBone == null) continue;
 
                 // BoneNodeの作成
-                GameObject BoneNode = new GameObject(PmxBone.GetBoneName());
+                string BoneName = CPmxHumanoidBoneMapper.GetStrBoneName(PmxBone.GetHumanoidBone());
+                if (BoneName == string.Empty) BoneName = PmxBone.GetBoneName();
+
+                GameObject BoneNode = new GameObject(BoneName);
                 
                 Vector3 Pos = PmxBone.GetPos();
-                //Quaternion Rot = PmxBone->GetLocalAxis();
-
-                // PMXのPos・Rotateはワールド座標系での値なので親ノードのワールドマトリックスを乗算してローカル座標系に戻す必要がある
-                int ParentBoneIndex = PmxBone.GetParentBoneIndex();
-                if (ParentBoneIndex >= 0 && ParentBoneIndex < PmxBoneList.Count)
-                {
-                    var ParentPmxBone = PmxBoneList[ParentBoneIndex];
-
-                    // Posはワールド座標系なのでローカル座標系に戻す必要がある
-                    // ただしRotは(存在すれば)ローカル軸から取得するので既にローカル座標系である
-                    Pos -= ParentPmxBone.GetPos();
-                }
-
+                //Quaternion Rot = PmxBone.GetLocalAxis();
+               
+                // PMXのPos・Rotateはワールド座標系なので直接Transformのワールドポジションに渡す
                 BoneNode.transform.position = Pos;
 
-                BoneList.Add((BoneNode, PmxBone));
+                NodeBoneList.Add((BoneNode, PmxBone));
+
+                //
+                NodeList.Add(BoneNode);
+                BoneTransformList.Add(BoneNode.transform);
+
+                // 全ての親ならルートボーンとする
+                if(PmxBone.GetHumanoidBone() == EHumanoidBones.AllParent)
+                {
+                    rootBone = BoneNode;
+
+                    // RuntimeのPMXスケルトンコンポーネントを追加
+                    rootBone.AddComponent<PmxSkeletonComponent>();
+                }
+
+                // RuntimeのPmxBoneを作成
+                {
+                    BoneNode.AddComponent<PmxBoneComponent>();
+
+                    PmxBoneComponent Bone = BoneNode.GetComponent<PmxBoneComponent>();
+
+                    // BoneにBoneNameを割り当てる
+                    Bone.SetBoneName(PmxBone.GetHumanoidBone());
+
+                    // ボーンの付与
+                    if (PmxBone.IsRotateGrant())
+                    {
+                        // 回転付与
+                        Bone.SetRotateGrant(PmxBone.GetGrantParentBoneIndex(), PmxBone.GetGrantRate());
+                    }
+                    else if (PmxBone.IsMoveGrant())
+                    {
+                        // 移動付与
+                        Bone.SetMoveGrant(PmxBone.GetGrantParentBoneIndex(), PmxBone.GetGrantRate());
+                    }
+
+                    // IK
+                    Bone.SetIKParam(PmxBone.GetIKParam());
+
+                    //
+                    RuntimePmxBoneList.Add(Bone);
+                }
             }
 
             // ボーンの親子関係を構築
-            foreach(var bonePair in BoneList)
+            foreach(var boneNonePair in NodeBoneList)
             {
-                GameObject BoneNode = bonePair.Node;
+                GameObject BoneNode = boneNonePair.Node;
                 if(BoneNode == null) continue;
 
-                CPmxBone PmxBone = bonePair.PmxBone;
+                CPmxBone PmxBone = boneNonePair.PmxBone;
                 if(PmxBone == null) continue;
+
+                PmxBoneComponent ParentBpne = null;
 
                 // 親ボーンを取得
                 int ParentBoneIndex = PmxBone.GetParentBoneIndex();
                 if (ParentBoneIndex >= 0 && ParentBoneIndex < PmxBoneList.Count)
                 {
-                    var parentBonePair = BoneList[ParentBoneIndex];
+                    var parentBonePair = NodeBoneList[ParentBoneIndex];
 
                     GameObject ParentBoneNode = parentBonePair.Node;
                     if (ParentBoneNode == null) continue;
 
                     BoneNode.transform.parent = ParentBoneNode.transform;
+
+                    ParentBpne = ParentBoneNode.GetComponent<PmxBoneComponent>();
                 }
                 else
                 {
                     // ルートノードを親とする
                     BoneNode.transform.parent = rootNode.transform;
+                }
+
+                // Unityボーン
+                SkeletonBone uniSkeletonBone = new SkeletonBone();
+                uniSkeletonBone.name = BoneNode.name;
+                uniSkeletonBone.position = BoneNode.transform.localPosition;
+                uniSkeletonBone.rotation = BoneNode.transform.localRotation;
+                uniSkeletonBone.scale = BoneNode.transform.localScale;
+
+                UnitySkeletonBoneList.Add(uniSkeletonBone);
+
+                // Unityヒューマンボーン
+                if (PmxBone.GetHumanoidBone() != EHumanoidBones.None && rootBone != null)
+                {
+                    HumanBone UniHumanBone = new HumanBone();
+                    UniHumanBone.boneName = BoneNode.name;
+                    UniHumanBone.humanName = BoneNode.name;
+
+                    UnityHumanBoneList.Add(UniHumanBone);
+                }
+
+                // デフォルトトランスフォームを保存 
+                PmxBoneComponent Bone = BoneNode.GetComponent<PmxBoneComponent>();
+                if(Bone != null)
+                {
+                    Bone.SaveAsDefaultLocalTransform();
+
+                    if (ParentBpne != null) Bone.SetParentBoneName(ParentBpne.GetBoneName());
+                }
+            }
+
+            /*// Avatar作成
+            string AvatarFolder = string.Empty;
+            if (rootBone != null && FolderMap.TryGetValue("Avatar", out AvatarFolder))
+            {
+                HumanDescription humanDesc = new HumanDescription();
+                humanDesc.skeleton = UnitySkeletonBoneList.ToArray();
+                humanDesc.human = UnityHumanBoneList.ToArray();
+
+                Avatar avatar = AvatarBuilder.BuildHumanAvatar(rootBone, humanDesc);
+
+                // アバターアセット作成
+                string AvatarAssetName = Path.Combine(AvatarFolder, rootNode.name);
+                AvatarAssetName += ".asset";
+
+                AssetDatabase.CreateAsset(avatar, AvatarAssetName);
+            }*/
+
+            // Skeletonにボーンリストを追加
+            if (rootBone != null)
+            {
+                PmxSkeletonComponent skeleton = rootBone.GetComponent<PmxSkeletonComponent>();
+                if (skeleton != null)
+                {
+                    skeleton.SetBoneList(RuntimePmxBoneList);
+                    skeleton.MakeIKBoneList();
+                    skeleton.MakeGrantBoneList();
                 }
             }
 
@@ -271,7 +392,7 @@ namespace mmdlib
                 MaterialAssetName += ".mat";
 
                 AssetDatabase.CreateAsset(material, MaterialAssetName);
-
+                
                 // 次のエディタフレームで実行するコールバック
                 EditorApplication.delayCall += () =>
                 {
@@ -282,12 +403,8 @@ namespace mmdlib
 
                     material.SetInteger("_Cull", (int)cullMode);
 
-                    // ブレンドモード
-                    BlendMode blendSrc = BlendMode.SrcAlpha;
-                    material.SetInteger("_BlendSrc", (int)blendSrc);
-
-                    BlendMode blendDst = BlendMode.OneMinusSrcAlpha;
-                    material.SetInteger("_BlendDst", (int)blendDst);
+                    // アウトライン
+                    material.SetInt("_DrawEdge", (PmxMaterial.IsDrawEdge() ? 1 : 0));
 
                     // ShaderUniformをセット
                     material.SetFloat("_EdgeSize", PmxMaterial.GetEdgeSize());
@@ -298,6 +415,9 @@ namespace mmdlib
                     material.SetColor("_SpecularFactor", PmxMaterial.GetSpecular());
                     material.SetColor("_EdgeColor", PmxMaterial.GetEdgeColor());
 
+                    // アルファレンダリングを行うか
+                    bool UseAlpha = (PmxMaterial.GetDiffuse().w > 0.0f);
+
                     // MainTexture
                     int MainTexIndex = PmxMaterial.GetMainTexIndex();
 
@@ -307,7 +427,27 @@ namespace mmdlib
                         // 使うと消えてしまうので遅延コールバック内でAssetDatabase.LoadAssetAtPathで新規ロードする
                         string path = TexturePathList[MainTexIndex];
 
-                        material.SetTexture("_MainTexture", AssetDatabase.LoadAssetAtPath<Texture>(path));
+                        Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+
+                        material.SetTexture("_MainTexture", texture);
+
+                        // メインテクスチャがアルファチャンネルを持っているかチェックする
+                        if(!UseAlpha)
+                        {
+                            for (int y = 0; y < texture.height; y++)
+                            {
+                                for (int x = 0; x < texture.width; x++)
+                                {
+                                    Color col = texture.GetPixel(x, y);
+
+                                    if(col.a < 1.0f)
+                                    {
+                                        UseAlpha = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     // ToonTexture
@@ -348,6 +488,21 @@ namespace mmdlib
                         material.SetTexture("_SphereTexture", AssetDatabase.LoadAssetAtPath<Texture>(path));
                     }
 
+                    // ブレンドモード
+                    BlendMode blendSrc = (UseAlpha)? BlendMode.SrcAlpha : BlendMode.One;
+                    material.SetInteger("_BlendSrc", (int)blendSrc);
+
+                    BlendMode blendDst = (UseAlpha) ? BlendMode.OneMinusSrcAlpha : BlendMode.Zero;
+                    material.SetInteger("_BlendDst", (int)blendDst);
+
+                    // RenderType
+                    string RenderType = (UseAlpha) ? "Transparent" : "Opaque";
+                    material.SetOverrideTag("RenderType", RenderType);
+
+                    // Queue
+                    RenderQueue renderQueue = (UseAlpha) ? RenderQueue.Transparent : RenderQueue.Geometry;
+                    material.renderQueue = (int)renderQueue;
+
                     // マテリアルの変更を保存する(テクスチャのバインドを保持しておくために必要。これがないとテクスチャが消える)
                     EditorUtility.SetDirty(material);
                     AssetDatabase.SaveAssetIfDirty(material);
@@ -357,8 +512,8 @@ namespace mmdlib
             return true;
         }
 
-        static bool CreateMeshList(CPmxModel model, ref GameObject rootNode, ref List<GameObject> NodeList, 
-            List<Material> MaterialList, Dictionary<string, string> FolderMap)
+        static bool CreateMeshList(CPmxModel model, ref GameObject rootNode, GameObject rootBone, ref List<GameObject> NodeList,
+            List<Transform> BoneTransformList, List<Material> MaterialList, Dictionary<string, string> FolderMap)
         {
             string MeshFolder = string.Empty;
             if (!FolderMap.TryGetValue("Meshs", out MeshFolder)) return false;
@@ -371,6 +526,7 @@ namespace mmdlib
             // 明示的にMeshNodeを作成
             GameObject MeshNode = new GameObject("BaseMeshNode");
             MeshNode.transform.parent = rootNode.transform;
+            NodeList.Add(MeshNode);
 
             {
                 // メッシュを作成する
@@ -588,8 +744,38 @@ namespace mmdlib
                     }
                 }
 
+                // BlendShape
+                {
+                    foreach(var MorphPair in model.GetPmxVertexMorphList())
+                    {
+                        string BlensShapeName = MorphPair.Key;
+                        CPmxMorphTarget morphTarget = MorphPair.Value;
+
+                        Vector3[] VertexMorphList = new Vector3[mesh.vertexCount];
+                        Array.Fill<Vector3>(VertexMorphList, Vector3.zero);
+
+                        foreach(var PmxVertexMorphPair in morphTarget.GetVertexMorphList())
+                        {
+                            VertexMorphList[PmxVertexMorphPair.Key] = PmxVertexMorphPair.Value;
+                        }
+
+                        mesh.AddBlendShapeFrame(BlensShapeName, 100.0f, VertexMorphList, null, null);
+                    }
+
+                }
+
                 // バウンディングボックスを再計算
                 mesh.RecalculateBounds();
+
+                // 逆バインドポーズリストを作成
+                List<Matrix4x4> bindPoses = new List<Matrix4x4>();
+
+                foreach(var BoneTransform in BoneTransformList)
+                {
+                    bindPoses.Add(BoneTransform.localToWorldMatrix.inverse);
+                }
+
+                mesh.bindposes = bindPoses.ToArray();
 
                 // メッシュアセットを作成
                 string MeshAssetName = Path.Combine(MeshFolder, "BaseMesh");
@@ -605,14 +791,315 @@ namespace mmdlib
                 skinnedMeshRenderer.sharedMesh = mesh;
                 skinnedMeshRenderer.materials = MaterialList.ToArray();
 
+                skinnedMeshRenderer.bones = BoneTransformList.ToArray();
+                skinnedMeshRenderer.rootBone = rootBone.transform;
+
                 skinnedMeshRenderer.localBounds = mesh.bounds;
             }
 
             return true;
         }
 
-        // Helper
-        //bool memcpy)
+        static bool CreateRigidbody(CPmxModel model, ref GameObject rootNode, PmxSkeletonComponent Skeleton, ref List<PmxRigidBodyComponent> PhysicsObjectList)
+	    {
+            // 物理演算グループ分け用のレイヤーを作成
+            AddPhysicsGroupLayer();
+
+            //
+            GameObject PhysicsRoot = new GameObject("PhysicsObjectList");
+            PhysicsRoot.transform.parent = rootNode.transform;
+
+            var BoneList = Skeleton.GetPmxBoneList();
+
+            foreach(var PmxRigidbody in model.GetPmxRigidbodyList())
+		    {
+                if(PmxRigidbody == null) continue;
+
+                Vector3 RBPos = PmxRigidbody.Pos;
+                Vector3 RBRotate = PmxRigidbody.Rotate;
+                Vector3 RBSize = PmxRigidbody.Size;
+
+                // 関連ボーンを取得
+                Vector3 BonePos = Vector3.zero;
+                PmxBoneComponent Bone = null;
+                if (PmxRigidbody.RelationBoneIndex >= 0 && PmxRigidbody.RelationBoneIndex < BoneList.Count)
+                {
+                    Bone = BoneList[PmxRigidbody.RelationBoneIndex];
+                    BonePos = Bone.transform.position;
+                }
+                else
+                {
+                    // 関連ボーンが存在しないこともある
+                    // その時はBonePosをRigidBodyの座標とする
+                    BonePos = RBPos;
+                }
+
+                // 物理オブジェクトを作成
+                GameObject PhysicsNode = new GameObject(PmxRigidbody.RigidbodyName);
+                PhysicsNode.transform.parent = PhysicsRoot.transform;
+
+                // 位置にはボーンの位置を反映し、BonePosとRBPosの差分をColliderのオフセット(Center)として使用する
+                PhysicsNode.transform.localPosition = BonePos;
+                Vector3 ColliderOffset = RBPos - BonePos;
+
+                PhysicsNode.transform.localRotation = Quaternion.Euler(Mathf.Rad2Deg * RBRotate);
+                //PhysicsNode.transform.localScale = RBSize;
+
+                // Offsetに回転を考慮する
+                ColliderOffset = Matrix4x4.Rotate(PhysicsNode.transform.localRotation).inverse * ColliderOffset;
+
+                // 物理オブジェクトを割り当てる
+                if (PmxRigidbody.PhysicsShape == EPmxPhysicsShape.SPHERE)
+			    {
+                    PhysicsNode.AddComponent<SphereCollider>();
+
+                    SphereCollider collider = PhysicsNode.GetComponent<SphereCollider>();
+                    collider.center = ColliderOffset;
+                    collider.radius = RBSize.x;
+
+                }
+                else if (PmxRigidbody.PhysicsShape == EPmxPhysicsShape.BOX)
+                {
+                    PhysicsNode.AddComponent<BoxCollider>();
+
+                    BoxCollider collider = PhysicsNode.GetComponent<BoxCollider>();
+                    collider.center = ColliderOffset;
+
+                    // PMXのBoxColliderのSizeはOBBのHalfSizeみたいなやつなので２倍してUnityに合う正しいサイズにする
+                    collider.size = RBSize * 2.0f;
+                }
+                else if (PmxRigidbody.PhysicsShape == EPmxPhysicsShape.CAPSULE)
+                {
+                    PhysicsNode.AddComponent<CapsuleCollider>();
+
+                    CapsuleCollider collider = PhysicsNode.GetComponent<CapsuleCollider>();
+                    collider.center = ColliderOffset;
+                    collider.radius = RBSize.x;
+
+                    // PMXのCapsuleColliderのheightに上下の半球の半径分も加えることでやっとUnityのHeightになる
+                    collider.height = RBSize.y + collider.radius * 2.0f;
+                }
+                else
+                {
+                    continue;
+                }
+
+                // RigidBodyを追加
+                PhysicsNode.AddComponent<Rigidbody>();
+
+                Rigidbody rigidbody = PhysicsNode.GetComponent<Rigidbody>();
+                rigidbody.isKinematic = (PmxRigidbody.PhysicsType == EPmxPhysicsType.STATIC || PmxRigidbody.Mass == 0.0);
+                rigidbody.mass = PmxRigidbody.Mass;
+                rigidbody.linearDamping = PmxRigidbody.TransDamping;
+                rigidbody.angularDamping = PmxRigidbody.RotateDamping;
+
+                // 自身の衝突グループ(レイヤー)を設定
+                List<string> SelfGroup = GetPmxPhysicsLayerList(PmxRigidbody.group);
+                if(SelfGroup.Count == 1) PhysicsNode.layer = LayerMask.NameToLayer(SelfGroup[0]);
+
+                // 非衝突グループ(レイヤー)リストのビットマスクを設定
+                List<string> NoCollideGroupList = GetPmxPhysicsLayerList(PmxRigidbody.NoneCollideGroupFlag);
+                rigidbody.excludeLayers = LayerMask.GetMask(NoCollideGroupList.ToArray());
+
+                // 非衝突グループ以外のレイヤーを衝突グループとしてビットマスクを設定
+                ushort CollideGroupFlag = BitConverter.ToUInt16(BitConverter.GetBytes(~PmxRigidbody.NoneCollideGroupFlag), 0);
+                List<string> CollideGroupList = GetPmxPhysicsLayerList(CollideGroupFlag);
+                rigidbody.includeLayers = LayerMask.GetMask(CollideGroupList.ToArray());
+
+                // PmxRigidBodyComponent
+                PhysicsNode.AddComponent<PmxRigidBodyComponent>();
+
+                PmxRigidBodyComponent pmxRigidBodyComponent = PhysicsNode.GetComponent<PmxRigidBodyComponent>();
+                pmxRigidBodyComponent.Init(PmxRigidbody.PhysicsType, PhysicsNode);
+
+                PhysicsObjectList.Add(pmxRigidBodyComponent);
+
+                // 関連ボーンに物理オブジェクトを追加
+                if(Bone != null)
+                {
+                    Bone.AddPhysicsObject(pmxRigidBodyComponent);
+                }
+            }
+
+		    return true;
+	    }
+
+        static void AddPhysicsGroupLayer()
+        {
+            // SerializedObject : https://docs.unity3d.com/ja/560/ScriptReference/SerializedObject.html
+            // UnityのObjectをシリアライズ(データ化)された状態で読むためのAPI
+            // これを介してUnity Objectのテキスト情報を読み取ったり編集したりすることができる
+            // Unity Object(.assetだったり.animだったりUnityでファイルとして扱えるもの全般)はUnity独自のYAML形式で表される
+            // SerializedObjectはこれを読み書きする
+
+            // TagManagerにlayer情報が書き込まれているのでこれを取ってくる
+            SerializedObject TagManager = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
+
+            var layers = TagManager.FindProperty("layers");
+            
+            List<SerializedProperty> EmptyPropList = new List<SerializedProperty>();
+
+            for (int i = 0; i < layers.arraySize; i++)
+            {
+                SerializedProperty prop = layers.GetArrayElementAtIndex(i);
+                
+                if(prop.stringValue == "" || prop.stringValue == string.Empty)
+                {
+                    // 空レイヤーが残ていれば後ほどの新規登録用に保持しておく
+                    EmptyPropList.Add(prop);
+                }
+                else if(prop.stringValue.IndexOf(PMX_PHYSICS_LAYER) != -1)
+                {
+                    // PMX_PHYSICS_LAYERというレイヤーが1つでもあればレイヤー追加を終了する
+                    return;
+                }
+            }
+
+            // 空のレイヤーが足りない時はエラーにする
+            if(EmptyPropList.Count < 16)
+            {
+                throw new Exception("There are not enough empty layers to add PMX physics layers.");
+            }
+
+            // PMX_PHYSICS_LAYERを16個分作成
+            for(int i = 0; i < 16; i++)
+            {
+                int LayerIndex = i + 1;
+
+                EmptyPropList[i].stringValue = PMX_PHYSICS_LAYER + "_" + LayerIndex.ToString();
+            }
+
+            // 反映
+            TagManager.ApplyModifiedProperties();
+        }
+
+        static List<string> GetPmxPhysicsLayerList(ushort byteOrder)
+        {
+            List<string> LayerNameList = new List<string>();
+
+            for(int i = 0; i < 16; i++)
+            {
+                // 0000 0000 0000 0001 (0x0001) の16ビットをレイヤーの数だけシフト演算してそれが存在するかチェックする
+                bool Exist = ((0x0001 << i) & byteOrder) != 0;
+                if (Exist)
+                {
+                    int LayerIndex = i + 1;
+
+                    string LayerName = PMX_PHYSICS_LAYER + "_" + LayerIndex.ToString();
+                    LayerNameList.Add(LayerName);
+                }
+            }
+
+            return LayerNameList;
+        }
+
+        static bool CreateJoint(CPmxModel model, PmxSkeletonComponent Skeleton, List<PmxRigidBodyComponent> PhysicsObjectList)
+	    {
+		    var PmxRigidbodyList = model.GetPmxRigidbodyList();
+
+		    foreach(var PmxJoint in model.GetPmxJointList())
+		    {
+			    // PhysicsObjectを取得
+			    // BodyA(Fixed)
+			    int BodyAIndex = PmxJoint.BodyAIndex;
+			    if (BodyAIndex < 0 || BodyAIndex >= PmxRigidbodyList.Count) continue;
+
+			    var FixedPmxRigidBody = PhysicsObjectList[BodyAIndex];
+
+			    // BodyB(Dynamic)
+			    int BodyBIndex = PmxJoint.BodyBIndex;
+			    if (BodyBIndex < 0 || BodyBIndex >= PmxRigidbodyList.Count) continue;
+
+                var DynamicPmxRigidBody = PhysicsObjectList[BodyBIndex];
+                SPmxRigidbody pmxRigidbodyB = PmxRigidbodyList[BodyBIndex];
+
+                if (FixedPmxRigidBody == null || DynamicPmxRigidBody == null) continue;
+
+                // SpringBoneを追加
+                DynamicPmxRigidBody.AddComponent<ConfigurableJoint>();
+
+                ConfigurableJoint[] jointList = DynamicPmxRigidBody.GetComponents<ConfigurableJoint>();
+
+                foreach (var joint in jointList)
+                {
+                    if (joint == null) continue;
+
+                    // jointを複数個持たせる可能性があるのでconnectedBodyが既に設定されていたら他も設定済みということにしてスキップする
+                    if (joint.connectedBody != null) continue;
+
+                    if (joint != null)
+                    {
+                        // SpringJointを複数個持たせる可能性があるのでconnectedBodyが常に設定されていたら他も設定済みということにしてスキップする
+                        if (joint.connectedBody != null) continue;
+
+                        joint.connectedBody = FixedPmxRigidBody.GetComponent<Rigidbody>();
+                        joint.enableCollision = true;
+
+                        joint.linearLimitSpring = new SoftJointLimitSpring()
+                        {
+                            spring = Mathf.Max(Mathf.Max(PmxJoint.TransSpring.x, PmxJoint.TransSpring.y), PmxJoint.TransSpring.z),
+                            damper = pmxRigidbodyB.TransDamping
+                        };
+
+                        joint.angularXLimitSpring = new SoftJointLimitSpring()
+                        {
+                            spring = PmxJoint.RotateSpring.x,
+                            damper = pmxRigidbodyB.RotateDamping
+                        };
+
+                        joint.angularYZLimitSpring = new SoftJointLimitSpring()
+                        {
+                            spring = Mathf.Max(PmxJoint.RotateSpring.y, PmxJoint.RotateSpring.z),
+                            damper = pmxRigidbodyB.RotateDamping
+                        };
+
+                        // 位置制限
+                        {
+                            joint.xMotion = ConfigurableJointMotion.Limited;
+                            joint.yMotion = ConfigurableJointMotion.Limited;
+                            joint.zMotion = ConfigurableJointMotion.Limited;
+
+                            // 位置制限はXYZ全て共通で球形の範囲しか指定できないので一番小さいものにする
+                            float LinearLimitX = Mathf.Min(Math.Abs(PmxJoint.LowerTransLimit.x), Math.Abs(PmxJoint.UpperTransLimit.x));
+                            float LinearLimitY = Mathf.Min(Math.Abs(PmxJoint.LowerTransLimit.y), Math.Abs(PmxJoint.UpperTransLimit.y));
+                            float LinearLimitZ = Mathf.Min(Math.Abs(PmxJoint.LowerTransLimit.z), Math.Abs(PmxJoint.UpperTransLimit.z));
+
+                            joint.linearLimit = new SoftJointLimit() { limit = Mathf.Min(Math.Min(LinearLimitX, LinearLimitY), LinearLimitZ) };
+
+                            if (PmxJoint.LowerTransLimit.x == PmxJoint.UpperTransLimit.x) joint.xMotion = ConfigurableJointMotion.Locked;
+                            if (PmxJoint.LowerTransLimit.y == PmxJoint.UpperTransLimit.y) joint.yMotion = ConfigurableJointMotion.Locked;
+                            if (PmxJoint.LowerTransLimit.z == PmxJoint.UpperTransLimit.z) joint.zMotion = ConfigurableJointMotion.Locked;
+                        }
+
+                        // 回転制限
+                        {
+                            Vector3 LowerRotateLimit = PmxJoint.LowerRotateLimit * Mathf.Rad2Deg;
+                            Vector3 UpperRotateLimit = PmxJoint.UpperRotateLimit * Mathf.Rad2Deg;
+
+                            joint.angularXMotion = ConfigurableJointMotion.Limited;
+                            joint.angularYMotion = ConfigurableJointMotion.Limited;
+                            joint.angularZMotion = ConfigurableJointMotion.Limited;
+
+                            // X制限
+                            joint.lowAngularXLimit = new SoftJointLimit() { limit = LowerRotateLimit.x };
+                            joint.highAngularXLimit = new SoftJointLimit() { limit = UpperRotateLimit.x };
+
+                            // Y制限
+                            joint.angularYLimit = new SoftJointLimit() { limit = Mathf.Min(Mathf.Abs(LowerRotateLimit.y), Mathf.Abs(UpperRotateLimit.y)) };
+
+                            // Z制限
+                            joint.angularZLimit = new SoftJointLimit() { limit = Mathf.Min(Mathf.Abs(LowerRotateLimit.z), Mathf.Abs(UpperRotateLimit.z)) };
+
+                            if (LowerRotateLimit.x == UpperRotateLimit.x) joint.angularXMotion = ConfigurableJointMotion.Locked;
+                            if (LowerRotateLimit.y == UpperRotateLimit.y) joint.angularXMotion = ConfigurableJointMotion.Locked;
+                            if (LowerRotateLimit.z == UpperRotateLimit.z) joint.angularXMotion = ConfigurableJointMotion.Locked;
+                        }
+                    }
+                }
+            }
+
+            return true;
+	    }
     }
 
 }

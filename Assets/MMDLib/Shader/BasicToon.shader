@@ -16,6 +16,8 @@ Shader "MMDLib/BasicToon"
         _ToonTexture("ToonTexture", 2D) = "white"{}
         _SphereTexture("SphereTexture", 2D) = "white"{}
 
+        _DrawEdge("_DrawEdge", Int) = 0
+
         [Enum(UnityEngine.Rendering.CullMode)] _Cull("Cull", Integer) = 1
         [Enum(UnityEngine.Rendering.BlendMode)] _BlendSrc("BlendSrc", Integer) = 1
         [Enum(UnityEngine.Rendering.BlendMode)] _BlendDst("BlendDst", Integer) = 1
@@ -24,12 +26,12 @@ Shader "MMDLib/BasicToon"
     SubShader
     {
         Tags { "RenderType" = "Opaque"}
-
-        Cull [_Cull]
         Blend [_BlendSrc] [_BlendDst]
 
         Pass
         {
+            Cull [_Cull]
+
             Tags{ "LightMode" = "SRPDefaultUnlit" }
 
             HLSLPROGRAM
@@ -53,8 +55,6 @@ Shader "MMDLib/BasicToon"
                 float3 WorldNormal : TEXCOORD1;
                 float3 WorldPos : TEXCOORD2;
             };
-
-            float _EdgeSize;
 
             Varyings vert(Attributes IN)
             {
@@ -116,6 +116,63 @@ Shader "MMDLib/BasicToon"
                 col.rgb *= lerp(ToonColor, float3(1.0, 1.0, 1.0), clamp(NdL * 16.0 + 0.5, 0.0, 1.0));
                     
                 // Specular
+
+                return col;
+            }
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Cull Front
+
+            Tags{ "LightMode" = "SRPDefaultUnlit_Outline" }
+
+            HLSLPROGRAM
+
+            #pragma vertex vert
+            #pragma fragment frag
+
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+
+            struct Attributes
+            {
+                float4 positionOS : POSITION;
+                float2 uv : TEXCOORD0;
+                float3 normal : NORMAL;
+            };
+
+            struct Varyings
+            {
+                float4 positionHCS : SV_POSITION;
+            };
+
+            float _EdgeSize;
+
+            Varyings vert(Attributes IN)
+            {
+                float3 WorldPos    = (mul(unity_ObjectToWorld, float4(IN.positionOS.xyz, 1.0))).xyz;
+                float3 WorldNormal = (mul(unity_ObjectToWorld, float4(IN.normal, 0.0)) ).xyz;
+
+                WorldPos.xyz += normalize(WorldNormal) * _EdgeSize * 0.001;
+
+                Varyings OUT;
+                OUT.positionHCS = mul(unity_MatrixVP, float4(WorldPos, 1.0));
+                return OUT;
+            }
+
+            float4 _EdgeColor;
+            int _DrawEdge;
+
+            half4 frag(Varyings IN) : SV_Target
+            {
+                float4 col = _EdgeColor;
+                col.a = 1.0;
+
+                if(_DrawEdge == 0) 
+                {
+                    discard;
+                }
 
                 return col;
             }
