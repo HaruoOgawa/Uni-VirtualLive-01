@@ -152,32 +152,6 @@ namespace mmdlib
 
                 // コライダーのオフセットをPhysicsObjのローカル回転を基準に作っているのでその姿勢から如何に回転させるかを考える
                 PhysicsObj.transform.rotation = this.transform.rotation * PhysicsObj.DefaultTransform.m_LocalRotate;
-
-                // これらはジョイントの接続点の相対位置を見て制限を加える機能
-                // なのでrigidbody.constraintsによるフリーズは使わない(重力落下とかが効かなくなる)
-                // LowerTransLimit, UpperTransLimit はジョイントの接続点でどれぐらい離れることができるか
-                // LowerRotateLimit, UpperRotateLimitはジョイントの接続点がどれぐらいねじれる(回転する)ことができるか
-                /*// 位置制限
-                {
-                    Vector3 position = PhysicsObj.transform.position;
-
-                    if (PhysicsObj.MinPos.x != PhysicsObj.MaxPos.x) position.x = Mathf.Clamp(position.x, PhysicsObj.MinPos.x, PhysicsObj.MaxPos.x);
-                    if (PhysicsObj.MinPos.y != PhysicsObj.MaxPos.y) position.y = Mathf.Clamp(position.y, PhysicsObj.MinPos.y, PhysicsObj.MaxPos.y);
-                    if (PhysicsObj.MinPos.z != PhysicsObj.MaxPos.z) position.z = Mathf.Clamp(position.z, PhysicsObj.MinPos.z, PhysicsObj.MaxPos.z);
-
-                    PhysicsObj.transform.position = position;
-                }
-
-                // 回転制限
-                {
-                    Vector3 eulerAngles = PhysicsObj.transform.eulerAngles;
-
-                    if (PhysicsObj.MinRot.x != PhysicsObj.MaxRot.x) eulerAngles.x = Mathf.Clamp(eulerAngles.x, PhysicsObj.MinRot.x, PhysicsObj.MaxRot.x);
-                    if (PhysicsObj.MinRot.y != PhysicsObj.MaxRot.y) eulerAngles.y = Mathf.Clamp(eulerAngles.y, PhysicsObj.MinRot.y, PhysicsObj.MaxRot.y);
-                    if (PhysicsObj.MinRot.z != PhysicsObj.MaxRot.z) eulerAngles.z = Mathf.Clamp(eulerAngles.z, PhysicsObj.MinRot.z, PhysicsObj.MaxRot.z);
-
-                    PhysicsObj.transform.eulerAngles = eulerAngles;
-                }*/
             }
         }
 

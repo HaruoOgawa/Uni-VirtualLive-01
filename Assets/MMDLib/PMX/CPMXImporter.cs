@@ -991,35 +991,59 @@ namespace mmdlib
 			    int BodyAIndex = PmxJoint.BodyAIndex;
 			    if (BodyAIndex < 0 || BodyAIndex >= PmxRigidbodyList.Count) continue;
 
-			    var FixedPhysicsObj = PhysicsObjectList[BodyAIndex];
+			    var FixedPmxRigidBody = PhysicsObjectList[BodyAIndex];
 
 			    // BodyB(Dynamic)
 			    int BodyBIndex = PmxJoint.BodyBIndex;
 			    if (BodyBIndex < 0 || BodyBIndex >= PmxRigidbodyList.Count) continue;
 
-                var DynamicPhysicsObj = PhysicsObjectList[BodyBIndex];
+                var DynamicPmxRigidBody = PhysicsObjectList[BodyBIndex];
                 SPmxRigidbody pmxRigidbodyB = PmxRigidbodyList[BodyBIndex];
 
-                if (FixedPhysicsObj == null || DynamicPhysicsObj == null) continue;
+                if (FixedPmxRigidBody == null || DynamicPmxRigidBody == null) continue;
 
                 // SpringBoneを追加
-                DynamicPhysicsObj.AddComponent<SpringJoint>();
+                DynamicPmxRigidBody.AddComponent<SpringJoint>();
 
-                SpringJoint[] springJointList = DynamicPhysicsObj.GetComponents<SpringJoint>();
+                SpringJoint springJoint = DynamicPmxRigidBody.GetComponent<SpringJoint>();
 
-                foreach(var springJoint in springJointList)
+                if (springJoint != null)
                 {
-                    if (springJoint == null) continue;
-
                     // SpringJointを複数個持たせる可能性があるのでconnectedBodyが常に設定されていたら他も設定済みということにしてスキップする
                     if (springJoint.connectedBody != null) continue;
 
-                    springJoint.connectedBody = FixedPhysicsObj.GetComponent<Rigidbody>();
+                    springJoint.connectedBody = FixedPmxRigidBody.GetComponent<Rigidbody>();
                     springJoint.enableCollision = true;
                     springJoint.damper = pmxRigidbodyB.TransDamping;
                     springJoint.spring = PmxJoint.TransSpring.x;
 
-                    break;
+                    // FixedPmxRigidBody・DynamicPmxRigidBodyの子要素にそれぞれの接続点の位置を示すノードを追加
+                    GameObject FixedConnetedNode = null;
+                    GameObject DynamicConnetedNode = null;
+                    {
+                        // Fixed
+                        FixedConnetedNode = new GameObject(FixedPmxRigidBody.name + "_FixedConnetedPos");
+                        FixedConnetedNode.transform.parent = FixedPmxRigidBody.transform;
+                        FixedConnetedNode.transform.localPosition = springJoint.connectedAnchor;
+
+                        // Dynamic
+                        DynamicConnetedNode = new GameObject(DynamicPmxRigidBody.name + "_DynamicConnetedPos");
+                        DynamicConnetedNode.transform.parent = DynamicPmxRigidBody.transform;
+                        // Fixedのワールドをそのまま反映する
+                        DynamicConnetedNode.transform.position = FixedConnetedNode.transform.position;
+                        DynamicConnetedNode.transform.rotation = FixedConnetedNode.transform.rotation;
+                    }
+
+                    // PMXJointを作成
+                    if(FixedConnetedNode != null && DynamicConnetedNode != null)
+                    {
+                        DynamicPmxRigidBody.AddComponent<PmxJointComponent>();
+
+                        PmxJointComponent _pmxJointComponent = DynamicPmxRigidBody.GetComponent<PmxJointComponent>();
+
+                        _pmxJointComponent.Init(FixedPmxRigidBody, DynamicPmxRigidBody, FixedConnetedNode, DynamicConnetedNode,
+                            PmxJoint.LowerTransLimit, PmxJoint.UpperTransLimit, PmxJoint.LowerRotateLimit * Mathf.Rad2Deg, PmxJoint.UpperRotateLimit * Mathf.Rad2Deg);
+                    }
                 }
 
                 //springJoint.anchor
@@ -1035,7 +1059,7 @@ namespace mmdlib
                  Lowerlimit < Upperlimit -> この軸の角度は制限されます。
                  */
                 // 軸フリーズは使わない。PMXBoneでJointの相対の位置制限・回転制限を行う
-                /*Rigidbody rigidbody = DynamicPhysicsObj.GetComponent<Rigidbody>();
+                /*Rigidbody rigidbody = DynamicPmxRigidBody.GetComponent<Rigidbody>();
 
                 if (rigidbody != null) 
                 {
@@ -1051,13 +1075,6 @@ namespace mmdlib
 
                     rigidbody.constraints = constraints;
                 }*/
-
-                DynamicPhysicsObj.AddComponent<PmxJointComponent>();
-
-                PmxJointComponent _pmxJointComponent = DynamicPhysicsObj.GetComponent<PmxJointComponent>();
-                
-                _pmxJointComponent.Init(FixedPhysicsObj, DynamicPhysicsObj,
-                    PmxJoint.LowerTransLimit, PmxJoint.UpperTransLimit, PmxJoint.LowerRotateLimit * Mathf.Rad2Deg, PmxJoint.UpperRotateLimit * Mathf.Rad2Deg);
             }
 
             return true;
