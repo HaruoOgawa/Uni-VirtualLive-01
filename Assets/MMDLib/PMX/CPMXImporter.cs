@@ -815,19 +815,28 @@ namespace mmdlib
 		    {
                 if(PmxRigidbody == null) continue;
 
-                // 関連ンボーンを取得
-                if (PmxRigidbody.RelationBoneIndex < 0 || PmxRigidbody.RelationBoneIndex >= BoneList.Count) continue;
-                PmxBoneComponent Bone = BoneList[PmxRigidbody.RelationBoneIndex];
-                Vector3 BonePos = Bone.transform.position;
-
-                //
-                GameObject PhysicsNode = new GameObject(PmxRigidbody.RigidbodyName);
-                PhysicsNode.transform.parent = PhysicsRoot.transform;
-
-                // 物理オブジェクトを作成
                 Vector3 RBPos = PmxRigidbody.Pos;
                 Vector3 RBRotate = PmxRigidbody.Rotate;
                 Vector3 RBSize = PmxRigidbody.Size;
+
+                // 関連ボーンを取得
+                Vector3 BonePos = Vector3.zero;
+                PmxBoneComponent Bone = null;
+                if (PmxRigidbody.RelationBoneIndex >= 0 && PmxRigidbody.RelationBoneIndex < BoneList.Count)
+                {
+                    Bone = BoneList[PmxRigidbody.RelationBoneIndex];
+                    BonePos = Bone.transform.position;
+                }
+                else
+                {
+                    // 関連ボーンが存在しないこともある
+                    // その時はBonePosをRigidBodyの座標とする
+                    BonePos = RBPos;
+                }
+
+                // 物理オブジェクトを作成
+                GameObject PhysicsNode = new GameObject(PmxRigidbody.RigidbodyName);
+                PhysicsNode.transform.parent = PhysicsRoot.transform;
 
                 // 位置にはボーンの位置を反映し、BonePosとRBPosの差分をColliderのオフセット(Center)として使用する
                 PhysicsNode.transform.localPosition = BonePos;
@@ -906,7 +915,10 @@ namespace mmdlib
                 PhysicsObjectList.Add(pmxRigidBodyComponent);
 
                 // 関連ボーンに物理オブジェクトを追加
-                Bone.AddPhysicsObject(pmxRigidBodyComponent);
+                if(Bone != null)
+                {
+                    Bone.AddPhysicsObject(pmxRigidBodyComponent);
+                }
             }
 
 		    return true;
