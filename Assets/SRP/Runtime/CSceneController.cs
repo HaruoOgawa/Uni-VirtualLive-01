@@ -171,7 +171,7 @@ namespace srp
             try
             {
                 if (m_CullingResults == null) return false;
-
+                
                 // ライトが存在しない
                 if (m_VisibleDirectionalLightList.Count == 0) return true;
 
@@ -189,6 +189,11 @@ namespace srp
                 for (int i = 0; i < Mathf.Min(4, m_VisibleDirectionalLightList.Count); i++)
                 {
                     var visibleLight = m_VisibleDirectionalLightList[i];
+
+                    // visibleLightのシャドウカメラから見えているシャドウキャスターが含まれているバウンディングボックスを返す
+                    // このカメラの範囲にシャドウキャスターが含まれていなければスキップする
+                    Bounds shadowBound;
+                    if (!m_CullingResults.GetShadowCasterBounds(visibleLight.lightIndex, out shadowBound)) continue;
 
                     // シャドウマップカメラのビューポートを再計算
                     // ビューポートはフレームバッファのどの範囲に描画するか
