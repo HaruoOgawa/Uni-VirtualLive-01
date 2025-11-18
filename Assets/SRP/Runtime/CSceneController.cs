@@ -744,7 +744,7 @@ namespace srp
             return false;
         }
 
-        static Mesh CreateSphereMesh()
+        public static Mesh CreateSphereMesh()
         {
             List<Vector3> positions = new List<Vector3>();
             List<int> indices = new List<int>();
@@ -790,7 +790,7 @@ namespace srp
             return mesh;
         }
 
-        static Mesh CreateConeMesh()
+        public static Mesh CreateConeMesh()
         {
             List<Vector3> positions = new List<Vector3>();
             List<int> indices = new List<int>();
@@ -844,7 +844,7 @@ namespace srp
             return mesh;
         }
 
-        static Mesh CreateFullscreenMesh()
+        public static Mesh CreateFullscreenMesh()
         {
             // TODO reorder for pre&post-transform cache optimisation.
             // Simple full-screen triangle.

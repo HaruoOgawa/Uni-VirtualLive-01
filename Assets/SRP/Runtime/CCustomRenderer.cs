@@ -118,6 +118,8 @@ namespace srp
                 m_MainResultPass.AddShaderTag("Vertex");
                 m_MainResultPass.AddShaderTag("VertexLMRGBM");
                 m_MainResultPass.AddShaderTag("VertexLM");
+
+                // RenderTargetを指定しなかったらUnity内部で現在のカメラの最終結果描画用フレームバッファがバインドされる
             }
         }
 
@@ -195,7 +197,7 @@ namespace srp
 
             // リアルタイムGI
             {
-
+                // 未対応
             }
 
             // ここまでの描画結果をいったん最終描画先にコピーしておく
