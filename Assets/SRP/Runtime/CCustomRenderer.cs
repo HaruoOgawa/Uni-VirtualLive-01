@@ -38,6 +38,8 @@ namespace srp
 
         public CCustomRenderer()
         {
+            // RenderPipeineAssetのプロパティが更新されるたびにコンストラクタが走る
+            // なのでプロパティの数値を見てパスを増減させることも可能
             Create();
         }
 
