@@ -234,15 +234,24 @@ namespace srp
         {
             if (mainCamera == null) return;
 
+            // 平面反射用Plane
+            Transform Plane = ReflectCamera.transform.parent;
+            if (Plane == null) return;
+
+            PlannerReflection component = null;
+            if (Plane.TryGetComponent<PlannerReflection>(out component))
+            {
+                if(component.Plane != null)
+                {
+                    Plane = component.Plane.transform;
+                }
+            }
+
             // メインカメラ情報
             Vector3 forward = mainCamera.transform.forward;
             Vector3 up = mainCamera.transform.up;
             Vector3 right = mainCamera.transform.right;
             Vector3 center = mainCamera.transform.position;
-
-            // 平面反射用Plane
-            Transform Plane = ReflectCamera.transform.parent;
-            if(Plane == null) return;
 
             // ワールド座標系から反射平面座標系に変換
             Vector3 PlannerForward = Plane.worldToLocalMatrix.MultiplyVector(forward);

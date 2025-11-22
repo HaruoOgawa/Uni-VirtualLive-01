@@ -45,13 +45,7 @@ Shader "CustomSRP/PlannerReflection"
                 float2 NdcUV = (IN.screenPos.xy / IN.screenPos.w) * 0.5 + 0.5;
                 NdcUV.y = 1.0 - NdcUV.y;
 
-                // NdcUV = NdcUV * 2.0 - 1.0;
-
                 float4 col = tex2D(_BaseMap, NdcUV);
-
-                // col.rgb = float3(NdcUV, 0.0);
-
-                // if(length(NdcUV) < 0.5) col.rgb = float3(1.0, 1.0, 1.0);
 
                 return col;
             }

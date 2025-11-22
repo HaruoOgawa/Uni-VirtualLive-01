@@ -17,8 +17,9 @@ public static class CPlannerReflectionCreater
     {
         // ゲームオブジェクトを新規作成
         GameObject PRObject = new GameObject("Planner Reflection");
+        PRObject.AddComponent<PlannerReflection>();
 
-        // 平面反射描画用の平面を追加
+        /*// 平面反射描画用の平面を追加
         GameObject Plane = new GameObject("Plane");
         Plane.transform.parent = PRObject.transform;
         Plane.transform.localRotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
@@ -32,11 +33,11 @@ public static class CPlannerReflectionCreater
         // 平面反射用のカメラが描画中はこの平面を描画しないようにするためのレイヤーを追加
         AddPlannerReflectionLayer();
 
-        Plane.layer = LayerMask.NameToLayer(PLANNER_REFLECT_PLANE);
+        Plane.layer = LayerMask.NameToLayer(PLANNER_REFLECT_PLANE);*/
 
-        // 平面反射用のカメラを子要素とコンポーネントに登録
+        // 平面反射用カメラの子要素とコンポーネントを追加
         GameObject ReflectCameraObject = new GameObject("ReflectCamera");
-        ReflectCameraObject.transform.parent = Plane.transform;
+        ReflectCameraObject.transform.parent = PRObject.transform;
 
         Camera ReflectCamera = ReflectCameraObject.AddComponent<Camera>();
 
@@ -65,7 +66,7 @@ public static class CPlannerReflectionCreater
 
             // レンダーテクスチャをカメラと平面にアサイン
             ReflectCamera.targetTexture = renderTexture;
-            renderer.sharedMaterial.SetTexture("_BaseMap", renderTexture);
+            //renderer.sharedMaterial.SetTexture("_BaseMap", renderTexture);
         }
 
         // UndoできるようにUndoシステムに登録する
