@@ -125,12 +125,10 @@ namespace srp
             }
         }
 
-        public bool Render(ScriptableRenderContext context, Camera camera)
+        public bool Render(ScriptableRenderContext context, Camera camera, Camera mainCamera)
         {
             // Scene Previewカメラはクラッシュしたり何かと問題が発生するのでスキップする
             if (camera.cameraType == CameraType.Preview) return true;
-
-            //Debug.LogFormat("camera.transform.name: {0}", camera.transform.name);
 
             // 平面反射用のカメラか
             bool IsPlannerReflection = (camera.tag == "PLANNER_REFLECT_CAMERA");
@@ -138,7 +136,7 @@ namespace srp
             // カメラを現在メインで使用中のカメラに対して鏡反射の位置に配置する
             if(IsPlannerReflection)
             {
-                RecalcPlannerTransform(ref camera);
+                RecalcPlannerTransform(ref camera, mainCamera);
             }
 
             // カメラ位置に基づいてビューフラスタムカリングを実行
@@ -231,9 +229,55 @@ namespace srp
             return true;
         }
 
-        void RecalcPlannerTransform(ref Camera camera)
+        // メインカメラに対して面対称な位置に移動させる
+        void RecalcPlannerTransform(ref Camera ReflectCamera, Camera mainCamera)
         {
-            //Debug.LogFormat("Camera.main.name: {0}", Camera.main.name);
+            if (mainCamera == null) return;
+
+            // メインカメラ情報
+            Vector3 forward = mainCamera.transform.forward;
+            Vector3 up = mainCamera.transform.up;
+            Vector3 right = mainCamera.transform.right;
+            Vector3 center = mainCamera.transform.position;
+
+            // 平面反射用Plane
+            Transform Plane = ReflectCamera.transform.parent;
+            if(Plane == null) return;
+
+            // ワールド座標系から反射平面座標系に変換
+            Vector3 PlannerForward = Plane.worldToLocalMatrix * forward;
+            Vector3 PlannerUp = Plane.worldToLocalMatrix * up;
+            Vector3 PlannerRight = Plane.worldToLocalMatrix * right;
+            Vector3 PlannerCenter = Plane.worldToLocalMatrix * center;
+
+            // 反射平面を中心に面対称な位置に変換
+            PlannerForward.y *= -1.0f;
+            PlannerUp.y *= -1.0f;
+            PlannerRight.y *= -1.0f;
+            PlannerCenter.y *= -1.0f;
+
+            // 反射平面座標系からワールド座標系に戻す
+            PlannerForward = Plane.localToWorldMatrix * PlannerForward;
+            PlannerUp = Plane.localToWorldMatrix * PlannerUp;
+            PlannerRight = Plane.localToWorldMatrix * PlannerRight;
+            PlannerCenter = Plane.localToWorldMatrix * PlannerCenter;
+
+            // Forward・Upを更新したら回転も更新されそうだが、なぜか変わらないのでピッチ回転も明示的に反転させる
+            Vector3 PlannerEuler = mainCamera.transform.eulerAngles;
+            PlannerEuler.x *= -1.0f;
+
+            // 反射カメラに反射計算を行ったtransformを反映する
+            ReflectCamera.transform.forward = PlannerForward;
+            ReflectCamera.transform.up = PlannerUp;
+            ReflectCamera.transform.right = Vector3.Cross(PlannerForward, PlannerUp);
+            ReflectCamera.transform.position = PlannerCenter;
+            ReflectCamera.transform.rotation = Quaternion.Euler(PlannerEuler);
+
+            // その他情報もメインカメラに合わせる
+            ReflectCamera.aspect = mainCamera.aspect;
+            ReflectCamera.fieldOfView = mainCamera.fieldOfView;
+            ReflectCamera.nearClipPlane = mainCamera.nearClipPlane;
+            ReflectCamera.farClipPlane = mainCamera.farClipPlane;
         }
     }
 

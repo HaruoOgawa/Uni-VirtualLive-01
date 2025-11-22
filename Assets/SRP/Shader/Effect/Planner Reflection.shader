@@ -2,14 +2,11 @@ Shader "CustomSRP/PlannerReflection"
 {
     Properties
     {
-        [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
         [MainTexture] _BaseMap("Base Map", 2D) = "white"
     }
 
     SubShader
     {
-        Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" }
-
         Pass
         {
             HLSLPROGRAM
@@ -28,29 +25,35 @@ Shader "CustomSRP/PlannerReflection"
             struct Varyings
             {
                 float4 positionHCS : SV_POSITION;
-                float2 uv : TEXCOORD0;
+                float4 screenPos : TEXCOORD0;
             };
 
-            TEXTURE2D(_BaseMap);
-            SAMPLER(sampler_BaseMap);
-
-            CBUFFER_START(UnityPerMaterial)
-                half4 _BaseColor;
-                float4 _BaseMap_ST;
-            CBUFFER_END
+            sampler2D _BaseMap;
 
             Varyings vert(Attributes IN)
             {
+                float4 ScreenPos = mul(unity_MatrixVP, mul(unity_ObjectToWorld, float4(IN.positionOS.xyz, 1.0)) );
+                
                 Varyings OUT;
-                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
-                OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
+                OUT.positionHCS = ScreenPos;
+                OUT.screenPos = ScreenPos;
                 return OUT;
             }
 
-            half4 frag(Varyings IN) : SV_Target
+            float4 frag(Varyings IN) : SV_Target
             {
-                half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
-                return color;
+                float2 NdcUV = (IN.screenPos.xy / IN.screenPos.w) * 0.5 + 0.5;
+                NdcUV.y = 1.0 - NdcUV.y;
+
+                // NdcUV = NdcUV * 2.0 - 1.0;
+
+                float4 col = tex2D(_BaseMap, NdcUV);
+
+                // col.rgb = float3(NdcUV, 0.0);
+
+                // if(length(NdcUV) < 0.5) col.rgb = float3(1.0, 1.0, 1.0);
+
+                return col;
             }
             ENDHLSL
         }

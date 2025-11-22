@@ -854,15 +854,47 @@ namespace srp
                 new Vector3(-1.0f, -1.0f, 0.0f),
                 new Vector3(1.0f,  1.0f, 0.0f),
                 new Vector3(1.0f,  -1.0f, 0.0f)
-        };
+            };
 
             Vector2[] uvs =
             {
-            new Vector2(0.0f, 1.0f),
-            new Vector2(0.0f, 0.0f),
-            new Vector2(1.0f, 1.0f),
-            new Vector2(1.0f, 0.0f),
-        };
+                new Vector2(0.0f, 1.0f),
+                new Vector2(0.0f, 0.0f),
+                new Vector2(1.0f, 1.0f),
+                new Vector2(1.0f, 0.0f),
+            };
+
+            //int[] indices = { 0, 1, 2, 2, 1, 3 };
+            int[] indices = { 0, 2, 1, 1, 2, 3 };
+
+            Mesh mesh = new Mesh();
+            mesh.indexFormat = IndexFormat.UInt16;
+            mesh.vertices = positions;
+            mesh.uv = uvs;
+            mesh.triangles = indices;
+
+            return mesh;
+        }
+        
+        public static Mesh CreatePlaneMesh()
+        {
+            // TODO reorder for pre&post-transform cache optimisation.
+            // Simple full-screen triangle.
+            Vector3[] positions =
+            {
+                new Vector3(-1.0f, 0.0f, 1.0f),
+                new Vector3(-1.0f, 0.0f, -1.0f),
+                new Vector3(1.0f, 0.0f, 1.0f),
+                new Vector3(1.0f, 0.0f, -1.0f)
+            };
+
+            Vector2[] uvs =
+            {
+                new Vector2(0.0f, 1.0f),
+                new Vector2(0.0f, 0.0f),
+                new Vector2(1.0f, 1.0f),
+                new Vector2(1.0f, 0.0f),
+            };
 
             //int[] indices = { 0, 1, 2, 2, 1, 3 };
             int[] indices = { 0, 2, 1, 1, 2, 3 };
