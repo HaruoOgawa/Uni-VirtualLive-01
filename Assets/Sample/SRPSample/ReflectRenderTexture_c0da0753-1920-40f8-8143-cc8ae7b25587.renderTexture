@@ -6,14 +6,14 @@ RenderTexture:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ReflectRenderTexture_cc05d780-734e-4c58-96b6-e6d14337d268
+  m_Name: ReflectRenderTexture_c0da0753-1920-40f8-8143-cc8ae7b25587
   m_ImageContentsHash:
     serializedVersion: 2
     Hash: 00000000000000000000000000000000
   m_IsAlphaChannelOptional: 0
   serializedVersion: 6
-  m_Width: 641
-  m_Height: 880
+  m_Width: 1024
+  m_Height: 512
   m_AntiAliasing: 1
   m_MipCount: -1
   m_DepthStencilFormat: 94

@@ -245,10 +245,10 @@ namespace srp
             if(Plane == null) return;
 
             // ワールド座標系から反射平面座標系に変換
-            Vector3 PlannerForward = Plane.worldToLocalMatrix * forward;
-            Vector3 PlannerUp = Plane.worldToLocalMatrix * up;
-            Vector3 PlannerRight = Plane.worldToLocalMatrix * right;
-            Vector3 PlannerCenter = Plane.worldToLocalMatrix * center;
+            Vector3 PlannerForward = Plane.worldToLocalMatrix.MultiplyVector(forward);
+            Vector3 PlannerUp = Plane.worldToLocalMatrix.MultiplyVector(up);
+            Vector3 PlannerRight = Plane.worldToLocalMatrix.MultiplyVector(right);
+            Vector3 PlannerCenter = Plane.worldToLocalMatrix.MultiplyPoint(center);
 
             // 反射平面を中心に面対称な位置に変換
             PlannerForward.y *= -1.0f;
@@ -257,10 +257,10 @@ namespace srp
             PlannerCenter.y *= -1.0f;
 
             // 反射平面座標系からワールド座標系に戻す
-            PlannerForward = Plane.localToWorldMatrix * PlannerForward;
-            PlannerUp = Plane.localToWorldMatrix * PlannerUp;
-            PlannerRight = Plane.localToWorldMatrix * PlannerRight;
-            PlannerCenter = Plane.localToWorldMatrix * PlannerCenter;
+            PlannerForward = Plane.localToWorldMatrix.MultiplyVector(PlannerForward);
+            PlannerUp = Plane.localToWorldMatrix.MultiplyVector(PlannerUp);
+            PlannerRight = Plane.localToWorldMatrix.MultiplyVector(PlannerRight);
+            PlannerCenter = Plane.localToWorldMatrix.MultiplyPoint(PlannerCenter);
 
             // Forward・Upを更新したら回転も更新されそうだが、なぜか変わらないのでピッチ回転も明示的に反転させる
             Vector3 PlannerEuler = mainCamera.transform.eulerAngles;
