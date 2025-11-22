@@ -228,4 +228,37 @@ float3 ComputeIndirectLight(PBRData pbr)
     
     return ResultCol;
 }
+
+float3 CalcPlannerReflection(PBRData pbr, sampler2D reflectMap, float2 uv)
+{
+    float perceptualRoughness = pbr.Roughness * (1.7 - 0.7 * pbr.Roughness);
+    
+    float mipindex = perceptualRoughness * 10.0;
+    
+    float4 col = tex2Dlod(reflectMap, float4(uv, 0, mipindex));
+    return col.rgb;
+}
+
+// ïΩñ îΩéÀÇ…ÇÊÇÈä‘ê⁄åıÇÃåvéZ
+float3 ComputeIndirectLightByPlannerReflection(PBRData pbr, sampler2D reflectMap, float4 screenPos)
+{
+    float3 ResultCol = float3(0.0, 0.0, 0.0);
+    
+    float2 NdcUV = (screenPos.xy / screenPos.w) * 0.5 + 0.5;
+    NdcUV.y = 1.0 - NdcUV.y;
+
+    ResultCol += CalcPlannerReflection(pbr, reflectMap, NdcUV);
+    
+    // ÉtÉåÉlÉãîΩéÀ
+    float3 v = normalize(-pbr.ViewDir);
+    float3 n = normalize(pbr.WorldNormal);
+    
+    float NdV = clamp(dot(n, v), 0.0, 1.0);
+    
+    ResultCol *= CalcFrenelReflection(pbr.Albedo, pbr.Metallic, NdV);
+    
+    return ResultCol;
+
+}
+
 #endif

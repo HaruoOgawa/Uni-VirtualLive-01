@@ -58,7 +58,8 @@ public static class CPlannerReflectionCreater
                 SceneFolder = AssetDatabase.GUIDToAssetPath(GUID);
             }
 
-            RenderTexture renderTexture = new RenderTexture(Screen.width, Screen.height, 24, RenderTextureFormat.ARGBFloat);
+            RenderTexture renderTexture = new RenderTexture(1024, 1024, 24, RenderTextureFormat.ARGBFloat);
+            renderTexture.useMipMap = true;
 
             string FileName = "ReflectRenderTexture_" + System.Guid.NewGuid().ToString() + ".renderTexture";
             string AssetName = Path.Combine(SceneFolder, FileName);

@@ -3,9 +3,12 @@ Shader "CustomSRP/ForegroundLight"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        _PlannerReflectMap ("PlannerReflectMap", 2D) = "white" {}
         _Color("Color", Color) = (1.0, 1.0, 1.0, 1.0)
         _Smoothness("Smoothness", Float) = 0.0
         _Metallic("Metallic", Float) = 0.0
+
+        [Toggle] _UsePlannerReflect("UsePlannerReflect", Int) = 0
     }
     SubShader
     {
@@ -19,6 +22,8 @@ Shader "CustomSRP/ForegroundLight"
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+
+            #pragma multi_compile USE_PLANNER_REFLECT
 
             // UnityCG.cgincの代わりにUnityInput.hlslを使う。そうしないとPackagesフォルダをincludeしたときに重複定義でエラーになってしまう
             // このような書き方をしないと例えばPBR.hlslとかでリフレクションプローブのunity_SpecCube0が見えなくなる
@@ -40,13 +45,17 @@ Shader "CustomSRP/ForegroundLight"
                 float4 vertex : SV_POSITION;
                 float3 worldNormal : TEXCOORD1;
                 float3 worldPos : TEXCOORD2;
+                float4 projPos : TEXCOORD3;
             };
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
+            sampler2D _PlannerReflectMap;
             float4 _Color;
             float _Smoothness;
             float _Metallic;
+
+            int _UsePlannerReflect;
 
             v2f vert (appdata v)
             {
@@ -55,6 +64,7 @@ Shader "CustomSRP/ForegroundLight"
                 o.uv = v.uv;
                 o.worldNormal = mul(unity_ObjectToWorld, float4(v.normal, 0.0));
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex);
+                o.projPos = o.vertex;
                 return o;
             }
 
@@ -167,7 +177,14 @@ Shader "CustomSRP/ForegroundLight"
                 }
 
                 // 間接照明
-                col.rgb += ComputeIndirectLight(pbr);
+                if(_UsePlannerReflect == 1)
+                {
+                    col.rgb += ComputeIndirectLightByPlannerReflection(pbr, _PlannerReflectMap, i.projPos);
+                }
+                else
+                {
+                    col.rgb += ComputeIndirectLight(pbr);
+                }
 
                 return float4(col, alpha);
             }
