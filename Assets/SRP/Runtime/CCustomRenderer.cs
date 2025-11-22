@@ -38,6 +38,8 @@ namespace srp
 
         public CCustomRenderer()
         {
+            // RenderPipeineAssetのプロパティが更新されるたびにコンストラクタが走る
+            // なのでプロパティの数値を見てパスを増減させることも可能
             Create();
         }
 
@@ -118,13 +120,24 @@ namespace srp
                 m_MainResultPass.AddShaderTag("Vertex");
                 m_MainResultPass.AddShaderTag("VertexLMRGBM");
                 m_MainResultPass.AddShaderTag("VertexLM");
+
+                // RenderTargetを指定しなかったらUnity内部で現在のカメラの最終結果描画用フレームバッファがバインドされる
             }
         }
 
-        public bool Render(ScriptableRenderContext context, Camera camera)
+        public bool Render(ScriptableRenderContext context, Camera camera, Camera mainCamera)
         {
             // Scene Previewカメラはクラッシュしたり何かと問題が発生するのでスキップする
             if (camera.cameraType == CameraType.Preview) return true;
+
+            // 平面反射用のカメラか
+            bool IsPlannerReflection = (camera.tag == "PLANNER_REFLECT_CAMERA");
+
+            // カメラを現在メインで使用中のカメラに対して鏡反射の位置に配置する
+            if(IsPlannerReflection)
+            {
+                RecalcPlannerTransform(ref camera, mainCamera);
+            }
 
             // カメラ位置に基づいてビューフラスタムカリングを実行
             if (!m_SceneController.ExecuteCulling(context, camera, m_ShadowDescriptor)) return false;
@@ -195,7 +208,7 @@ namespace srp
 
             // リアルタイムGI
             {
-
+                // 未対応
             }
 
             // ここまでの描画結果をいったん最終描画先にコピーしておく
@@ -214,6 +227,66 @@ namespace srp
             }
 
             return true;
+        }
+
+        // メインカメラに対して面対称な位置に移動させる
+        void RecalcPlannerTransform(ref Camera ReflectCamera, Camera mainCamera)
+        {
+            if (mainCamera == null) return;
+
+            // 平面反射用Plane
+            Transform Plane = ReflectCamera.transform.parent;
+            if (Plane == null) return;
+
+            PlannerReflection component = null;
+            if (Plane.TryGetComponent<PlannerReflection>(out component))
+            {
+                if(component.Plane != null)
+                {
+                    Plane = component.Plane.transform;
+                }
+            }
+
+            // メインカメラ情報
+            Vector3 forward = mainCamera.transform.forward;
+            Vector3 up = mainCamera.transform.up;
+            Vector3 right = mainCamera.transform.right;
+            Vector3 center = mainCamera.transform.position;
+
+            // ワールド座標系から反射平面座標系に変換
+            Vector3 PlannerForward = Plane.worldToLocalMatrix.MultiplyVector(forward);
+            Vector3 PlannerUp = Plane.worldToLocalMatrix.MultiplyVector(up);
+            Vector3 PlannerRight = Plane.worldToLocalMatrix.MultiplyVector(right);
+            Vector3 PlannerCenter = Plane.worldToLocalMatrix.MultiplyPoint(center);
+
+            // 反射平面を中心に面対称な位置に変換
+            PlannerForward.y *= -1.0f;
+            PlannerUp.y *= -1.0f;
+            PlannerRight.y *= -1.0f;
+            PlannerCenter.y *= -1.0f;
+
+            // 反射平面座標系からワールド座標系に戻す
+            PlannerForward = Plane.localToWorldMatrix.MultiplyVector(PlannerForward);
+            PlannerUp = Plane.localToWorldMatrix.MultiplyVector(PlannerUp);
+            PlannerRight = Plane.localToWorldMatrix.MultiplyVector(PlannerRight);
+            PlannerCenter = Plane.localToWorldMatrix.MultiplyPoint(PlannerCenter);
+
+            // Forward・Upを更新したら回転も更新されそうだが、なぜか変わらないのでピッチ回転も明示的に反転させる
+            Vector3 PlannerEuler = mainCamera.transform.eulerAngles;
+            PlannerEuler.x *= -1.0f;
+
+            // 反射カメラに反射計算を行ったtransformを反映する
+            ReflectCamera.transform.forward = PlannerForward;
+            ReflectCamera.transform.up = PlannerUp;
+            ReflectCamera.transform.right = Vector3.Cross(PlannerForward, PlannerUp);
+            ReflectCamera.transform.position = PlannerCenter;
+            ReflectCamera.transform.rotation = Quaternion.Euler(PlannerEuler);
+
+            // その他情報もメインカメラに合わせる
+            ReflectCamera.aspect = mainCamera.aspect;
+            ReflectCamera.fieldOfView = mainCamera.fieldOfView;
+            ReflectCamera.nearClipPlane = mainCamera.nearClipPlane;
+            ReflectCamera.farClipPlane = mainCamera.farClipPlane;
         }
     }
 

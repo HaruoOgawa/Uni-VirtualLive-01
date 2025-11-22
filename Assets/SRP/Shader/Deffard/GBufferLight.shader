@@ -102,7 +102,7 @@ Shader "CustomSRP/GBufferLight"
                float4 GBuffer_0 = tex2D(SRP_GBuffer_0, screenUV); // Albedo.rgb   Roughness.a
                float4 GBuffer_1 = tex2D(SRP_GBuffer_1, screenUV); // WorldNormal.rgb Metallic.a
                float4 GBuffer_2 = tex2D(SRP_GBuffer_2, screenUV); // WorldPos.rgb    MaterialType.r
-               float4 GBuffer_3 = tex2D(SRP_GBuffer_3, screenUV); // None.rgba
+               float4 GBuffer_3 = tex2D(SRP_GBuffer_3, screenUV); // IndirectCol.rgb None
                float4 GBuffer_4 = tex2D(SRP_GBuffer_4, screenUV); // None.rgba
 
                data.MaterialType = GBuffer_2.a;
@@ -181,7 +181,7 @@ Shader "CustomSRP/GBufferLight"
 
            float4 frag (v2f i) : SV_Target
            {
-               float3 NDCPos = i.projPos.xyy / i.projPos.w;
+               float3 NDCPos = i.projPos.xyz / i.projPos.w;
 
                float2 screenUV = NDCPos.xy * 0.5 + 0.5;
                screenUV.y = 1.0 - screenUV.y;

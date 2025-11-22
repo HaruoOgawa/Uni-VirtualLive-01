@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: []
+  tags:
+  - PLANNER_REFLECT_CAMERA
   layers:
   - Default
   - TransparentFX
@@ -26,7 +27,7 @@ TagManager:
   - PMX_PHYSICS_LAYER_14
   - PMX_PHYSICS_LAYER_15
   - PMX_PHYSICS_LAYER_16
-  - 
+  - PLANNER_REFLECT_PLANE
   - 
   - 
   - 

@@ -171,7 +171,7 @@ namespace srp
             try
             {
                 if (m_CullingResults == null) return false;
-
+                
                 // ライトが存在しない
                 if (m_VisibleDirectionalLightList.Count == 0) return true;
 
@@ -189,6 +189,11 @@ namespace srp
                 for (int i = 0; i < Mathf.Min(4, m_VisibleDirectionalLightList.Count); i++)
                 {
                     var visibleLight = m_VisibleDirectionalLightList[i];
+
+                    // visibleLightのシャドウカメラから見えているシャドウキャスターが含まれているバウンディングボックスを返す
+                    // このカメラの範囲にシャドウキャスターが含まれていなければスキップする
+                    Bounds shadowBound;
+                    if (!m_CullingResults.GetShadowCasterBounds(visibleLight.lightIndex, out shadowBound)) continue;
 
                     // シャドウマップカメラのビューポートを再計算
                     // ビューポートはフレームバッファのどの範囲に描画するか
@@ -739,7 +744,7 @@ namespace srp
             return false;
         }
 
-        static Mesh CreateSphereMesh()
+        public static Mesh CreateSphereMesh()
         {
             List<Vector3> positions = new List<Vector3>();
             List<int> indices = new List<int>();
@@ -785,7 +790,7 @@ namespace srp
             return mesh;
         }
 
-        static Mesh CreateConeMesh()
+        public static Mesh CreateConeMesh()
         {
             List<Vector3> positions = new List<Vector3>();
             List<int> indices = new List<int>();
@@ -839,7 +844,7 @@ namespace srp
             return mesh;
         }
 
-        static Mesh CreateFullscreenMesh()
+        public static Mesh CreateFullscreenMesh()
         {
             // TODO reorder for pre&post-transform cache optimisation.
             // Simple full-screen triangle.
@@ -849,15 +854,47 @@ namespace srp
                 new Vector3(-1.0f, -1.0f, 0.0f),
                 new Vector3(1.0f,  1.0f, 0.0f),
                 new Vector3(1.0f,  -1.0f, 0.0f)
-        };
+            };
 
             Vector2[] uvs =
             {
-            new Vector2(0.0f, 1.0f),
-            new Vector2(0.0f, 0.0f),
-            new Vector2(1.0f, 1.0f),
-            new Vector2(1.0f, 0.0f),
-        };
+                new Vector2(0.0f, 1.0f),
+                new Vector2(0.0f, 0.0f),
+                new Vector2(1.0f, 1.0f),
+                new Vector2(1.0f, 0.0f),
+            };
+
+            //int[] indices = { 0, 1, 2, 2, 1, 3 };
+            int[] indices = { 0, 2, 1, 1, 2, 3 };
+
+            Mesh mesh = new Mesh();
+            mesh.indexFormat = IndexFormat.UInt16;
+            mesh.vertices = positions;
+            mesh.uv = uvs;
+            mesh.triangles = indices;
+
+            return mesh;
+        }
+        
+        public static Mesh CreatePlaneMesh()
+        {
+            // TODO reorder for pre&post-transform cache optimisation.
+            // Simple full-screen triangle.
+            Vector3[] positions =
+            {
+                new Vector3(-1.0f, 0.0f, 1.0f),
+                new Vector3(-1.0f, 0.0f, -1.0f),
+                new Vector3(1.0f, 0.0f, 1.0f),
+                new Vector3(1.0f, 0.0f, -1.0f)
+            };
+
+            Vector2[] uvs =
+            {
+                new Vector2(0.0f, 1.0f),
+                new Vector2(0.0f, 0.0f),
+                new Vector2(1.0f, 1.0f),
+                new Vector2(1.0f, 0.0f),
+            };
 
             //int[] indices = { 0, 1, 2, 2, 1, 3 };
             int[] indices = { 0, 2, 1, 1, 2, 3 };

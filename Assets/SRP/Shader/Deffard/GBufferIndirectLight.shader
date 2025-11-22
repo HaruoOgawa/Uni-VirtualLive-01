@@ -2,7 +2,6 @@ Shader "CustomSRP/GBufferIndirectLight"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
     }
     SubShader
     {
@@ -55,6 +54,7 @@ Shader "CustomSRP/GBufferIndirectLight"
                 float Metallic;
                 float3 WorldNormal;
                 float3 WorldPos;
+                float3 IndirectCol;
             };
 
             sampler2D SRP_GBuffer_0;
@@ -80,7 +80,7 @@ Shader "CustomSRP/GBufferIndirectLight"
                 float4 GBuffer_0 = tex2D(SRP_GBuffer_0, screenUV); // Albedo.rgb   Roughness.a
                 float4 GBuffer_1 = tex2D(SRP_GBuffer_1, screenUV); // WorldNormal.rgb Metallic.a
                 float4 GBuffer_2 = tex2D(SRP_GBuffer_2, screenUV); // WorldPos.rgb    MaterialType.r
-                float4 GBuffer_3 = tex2D(SRP_GBuffer_3, screenUV); // None.rgba
+                float4 GBuffer_3 = tex2D(SRP_GBuffer_3, screenUV); // IndirectCol.rgb None
                 float4 GBuffer_4 = tex2D(SRP_GBuffer_4, screenUV); // None.rgba
 
                 data.MaterialType = GBuffer_2.a;
@@ -89,6 +89,7 @@ Shader "CustomSRP/GBufferIndirectLight"
                 data.Metallic = GBuffer_1.a;
                 data.WorldNormal = GBuffer_1.rgb;
                 data.WorldPos = GBuffer_2.rgb;
+                data.IndirectCol = GBuffer_3.rgb;
 
                 return data;
             }
@@ -107,7 +108,7 @@ Shader "CustomSRP/GBufferIndirectLight"
 
             float4 frag (v2f i) : SV_Target
             {
-                float3 NDCPos = i.projPos.xyy / i.projPos.w;
+                float3 NDCPos = i.projPos.xyz / i.projPos.w;
 
                 float2 screenUV = NDCPos.xy * 0.5 + 0.5;
                 screenUV.y = 1.0 - screenUV.y;
@@ -117,9 +118,7 @@ Shader "CustomSRP/GBufferIndirectLight"
                 float alpha = 1.0;
 
                 GBufferData gData = CreateGBufferData(screenUV);
-                PBRData pbr = CreatePBRData(gData);
-
-                col = ComputeIndirectLight(pbr);
+                col = gData.IndirectCol;
 
                 return float4(col, alpha);
             }

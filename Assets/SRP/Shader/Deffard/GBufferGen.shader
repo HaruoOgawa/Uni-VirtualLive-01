@@ -6,6 +6,9 @@ Shader "CustomSRP/GBufferGen"
         _Color("Color", Color) = (1.0, 1.0, 1.0, 1.0)
         _Smoothness("Smoothness", Float) = 0.0
         _Metallic("Metallic", Float) = 0.0
+
+        _PlannerReflectMap ("PlannerReflectMap", 2D) = "white" {}
+        [Toggle] _UsePlannerReflect("UsePlannerReflect", Int) = 0
     }
     SubShader
     {
@@ -24,6 +27,7 @@ Shader "CustomSRP/GBufferGen"
             // このような書き方をしないと例えばPBR.hlslとかでリフレクションプローブのunity_SpecCube0が見えなくなる
             //#include "UnityCG.cginc"
             #include "../ShaderLibrary/UnityInput.hlsl"
+            #include "../ShaderLibrary/PBR.hlsl"
 
             struct appdata
             {
@@ -40,12 +44,17 @@ Shader "CustomSRP/GBufferGen"
                 float2 uv : TEXCOORD0;
                 float4 worldNormal : TEXCOORD1;
                 float3 worldPos : TEXCOORD2;
+                float4 projPos : TEXCOORD3;
             };
 
             sampler2D _MainTex;
             float4 _Color;
             float _Smoothness;
             float _Metallic;
+
+            sampler2D _PlannerReflectMap;
+
+            int _UsePlannerReflect;
 
             v2f vert (appdata v)
             {
@@ -56,6 +65,7 @@ Shader "CustomSRP/GBufferGen"
                 o.uv = v.uv;
                 o.worldNormal = mul(unity_ObjectToWorld, float4(v.normal, 0.0));
                 o.worldPos = (mul(unity_ObjectToWorld, pos)).xyz;
+                o.projPos = o.vertex;
                 return o;
             }
 
@@ -64,7 +74,7 @@ Shader "CustomSRP/GBufferGen"
                 float4 col0 : SV_Target0; // Albedo.rgb   Roughness.a
                 float4 col1 : SV_Target1; // WorldNormal.rgb Metallic.a
                 float4 col2 : SV_Target2; // WorldPos.rgb    MaterialType.r
-                float4 col3 : SV_Target3; // None.rgba
+                float4 col3 : SV_Target3; // IndirectCol.rgb None
                 float4 col4 : SV_Target4; // None.rgba
             };
 
@@ -74,12 +84,30 @@ Shader "CustomSRP/GBufferGen"
                 float MatType = 1.0; // PBR
                 float Roughness = 1.0 - _Smoothness;
 
+                PBRData pbr;
+                pbr.Albedo = Albedo.rgb;
+                pbr.Metallic = _Metallic;
+                pbr.Roughness = 1.0 - _Smoothness;
+                pbr.WorldNormal = i.worldNormal;
+                pbr.ViewDir = normalize(i.worldPos.xyz - _WorldSpaceCameraPos);
+
+                // 間接照明
+                float3 IndirectCol = float3(0.0, 0.0, 0.0);
+                if(_UsePlannerReflect == 1)
+                {
+                    IndirectCol = ComputeIndirectLightByPlannerReflection(pbr, _PlannerReflectMap, i.projPos);
+                }
+                else
+                {
+                    IndirectCol = ComputeIndirectLight(pbr);
+                }
+
                 FragOut o;
 
                 o.col0 = float4(Albedo.rgb, Roughness);
                 o.col1 = float4(i.worldNormal.xyz, _Metallic);
                 o.col2 = float4(i.worldPos, MatType);
-                o.col3 = float4(0.0, 0.0, 0.0, 0.0);
+                o.col3 = float4(IndirectCol.r, IndirectCol.g, IndirectCol.b, 0.0);
                 o.col4 = float4(0.0, 0.0, 0.0, 0.0);
 
                 return o;
