@@ -130,6 +130,17 @@ namespace srp
             // Scene Previewカメラはクラッシュしたり何かと問題が発生するのでスキップする
             if (camera.cameraType == CameraType.Preview) return true;
 
+            //Debug.LogFormat("camera.transform.name: {0}", camera.transform.name);
+
+            // 平面反射用のカメラか
+            bool IsPlannerReflection = (camera.tag == "PLANNER_REFLECT_CAMERA");
+
+            // カメラを現在メインで使用中のカメラに対して鏡反射の位置に配置する
+            if(IsPlannerReflection)
+            {
+                RecalcPlannerTransform(ref camera);
+            }
+
             // カメラ位置に基づいてビューフラスタムカリングを実行
             if (!m_SceneController.ExecuteCulling(context, camera, m_ShadowDescriptor)) return false;
 
@@ -218,6 +229,11 @@ namespace srp
             }
 
             return true;
+        }
+
+        void RecalcPlannerTransform(ref Camera camera)
+        {
+            //Debug.LogFormat("Camera.main.name: {0}", Camera.main.name);
         }
     }
 

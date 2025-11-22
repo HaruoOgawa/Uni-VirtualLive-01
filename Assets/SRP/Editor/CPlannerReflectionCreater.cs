@@ -1,8 +1,10 @@
 using srp;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public static class CPlannerReflectionCreater
 {
@@ -47,6 +49,30 @@ public static class CPlannerReflectionCreater
         AddPlannerReflectionLayer();
 
         Plane.layer = LayerMask.NameToLayer(PLANNER_REFLECT_PLANE);
+
+        // レンダーテクスチャ
+        {
+            // Sceneと同じディレクトリにシーン名のフォルダを作ってそこにレンダーテクスチャを生成
+            string ScenePath = SceneManager.GetActiveScene().path;
+            string SceneFolder = Path.Combine(Path.GetDirectoryName(ScenePath), Path.GetFileNameWithoutExtension(ScenePath));
+
+            if (!AssetDatabase.IsValidFolder(SceneFolder))
+            {
+                // 存在しなければ生成
+                string GUID = AssetDatabase.CreateFolder(Path.GetDirectoryName(ScenePath), Path.GetFileNameWithoutExtension(ScenePath));
+                SceneFolder = AssetDatabase.GUIDToAssetPath(GUID);
+            }
+
+            RenderTexture renderTexture = new RenderTexture(Screen.width, Screen.height, 24, RenderTextureFormat.ARGBFloat);
+
+            string FileName = "ReflectRenderTexture_" + System.Guid.NewGuid().ToString() + ".renderTexture";
+            string AssetName = Path.Combine(SceneFolder, FileName);
+            AssetDatabase.CreateAsset(renderTexture, AssetName);
+
+            // レンダーテクスチャをカメラと平面にアサイン
+            ReflectCamera.targetTexture = renderTexture;
+            renderer.sharedMaterial.SetTexture("_BaseMap", renderTexture);
+        }
 
         // UndoできるようにUndoシステムに登録する
         Undo.RegisterCreatedObjectUndo(PRObject, "Create" +  PRObject.name);
