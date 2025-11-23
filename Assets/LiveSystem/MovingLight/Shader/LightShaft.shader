@@ -2,8 +2,8 @@ Shader "Custom/LightShaft"
 {
     Properties
     {
-        [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
-        [MainTexture] _BaseMap("Base Map", 2D) = "white"
+        _Height("Height", Float) = 1.0
+        _Radius("Radius", Float) = 1.0
     }
 
     SubShader
@@ -25,34 +25,48 @@ Shader "Custom/LightShaft"
             {
                 float4 positionOS : POSITION;
                 float2 uv : TEXCOORD0;
+                float3 normal : NORMAL;
             };
 
             struct Varyings
             {
                 float4 positionHCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
+                float3 worldNormal : TEXCOORD1;
             };
 
-            TEXTURE2D(_BaseMap);
-            SAMPLER(sampler_BaseMap);
-
-            CBUFFER_START(UnityPerMaterial)
-                half4 _BaseColor;
-                float4 _BaseMap_ST;
-            CBUFFER_END
+            float _Height;
+            float _Radius;
 
             Varyings vert(Attributes IN)
             {
+                float rate = IN.uv.y;
+
+                float4 pos = float4(IN.positionOS.xyz, 1.0);
+
+                pos.z *= _Height;
+                pos.xy *= lerp(1.0, _Radius, rate);
+
                 Varyings OUT;
-                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
-                OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
+                OUT.positionHCS = mul(UNITY_MATRIX_MVP, pos);
+                OUT.uv = IN.uv;
+                OUT.worldNormal = normalize(mul(unity_ObjectToWorld, float4(IN.normal, 0.0)));
                 return OUT;
             }
 
-            half4 frag(Varyings IN) : SV_Target
+            float4 frag(Varyings IN) : SV_Target
             {
-                half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
-                return color;
+                float4 col = float4(1.0, 1.0, 1.0, 1.0);
+
+                /*// カラーデバッグ
+                float rate = IN.uv.y;
+                col.rgb = float3(rate, rate, rate);
+                if(rate >= 0.0 && rate < 0.25) col.rgb = float3(1.0, 0.0, 0.0);
+                else if(rate >= 0.75 && rate <= 1.0) col.rgb = float3(0.0, 0.0, 1.0);*/
+
+                col.rgb = IN.worldNormal;
+
+                return col;
             }
             ENDHLSL
         }
