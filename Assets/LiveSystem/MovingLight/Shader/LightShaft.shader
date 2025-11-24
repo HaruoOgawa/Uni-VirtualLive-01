@@ -2,17 +2,25 @@ Shader "Custom/LightShaft"
 {
     Properties
     {
-        _Height("Height", Float) = 1.0
-        _Radius("Radius", Float) = 1.0
+        _Color("Color", Color) = (1.0, 1.0, 1.0, 1.0)
+        _Power("Power", Float) = 1.0
+        _Intensity("Intensity", Float) = 1.0
+        _Height("Height", Float) = 10.0
+        _SpotAngle("SpotAngle", Range(0.0, 179.0)) = 45.0
     }
 
     SubShader
     {
-        Tags { "RenderType" = "Transparent" "RenderPipeline" = "UniversalPipeline" }
+        Tags 
+        { 
+            "RenderType" = "Transparent"
+            "Queue" = "Transparent"
+        }
 
         Pass
         {
-            Tags{ "Queue" = "Transparent" }
+            Cull Off
+            Blend SrcAlpha OneMinusSrcAlpha
 
             HLSLPROGRAM
 
@@ -33,10 +41,16 @@ Shader "Custom/LightShaft"
                 float4 positionHCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
                 float3 worldNormal : TEXCOORD1;
+                float3 worldPos : TEXCOORD2;
             };
 
-            float _Height;
-            float _Radius;
+            CBUFFER_START(UnityPerMaterial)
+                float4 _Color;
+                float _Power;
+                float _Intensity;
+                float _Height;
+                float _SpotAngle;
+            CBUFFER_END
 
             Varyings vert(Attributes IN)
             {
@@ -44,27 +58,46 @@ Shader "Custom/LightShaft"
 
                 float4 pos = float4(IN.positionOS.xyz, 1.0);
 
-                pos.z *= _Height;
-                pos.xy *= lerp(1.0, _Radius, rate);
+                 // 正弦定理より半径を求める
+                float height = _Height;
+
+                float spotAngle = radians(_SpotAngle) * 0.5;
+                float radius = (height / sin(3.1415 * 0.5 - spotAngle)) * sin(spotAngle);
+
+                float4x4 scaleMat = float4x4(
+                    radius, 0.0, 0.0, 0.0,
+                    0.0, radius, 0.0, 0.0,
+                    0.0, 0.0, height, 0.0,
+                    0.0, 0.0, 0.0,    1.0
+                ); 
+
+                pos = mul(scaleMat, pos);
 
                 Varyings OUT;
                 OUT.positionHCS = mul(UNITY_MATRIX_MVP, pos);
                 OUT.uv = IN.uv;
-                OUT.worldNormal = normalize(mul(unity_ObjectToWorld, float4(IN.normal, 0.0)));
+                OUT.worldNormal = normalize(mul(unity_ObjectToWorld, float4(IN.normal, 0.0)).xyz);
+                OUT.worldPos = mul(unity_ObjectToWorld, pos).xyz;
                 return OUT;
             }
 
             float4 frag(Varyings IN) : SV_Target
             {
-                float4 col = float4(1.0, 1.0, 1.0, 1.0);
+                float rate = 1.0 - IN.uv.y;
 
+                float3 ViewDir = normalize(IN.worldPos - _WorldSpaceCameraPos);
+
+                float rim = pow(max(0.0, dot(IN.worldNormal, -ViewDir)), _Power);
+                float mask = smoothstep(0.1, 1.0, rate);
+
+                float4 col = _Color * _Intensity * rim * mask;
+                
+                // col.rgb = IN.worldNormal; col.a = 1.0;
                 /*// カラーデバッグ
-                float rate = IN.uv.y;
                 col.rgb = float3(rate, rate, rate);
                 if(rate >= 0.0 && rate < 0.25) col.rgb = float3(1.0, 0.0, 0.0);
-                else if(rate >= 0.75 && rate <= 1.0) col.rgb = float3(0.0, 0.0, 1.0);*/
-
-                col.rgb = IN.worldNormal;
+                else if(rate >= 0.75 && rate <= 1.0) col.rgb = float3(0.0, 0.0, 1.0);
+                col.a = 1.0;*/
 
                 return col;
             }
