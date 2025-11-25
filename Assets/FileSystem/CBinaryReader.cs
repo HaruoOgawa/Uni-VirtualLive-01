@@ -239,7 +239,7 @@ namespace binary
             {
                 int index = Dst.IndexOf('\0');
 
-                Dst = Dst.Substring(0, index);
+                if(index != -1) Dst = Dst.Substring(0, index);
             }
 
             // Shit-JIS‚ðUnicode‚É•ÏŠ·
