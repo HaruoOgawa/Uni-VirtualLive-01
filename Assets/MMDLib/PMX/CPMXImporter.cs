@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -351,21 +352,34 @@ namespace mmdlib
 
             foreach(var PmxTexture in model.GetPmxTextureList())
             {
-                string TexturePath = Path.Combine(srcFolder, PmxTexture.GetFilePath());
+                // テクスチャをコピーするフォルダが存在しなければ新規生成
+                string PmxTexFolder = Path.GetDirectoryName(PmxTexture.GetFilePath());
+                string TexAssetFolder = Path.Combine(TextureFolder, PmxTexFolder);
+                if (!Directory.Exists(TexAssetFolder))
+                {
+                    AssetDatabase.CreateFolder(TextureFolder, PmxTexFolder);
+                }
 
-                string fileName = Path.GetFileName(TexturePath);
-                string TexAssetName = Path.Combine(TextureFolder, fileName);
+                //
+                string TexturePath = Path.Combine(srcFolder, PmxTexture.GetFilePath());
+                string TexAssetName = Path.Combine(TextureFolder, PmxTexture.GetFilePath());
 
                 // ファイルをコピー
                 File.Copy(TexturePath, TexAssetName, true);
-
+                
                 // Unityでインポートを実行
                 AssetDatabase.ImportAsset(TexAssetName, ImportAssetOptions.Default);
 
-                // インポート後にアセットを取得
-                Texture asset = AssetDatabase.LoadAssetAtPath<Texture>(TexAssetName);
-
                 TexturePathList.Add(TexAssetName);
+
+                // アセット生成は非同期処理なので次のエディタフレームで実行
+                EditorApplication.delayCall += () =>
+                {
+                    // アセットを読み取り可能設定に変更する
+                    TextureImporter texImporter = (TextureImporter)TextureImporter.GetAtPath(TexAssetName);
+                    texImporter.isReadable = true;
+                    texImporter.SaveAndReimport();
+                };
             }
 
             return true;
