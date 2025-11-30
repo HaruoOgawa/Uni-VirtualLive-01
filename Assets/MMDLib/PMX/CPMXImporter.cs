@@ -1159,6 +1159,24 @@ namespace mmdlib
                             damper = pmxRigidbodyB.RotateDamping
                         };
 
+                        joint.xDrive = new JointDrive()
+                        {
+                            positionSpring = Mathf.Max(Mathf.Max(PmxJoint.TransSpring.x, PmxJoint.TransSpring.y), PmxJoint.TransSpring.z),
+                            positionDamper = pmxRigidbodyB.TransDamping
+                        };
+
+                        joint.yDrive = new JointDrive()
+                        {
+                            positionSpring = Mathf.Max(Mathf.Max(PmxJoint.TransSpring.x, PmxJoint.TransSpring.y), PmxJoint.TransSpring.z),
+                            positionDamper = pmxRigidbodyB.TransDamping
+                        };
+
+                        joint.zDrive = new JointDrive()
+                        {
+                            positionSpring = Mathf.Max(Mathf.Max(PmxJoint.TransSpring.x, PmxJoint.TransSpring.y), PmxJoint.TransSpring.z),
+                            positionDamper = pmxRigidbodyB.TransDamping
+                        };
+
                         // à íuêßå¿
                         {
                             joint.xMotion = ConfigurableJointMotion.Limited;
@@ -1182,19 +1200,22 @@ namespace mmdlib
                             Vector3 LowerRotateLimit = PmxJoint.LowerRotateLimit * Mathf.Rad2Deg;
                             Vector3 UpperRotateLimit = PmxJoint.UpperRotateLimit * Mathf.Rad2Deg;
 
+                            float MinLower = MathF.Min(MathF.Min(LowerRotateLimit.x, LowerRotateLimit.y), LowerRotateLimit.z);
+                            float MaxUpper = MathF.Max(MathF.Max(UpperRotateLimit.x, UpperRotateLimit.y), UpperRotateLimit.z);
+
                             joint.angularXMotion = ConfigurableJointMotion.Limited;
                             joint.angularYMotion = ConfigurableJointMotion.Limited;
                             joint.angularZMotion = ConfigurableJointMotion.Limited;
 
                             // Xêßå¿
-                            joint.lowAngularXLimit = new SoftJointLimit() { limit = LowerRotateLimit.x };
-                            joint.highAngularXLimit = new SoftJointLimit() { limit = UpperRotateLimit.x };
+                            joint.lowAngularXLimit = new SoftJointLimit() { limit = MinLower };
+                            joint.highAngularXLimit = new SoftJointLimit() { limit = MaxUpper };
 
                             // Yêßå¿
-                            joint.angularYLimit = new SoftJointLimit() { limit = Mathf.Min(Mathf.Abs(LowerRotateLimit.y), Mathf.Abs(UpperRotateLimit.y)) };
+                            joint.angularYLimit = new SoftJointLimit() { limit = Mathf.Min(Mathf.Abs(MinLower), Mathf.Abs(MaxUpper)) };
 
                             // Zêßå¿
-                            joint.angularZLimit = new SoftJointLimit() { limit = Mathf.Min(Mathf.Abs(LowerRotateLimit.z), Mathf.Abs(UpperRotateLimit.z)) };
+                            joint.angularZLimit = new SoftJointLimit() { limit = Mathf.Min(Mathf.Abs(MinLower), Mathf.Abs(MaxUpper)) };
 
                             if (LowerRotateLimit.x == UpperRotateLimit.x) joint.angularXMotion = ConfigurableJointMotion.Locked;
                             if (LowerRotateLimit.y == UpperRotateLimit.y) joint.angularXMotion = ConfigurableJointMotion.Locked;
