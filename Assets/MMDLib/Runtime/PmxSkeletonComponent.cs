@@ -11,6 +11,7 @@ namespace mmdlib
         public List<PmxBoneComponent> m_GrantBoneList = new List<PmxBoneComponent>();
         public List<PmxBoneComponent> m_IKBoneList = new List<PmxBoneComponent>();
         public List<CIKSolver> m_IKSolverList = new List<CIKSolver>();
+        public List<PmxLoneryBone> m_PmxLoneryBoneList = new List<PmxLoneryBone>();
 
         void Start()
         {
@@ -79,6 +80,9 @@ namespace mmdlib
 
             // 付与ボーンの位置を計算
             CalculateGrantBone();
+
+            // ロンリーボーンの計算
+            CalculateLoneryBone();
         }
 
         void LateUpdate()
@@ -167,6 +171,23 @@ namespace mmdlib
                         GrantBone.transform.localPosition = GrantPos;
                     }
                 }
+            }
+        }
+
+        // ロンリーボーンの計算
+        // 標準ボーン・付与ボーン・IKボーン・物理ボーンのどれでもないボーン
+        // 服だったりの一部メッシュがこれを参照していて動かないことがあるのでその対策
+        // アニメーションシステム的には動かなくて正しいが、なぜかMMDだと動いているので
+        // 一番近い標準ボーンに常に回転が追従していると予想
+        void CalculateLoneryBone()
+        {
+            foreach(var LoneryBone in m_PmxLoneryBoneList)
+            {
+                if(LoneryBone ==null) continue;
+
+                if(LoneryBone.FollowBone == null) continue;
+
+                LoneryBone.transform.localRotation = LoneryBone.FollowBone.localRotation;
             }
         }
     }
