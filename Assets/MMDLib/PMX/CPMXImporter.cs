@@ -993,6 +993,9 @@ namespace mmdlib
                 rigidbody.linearDamping = PmxRigidbody.TransDamping;
                 rigidbody.angularDamping = PmxRigidbody.RotateDamping;
 
+                // 高速に動き、回転していてかつ動的に動くオブジェクト同士の衝突を検知したいのでContinuousSpeculative
+                rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+
                 // 自身の衝突グループ(レイヤー)を設定
                 List<string> SelfGroup = GetPmxPhysicsLayerList(PmxRigidbody.group);
                 if(SelfGroup.Count == 1) PhysicsNode.layer = LayerMask.NameToLayer(SelfGroup[0]);
