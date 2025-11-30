@@ -32,7 +32,7 @@ namespace srp
             for (int i = 0; i < cameras.Count; i++)
             {
                 var camera = cameras[i];
-
+                 
                 if (!m_Renderer.Render(context, camera, mainCamera))
                 {
                     Debug.LogErrorFormat("[CCustomRenderPipeline] {0} camera failed to render.", camera.name);

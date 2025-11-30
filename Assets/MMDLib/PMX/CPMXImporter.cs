@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -148,7 +149,12 @@ namespace mmdlib
             // Skeleton
             GameObject rootBone = null;
             List<Transform> BoneTransformList = new List<Transform>();
-            if (!CreateAnimationSkeleton(model, ref rootNode, ref rootBone, ref NodeList, ref BoneTransformList, FolderMap)) return false;
+
+            // 標準ボーン・付与ボーン・IKボーン・物理ボーンのどれでもないボーンのリスト
+            List<Transform> LoneryBoneTransSet = new List<Transform>();
+
+            if (!CreateAnimationSkeleton(model, ref rootNode, ref rootBone, ref NodeList, 
+                ref BoneTransformList, ref LoneryBoneTransSet, FolderMap)) return false;
 
             // テクスチャリスト
             List<string> TexturePathList = new List<string>();
@@ -163,9 +169,47 @@ namespace mmdlib
 
             // 物理演算
             List<PmxRigidBodyComponent> PhysicsObjectList = new List<PmxRigidBodyComponent>();
-            if (!CreateRigidbody(model, ref rootNode, rootBone.GetComponent<PmxSkeletonComponent>(), ref PhysicsObjectList)) return false;
+            if (!CreateRigidbody(model, ref rootNode, rootBone.GetComponent<PmxSkeletonComponent>(), ref PhysicsObjectList, ref LoneryBoneTransSet)) return false;
 
             if (!CreateJoint(model, rootBone.GetComponent<PmxSkeletonComponent>(), PhysicsObjectList)) return false;
+
+            // 標準ボーン・付与ボーン・IKボーン・物理ボーンのどれでもないボーンは同じ階層の自分より1つ前のボーンに
+            // 常に回転を合わせるようにする(強制的に付与ボーンにする)
+            List<PmxLoneryBone> PmxLoneryBoneList = new List<PmxLoneryBone>();
+            foreach (var LoneryBone in LoneryBoneTransSet)
+            {
+                Transform parent = LoneryBone.parent;
+                if(parent == null) continue;
+
+                if (parent.childCount <= 1) continue;
+
+                // 一番近い標準ボーンを取得
+                Transform FollowBone = null;
+                for (int ChildIndex = 0; ChildIndex < parent.childCount; ChildIndex++)
+                {
+                    Transform child = parent.GetChild(ChildIndex);
+                    if (child == null) continue;
+
+                    if (FindNearestStandardBone(child, ref FollowBone)) break;
+                }
+
+                if (FollowBone == null) continue;
+
+                PmxLoneryBone pmxLoneryBone = LoneryBone.AddComponent<PmxLoneryBone>();
+                pmxLoneryBone.FollowBone = FollowBone;
+
+                PmxLoneryBoneList.Add(pmxLoneryBone);
+            }
+
+            // Skeletonにロンリーボーンリストを追加
+            if (rootBone != null)
+            {
+                PmxSkeletonComponent skeleton = rootBone.GetComponent<PmxSkeletonComponent>();
+                if (skeleton != null)
+                {
+                    skeleton.m_PmxLoneryBoneList = PmxLoneryBoneList;
+                }
+            }
 
             // プレファブを生成
             string PrefabFolder = string.Empty;
@@ -179,8 +223,30 @@ namespace mmdlib
             return true;
         }
 
+        static bool FindNearestStandardBone(Transform Node, ref Transform Result)
+        {
+            PmxBoneComponent Bone = Node.GetComponent<PmxBoneComponent>();
+
+            if(Bone != null && Bone.GetBoneName() != EHumanoidBones.None)
+            {
+                Result = Node;
+                return true;
+            }
+
+            for(int c = 0; c < Node.childCount; c++)
+            {
+                Transform ChildNode = Node.GetChild(c);
+                if(ChildNode == null) continue;
+
+                if (FindNearestStandardBone(ChildNode, ref Result)) return true;
+            }
+
+            return false;
+        }
+        
         static bool CreateAnimationSkeleton(CPmxModel model, ref GameObject rootNode, ref GameObject rootBone, 
-            ref List<GameObject> NodeList, ref List<Transform> BoneTransformList, Dictionary<string, string> FolderMap)
+            ref List<GameObject> NodeList, ref List<Transform> BoneTransformList, ref List<Transform> LoneryBoneTransSet, 
+            Dictionary<string, string> FolderMap)
         {
             var PmxBoneList = model.GetPmxBoneList();
             
@@ -233,15 +299,20 @@ namespace mmdlib
                     Bone.SetBoneName(PmxBone.GetHumanoidBone());
 
                     // ボーンの付与
+                    bool IsGrantBone = false;
                     if (PmxBone.IsRotateGrant())
                     {
                         // 回転付与
                         Bone.SetRotateGrant(PmxBone.GetGrantParentBoneIndex(), PmxBone.GetGrantRate());
+
+                        IsGrantBone = true;
                     }
                     else if (PmxBone.IsMoveGrant())
                     {
                         // 移動付与
                         Bone.SetMoveGrant(PmxBone.GetGrantParentBoneIndex(), PmxBone.GetGrantRate());
+
+                        IsGrantBone = true;
                     }
 
                     // IK
@@ -249,6 +320,12 @@ namespace mmdlib
 
                     //
                     RuntimePmxBoneList.Add(Bone);
+
+                    // 非標準ボーン・付与ボーン・IKボーンでもなければいったんロンリーボーンとする
+                    if (PmxBone.GetHumanoidBone() == EHumanoidBones.None && !IsGrantBone && !Bone.IsIKEnabled())
+                    {
+                        LoneryBoneTransSet.Add(BoneNode.transform);
+                    }
                 }
             }
 
@@ -337,6 +414,15 @@ namespace mmdlib
                     skeleton.SetBoneList(RuntimePmxBoneList);
                     skeleton.MakeIKBoneList();
                     skeleton.MakeGrantBoneList();
+
+                    // ロンリーボーンがIKによって動くボーンとして登録されていれば除外する
+                    foreach(var solver in skeleton.m_IKSolverList)
+                    {
+                        foreach(var chain in solver.m_IKChainList)
+                        {
+                            LoneryBoneTransSet.Remove(chain.transform);
+                        }
+                    }
                 }
             }
 
@@ -351,21 +437,34 @@ namespace mmdlib
 
             foreach(var PmxTexture in model.GetPmxTextureList())
             {
-                string TexturePath = Path.Combine(srcFolder, PmxTexture.GetFilePath());
+                // テクスチャをコピーするフォルダが存在しなければ新規生成
+                string PmxTexFolder = Path.GetDirectoryName(PmxTexture.GetFilePath());
+                string TexAssetFolder = Path.Combine(TextureFolder, PmxTexFolder);
+                if (!Directory.Exists(TexAssetFolder))
+                {
+                    AssetDatabase.CreateFolder(TextureFolder, PmxTexFolder);
+                }
 
-                string fileName = Path.GetFileName(TexturePath);
-                string TexAssetName = Path.Combine(TextureFolder, fileName);
+                //
+                string TexturePath = Path.Combine(srcFolder, PmxTexture.GetFilePath());
+                string TexAssetName = Path.Combine(TextureFolder, PmxTexture.GetFilePath());
 
                 // ファイルをコピー
                 File.Copy(TexturePath, TexAssetName, true);
-
+                
                 // Unityでインポートを実行
                 AssetDatabase.ImportAsset(TexAssetName, ImportAssetOptions.Default);
 
-                // インポート後にアセットを取得
-                Texture asset = AssetDatabase.LoadAssetAtPath<Texture>(TexAssetName);
-
                 TexturePathList.Add(TexAssetName);
+
+                // アセット生成は非同期処理なので次のエディタフレームで実行
+                EditorApplication.delayCall += () =>
+                {
+                    // アセットを読み取り可能設定に変更する
+                    TextureImporter texImporter = (TextureImporter)TextureImporter.GetAtPath(TexAssetName);
+                    texImporter.isReadable = true;
+                    texImporter.SaveAndReimport();
+                };
             }
 
             return true;
@@ -800,7 +899,8 @@ namespace mmdlib
             return true;
         }
 
-        static bool CreateRigidbody(CPmxModel model, ref GameObject rootNode, PmxSkeletonComponent Skeleton, ref List<PmxRigidBodyComponent> PhysicsObjectList)
+        static bool CreateRigidbody(CPmxModel model, ref GameObject rootNode, PmxSkeletonComponent Skeleton, 
+            ref List<PmxRigidBodyComponent> PhysicsObjectList, ref List<Transform> LoneryBoneTransSet)
 	    {
             // 物理演算グループ分け用のレイヤーを作成
             AddPhysicsGroupLayer();
@@ -918,6 +1018,9 @@ namespace mmdlib
                 if(Bone != null)
                 {
                     Bone.AddPhysicsObject(pmxRigidBodyComponent);
+
+                    // ロンリーボーンが物理ボーンであれば除外する
+                    LoneryBoneTransSet.Remove(Bone.transform);
                 }
             }
 
