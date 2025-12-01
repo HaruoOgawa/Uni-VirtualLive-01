@@ -204,7 +204,7 @@ Shader "CustomSRP/GBufferLight"
                }
 
                // PBR
-               col = ComputeDirectLight(pbr, light) * shadow;
+               col = ComputeDirectLight(pbr, light) /** shadow*/;
 
                return float4(col, alpha);
            }

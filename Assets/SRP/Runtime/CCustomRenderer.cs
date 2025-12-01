@@ -247,7 +247,21 @@ namespace srp
                 }
             }
 
-            // メインカメラ情報
+            Vector3 PlaneNormal = Plane.up;
+            Vector3 PlanePos = Plane.position;
+            float d = - Vector3.Dot(PlaneNormal, PlanePos);
+
+            Matrix4x4 refMatrix = CalcReflectionMatrix(new Vector4(PlaneNormal.x, PlaneNormal.y, PlaneNormal.z, d));
+
+            ReflectCamera.worldToCameraMatrix = mainCamera.worldToCameraMatrix * refMatrix;
+
+            Vector3 cNormal = ReflectCamera.worldToCameraMatrix.MultiplyVector(PlaneNormal);
+            Vector3 cPos = ReflectCamera.worldToCameraMatrix.MultiplyPoint(PlanePos);
+            Vector4 ClipPlane = new Vector4(cNormal.x, cNormal.y, cNormal.z, -Vector3.Dot(cPos, cNormal));
+
+            ReflectCamera.projectionMatrix = mainCamera.CalculateObliqueMatrix(ClipPlane);
+
+            /*// メインカメラ情報
             Vector3 forward = mainCamera.transform.forward;
             Vector3 up = mainCamera.transform.up;
             Vector3 right = mainCamera.transform.right;
@@ -287,6 +301,42 @@ namespace srp
             ReflectCamera.fieldOfView = mainCamera.fieldOfView;
             ReflectCamera.nearClipPlane = mainCamera.nearClipPlane;
             ReflectCamera.farClipPlane = mainCamera.farClipPlane;
+
+            //
+            Vector3 pNormal = (-1.0f) * Plane.up;
+            Vector3 pPos = Plane.position;
+
+            Vector3 cNormal = ReflectCamera.worldToCameraMatrix.MultiplyVector(pNormal);
+            Vector3 cPos = ReflectCamera.worldToCameraMatrix.MultiplyPoint(pPos);
+
+            Vector4 clipPlane = new Vector4(cNormal.x, cNormal.y, cNormal.z, -Vector3.Dot(cPos, cNormal));
+
+            ReflectCamera.projectionMatrix = ReflectCamera.CalculateObliqueMatrix(clipPlane);*/
+        }
+
+        private Matrix4x4 CalcReflectionMatrix(Vector4 n)
+        {
+            var refMatrix = new Matrix4x4
+            {
+                m00 = 1f - 2f * n.x * n.x,
+                m01 = -2f * n.x * n.y,
+                m02 = -2f * n.x * n.z,
+                m03 = -2f * n.x * n.w,
+                m10 = -2f * n.x * n.y,
+                m11 = 1f - 2f * n.y * n.y,
+                m12 = -2f * n.y * n.z,
+                m13 = -2f * n.y * n.w,
+                m20 = -2f * n.x * n.z,
+                m21 = -2f * n.y * n.z,
+                m22 = 1f - 2f * n.z * n.z,
+                m23 = -2f * n.z * n.w,
+                m30 = 0F,
+                m31 = 0F,
+                m32 = 0F,
+                m33 = 1F
+            };
+
+            return refMatrix;
         }
     }
 

@@ -43,7 +43,7 @@ Shader "CustomSRP/PlannerReflection"
             float4 frag(Varyings IN) : SV_Target
             {
                 float2 NdcUV = (IN.screenPos.xy / IN.screenPos.w) * 0.5 + 0.5;
-                NdcUV.y = 1.0 - NdcUV.y;
+                //NdcUV.y = 1.0 - NdcUV.y;
 
                 float4 col = tex2D(_BaseMap, NdcUV);
 
