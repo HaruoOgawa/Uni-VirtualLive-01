@@ -6,13 +6,32 @@ namespace srp
 {
     public class CFXAAFilter
     {
-        CRenderPass m_RenderPass = new CRenderPass("FXAAPass");
+        CRenderPass m_RenderPass = null;
 
         Material m_Material = null;
 
         public CFXAAFilter()
         {
+        }
+
+        public void Release()
+        {
+            if (m_RenderPass != null)
+            {
+                m_RenderPass.Release();
+                m_RenderPass = null;
+            }
+
+            m_Material = null;
+        }
+
+        public bool Create(int ScreenWidth, int ScreenHeight)
+        {
+            m_RenderPass = new CRenderPass("FXAAPass");
+
             m_Material = new Material(Shader.Find("SRP/FXAA_PostProcess"));
+
+            return true;
         }
 
         public bool Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera,

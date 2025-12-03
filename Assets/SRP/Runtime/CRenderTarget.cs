@@ -1,10 +1,11 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 namespace srp
 {
-    public class CRenderTarget
+    public class CRenderTarget : IDisposable
     {
         int m_Width = 0;
         int m_Height = 0;
@@ -13,11 +14,62 @@ namespace srp
         List<RenderTexture> m_ColorBuffers = new List<RenderTexture>();
         List<RenderTargetIdentifier> m_ColorRTIdentifiers = new List<RenderTargetIdentifier>();
 
-        RenderTexture m_DepthBuffer;
+        RenderTexture m_DepthBuffer = null;
         RenderTargetIdentifier m_DepthRTIdentifier;
 
         public CRenderTarget()
         {
+        }
+
+        // Disposeパターンについて
+        // C#においてデストラクタはdeleteで自分でオブジェクトを破棄したときに呼ばれるメソッドではあるが、
+        // GCで自動解放されたときは呼ばれない
+        // デストラクタによる解放とGCによる解放の両方を検知するのがDisposeパターン
+        // `public void Dispose()`がGCによって呼ばれる？
+        // https://learn.microsoft.com/ja-jp/dotnet/standard/garbage-collection/implementing-dispose
+        // https://qiita.com/tera1707/items/1b41ae8f38884656b9fb
+        ~CRenderTarget()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            //Debug.LogFormat("Dispose => disposing: {0}", disposing);
+
+            if (disposing)
+            {
+            }
+            else
+            {
+                Release();
+            }
+        }
+
+        public void Release()
+        {
+            if (m_ColorBuffers.Count > 0)
+            {
+                foreach(var buffer in m_ColorBuffers)
+                {
+                    buffer.Release();
+                }
+
+                m_ColorBuffers.Clear();
+            }
+
+            m_ColorBuffers.Clear();
+
+            if(m_DepthBuffer != null)
+            {
+                m_DepthBuffer.Release();
+                m_DepthBuffer = null;
+            }
         }
 
         public bool IsValid()

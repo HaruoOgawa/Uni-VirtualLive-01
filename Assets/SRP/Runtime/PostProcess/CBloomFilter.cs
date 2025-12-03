@@ -33,6 +33,38 @@ namespace srp
 
         public CBloomFilter()
         {
+        }
+
+        public void Release()
+        {
+            m_BrightnessMat = null;
+            m_ReduceMat = null;
+            m_BlurMat = null;
+            m_MixMat = null;
+
+            m_ReduceBufBlurList.Clear();
+
+            if(m_RenderPassMap.Count > 0)
+            {
+                foreach (var pass in m_RenderPassMap.Values)
+                {
+                    pass.Release();
+                }
+
+                m_RenderPassMap.Clear();
+            }
+            
+            if(m_BloomMixPass != null)
+            {
+                m_BloomMixPass.Release();
+                m_BloomMixPass = null;
+            }
+
+            m_LastPassName = string.Empty;
+        }
+
+        public bool Create(int ScreenWidth, int ScreenHeight)
+        {
             // É}ÉeÉäÉAÉãçÏê¨
             m_BrightnessMat = new Material(Shader.Find("SRP/BloomBrigtness"));
             m_ReduceMat = new Material(Shader.Find("SRP/BloomReduceBuffer"));
@@ -54,7 +86,7 @@ namespace srp
                 CRenderPass renderPass = new CRenderPass(PassName);
 
                 CRenderTarget renderTarget = new CRenderTarget();
-                renderTarget.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
+                renderTarget.Create(ScreenWidth, ScreenHeight, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
 
                 renderPass.SetRenderTarget(renderTarget);
 
@@ -81,6 +113,8 @@ namespace srp
                 string PassName = "BloomMixPass";
                 m_BloomMixPass = new CRenderPass(PassName);
             }
+
+            return true;
         }
 
         private CRenderPass CreateRenderPass(string Name, int Width, int Height)

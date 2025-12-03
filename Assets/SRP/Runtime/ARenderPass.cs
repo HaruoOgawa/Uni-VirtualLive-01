@@ -20,6 +20,19 @@ namespace srp
             this.m_PassName = PassName;
         }
 
+        public void Release()
+        {
+            m_TargetShaderTags.Clear();
+
+            if(m_RenderTarget != null)
+            {
+                m_RenderTarget.Release();
+                m_RenderTarget = null;
+            }
+
+            m_PassName = string.Empty;
+        }
+
         public string GetPassName()
         {
             return m_PassName;
