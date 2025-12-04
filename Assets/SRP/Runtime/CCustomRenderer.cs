@@ -275,6 +275,9 @@ namespace srp
                 }
             }
 
+            // 反射カメラではポリゴンの面の向きが変わり裏面表示されてしまうのでカリングの扱いを反転させる
+            if (IsPlannerReflection) GL.invertCulling = true;
+
             // フォアグラウンドレンダリング
             {
                 // フォアグラウンドパス(ForegroundPass)にGBufferLightPassのカラー・深度をコピーする
@@ -289,6 +292,9 @@ namespace srp
                 m_SceneController.DrawGizmo(context, m_CommandBuffer, camera);
                 if (!m_ForegroundPass.End(context, m_CommandBuffer, camera)) return false;
             }
+
+            // 全描画が終了したので元に戻す
+            if (IsPlannerReflection) GL.invertCulling = false;
 
             // リアルタイムGI
             {
