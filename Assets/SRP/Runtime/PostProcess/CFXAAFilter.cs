@@ -41,7 +41,7 @@ namespace srp
             m_RenderPass.SetRenderTarget(writeRT);
 
             // •`‰æŠJŽn
-            if (!m_RenderPass.Begin(context, commandBuffer, camera)) return false;
+            if (!m_RenderPass.Begin(context, commandBuffer, camera, false)) return false;
             m_Material.SetTexture("_MainTex", readRT.GetColorBuffer());
 
             Vector4 _TexelSize = new Vector4();
@@ -51,7 +51,7 @@ namespace srp
 
             sceneController.DrawFullScreen(context, commandBuffer, camera, m_Material);
 
-            if (!m_RenderPass.End(context, commandBuffer, camera)) return false;
+            if (!m_RenderPass.End(context, commandBuffer, camera, false)) return false;
 
             return true;
         }

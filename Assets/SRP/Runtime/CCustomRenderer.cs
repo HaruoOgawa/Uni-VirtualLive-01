@@ -231,9 +231,9 @@ namespace srp
 
             // シャドウマッピング
             {
-                if (!m_ShadowMapPass.Begin(context, m_CommandBuffer, camera, true, true)) return false;
+                if (!m_ShadowMapPass.Begin(context, m_CommandBuffer, camera, IsPlannerReflection, true, true)) return false;
                 if (!m_SceneController.DrawShadowMap(context, m_CommandBuffer, camera, m_ShadowDescriptor)) return false;
-                if (!m_ShadowMapPass.End(context, m_CommandBuffer, camera)) return false;
+                if (!m_ShadowMapPass.End(context, m_CommandBuffer, camera, IsPlannerReflection)) return false;
             }
 
             // デファードレンダリング
@@ -243,9 +243,9 @@ namespace srp
                     SPassDescriptor descriptor = new SPassDescriptor();
                     descriptor.TargetShaderTags = m_GBufferGenPass.GetTargetShaderTags();
 
-                    if (!m_GBufferGenPass.Begin(context, m_CommandBuffer, camera)) return false;
+                    if (!m_GBufferGenPass.Begin(context, m_CommandBuffer, camera, IsPlannerReflection)) return false;
                     m_SceneController.Draw(context, m_CommandBuffer, camera, descriptor, null);
-                    if (!m_GBufferGenPass.End(context, m_CommandBuffer, camera)) return false;
+                    if (!m_GBufferGenPass.End(context, m_CommandBuffer, camera, IsPlannerReflection)) return false;
                 }
 
                 // GBufferライティング
@@ -256,9 +256,9 @@ namespace srp
                     SPassDescriptor descriptor = new SPassDescriptor();
                     descriptor.TargetShaderTags = m_GBufferLightPass.GetTargetShaderTags();
 
-                    if (!m_GBufferLightPass.Begin(context, m_CommandBuffer, camera, true, false)) return false;
+                    if (!m_GBufferLightPass.Begin(context, m_CommandBuffer, camera, false, true, false)) return false;
                     m_SceneController.DrawDeferredLight(context, m_CommandBuffer, camera, descriptor, m_GBufferGenPass.GetRenderTarget(), m_ShadowMapPass.GetRenderTarget());
-                    if (!m_GBufferLightPass.End(context, m_CommandBuffer, camera)) return false;
+                    if (!m_GBufferLightPass.End(context, m_CommandBuffer, camera, false)) return false;
                 }
 
                 // GBufferライティング(間接照明)
@@ -269,14 +269,11 @@ namespace srp
                     SPassDescriptor descriptor = new SPassDescriptor();
                     descriptor.TargetShaderTags = m_GBufferIndirectLightPass.GetTargetShaderTags();
 
-                    if (!m_GBufferIndirectLightPass.Begin(context, m_CommandBuffer, camera, false, false)) return false;
+                    if (!m_GBufferIndirectLightPass.Begin(context, m_CommandBuffer, camera, IsPlannerReflection, false, false)) return false;
                     m_SceneController.DrawDeferredIndirectLight(context, m_CommandBuffer, camera, descriptor, m_GBufferGenPass.GetRenderTarget());
-                    if (!m_GBufferIndirectLightPass.End(context, m_CommandBuffer, camera)) return false;
+                    if (!m_GBufferIndirectLightPass.End(context, m_CommandBuffer, camera, IsPlannerReflection)) return false;
                 }
             }
-
-            // 反射カメラではポリゴンの面の向きが変わり裏面表示されてしまうのでカリングの扱いを反転させる
-            if (IsPlannerReflection) GL.invertCulling = true;
 
             // フォアグラウンドレンダリング
             {
@@ -287,14 +284,11 @@ namespace srp
                 descriptor.TargetShaderTags = m_ForegroundPass.GetTargetShaderTags();
                 descriptor.DrawSky = true;
 
-                if (!m_ForegroundPass.Begin(context, m_CommandBuffer, camera, false, false)) return false;
+                if (!m_ForegroundPass.Begin(context, m_CommandBuffer, camera, IsPlannerReflection, false, false)) return false;
                 m_SceneController.Draw(context, m_CommandBuffer, camera, descriptor, m_ShadowMapPass.GetRenderTarget());
                 m_SceneController.DrawGizmo(context, m_CommandBuffer, camera);
-                if (!m_ForegroundPass.End(context, m_CommandBuffer, camera)) return false;
+                if (!m_ForegroundPass.End(context, m_CommandBuffer, camera, IsPlannerReflection)) return false;
             }
-
-            // 全描画が終了したので元に戻す
-            if (IsPlannerReflection) GL.invertCulling = false;
 
             // リアルタイムGI
             {
@@ -311,9 +305,9 @@ namespace srp
 
             // 最終描画結果
             {
-                if (!m_MainResultPass.Begin(context, m_CommandBuffer, camera, true, true)) return false;
+                if (!m_MainResultPass.Begin(context, m_CommandBuffer, camera, IsPlannerReflection, true, true)) return false;
                 m_SceneController.DrawFullScreenRT(context, m_CommandBuffer, camera, m_FinalResultRT.GetColorBuffer());
-                if (!m_MainResultPass.End(context, m_CommandBuffer, camera)) return false;
+                if (!m_MainResultPass.End(context, m_CommandBuffer, camera, IsPlannerReflection)) return false;
             }
 
             return true;

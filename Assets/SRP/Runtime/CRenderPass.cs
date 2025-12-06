@@ -10,7 +10,8 @@ namespace srp
         {
         }
 
-        public override bool Begin(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, bool clearColor = true, bool clearDepth = true)
+        public override bool Begin(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera,
+            bool reflect, bool clearColor = true, bool clearDepth = true)
         {
             // カメラのビュープロジェクション行列を設定する
             context.SetupCameraProperties(camera);
@@ -32,10 +33,13 @@ namespace srp
             // プロファイラ開始コマンドをコンテキストに登録
             ExecuteBuffer(context, commandBuffer, camera.name);
 
+            // 反射描画の時は裏面表示されてしまうのでカリングの扱いを反転させる
+            if (reflect) GL.invertCulling = true;
+
             return true;
         }
 
-        public override bool End(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera)
+        public override bool End(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, bool reflect)
         {
             // レンダーパス終了
             if (m_RenderTarget != null)
@@ -55,6 +59,10 @@ namespace srp
 
             // コンテキストに積み上げられたコマンドを全て実行する
             context.Submit();
+
+            // 全描画が終了したので元に戻す
+            // コマンドのサブミット後に解除しないと全てなかったことになってしまうのでSubmit関数の後に実行している
+            if (reflect) GL.invertCulling = false;
 
             return true;
         }

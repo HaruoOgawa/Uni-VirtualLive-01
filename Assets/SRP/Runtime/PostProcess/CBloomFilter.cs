@@ -185,13 +185,13 @@ namespace srp
             {
                 m_BloomMixPass.SetRenderTarget(writeRT);
 
-                m_BloomMixPass.Begin(context, commandBuffer, camera, true, true);
+                m_BloomMixPass.Begin(context, commandBuffer, camera, false, true, true);
 
                 m_MixMat.SetTexture("_MainTex", readRT.GetColorBuffer());
                 if (!PrepareRenderTexture(m_LastPassName, "_BloomImage", m_MixMat)) return false;
                 sceneController.DrawFullScreen(context, commandBuffer, camera, m_MixMat);
 
-                m_BloomMixPass.End(context, commandBuffer, camera);
+                m_BloomMixPass.End(context, commandBuffer, camera, false);
             }
 
             return true;
@@ -203,7 +203,7 @@ namespace srp
 
             if (!m_RenderPassMap.TryGetValue(Name, out renderPass)) return false;
 
-            if (!renderPass.Begin(context, commandBuffer, camera, true, true)) return false;
+            if (!renderPass.Begin(context, commandBuffer, camera, false, true, true)) return false;
 
             return true;
         }
@@ -214,7 +214,7 @@ namespace srp
 
             if (!m_RenderPassMap.TryGetValue(Name, out renderPass)) return false;
 
-            if (!renderPass.End(context, commandBuffer, camera)) return false;
+            if (!renderPass.End(context, commandBuffer, camera, false)) return false;
 
             return true;
         }
