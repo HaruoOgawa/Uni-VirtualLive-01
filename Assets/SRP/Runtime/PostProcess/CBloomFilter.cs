@@ -100,7 +100,7 @@ namespace srp
                     var ReduceBufTuple = m_ReduceBufBlurList[i];
 
                     int Rate = (int)Mathf.Pow(2.0f, 1.0f + (float)i);
-                    int Size = 1024 / Rate;
+                    int Size = 2048 / Rate;
 
                     m_RenderPassMap.Add(ReduceBufTuple.Reduce.DstPass, CreateRenderPass(ReduceBufTuple.Reduce.DstPass, Size, Size));
                     m_RenderPassMap.Add(ReduceBufTuple.XBlur.DstPass, CreateRenderPass(ReduceBufTuple.XBlur.DstPass, Size, Size));
@@ -130,19 +130,16 @@ namespace srp
         }
 
         public bool Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera,
-            CRenderTarget readRT, CRenderTarget writeRT, CSceneController sceneController)
+            CRenderTarget readRT, CRenderTarget writeRT, CSceneController sceneController, SPostProcessSettings settings)
         {
-            // Ç∆ÇËÇ†Ç¶Ç∑íËêîåàÇﬂë≈Çø
-            float Threshold = 1.0f;
-            float Intencity = 1.5f;
 
             // BrigtnessPass
             {
                 if (!BeginRenderPass("BrigtnessPass", context, commandBuffer, camera)) return false;
 
                 m_BrightnessMat.SetTexture("_MainTex", readRT.GetColorBuffer());
-                m_BrightnessMat.SetFloat("_Threshold", Threshold);
-                m_BrightnessMat.SetFloat("_Intencity", Intencity);
+                m_BrightnessMat.SetFloat("_Threshold", settings.Threshold);
+                m_BrightnessMat.SetFloat("_Intencity", settings.Intensity);
                 sceneController.DrawFullScreen(context, commandBuffer, camera, m_BrightnessMat);
 
                 if (!EndRenderPass("BrigtnessPass", context, commandBuffer, camera)) return false;

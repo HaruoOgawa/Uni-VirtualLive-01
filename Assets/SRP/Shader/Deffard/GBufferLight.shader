@@ -56,6 +56,7 @@ Shader "CustomSRP/GBufferLight"
                float Metallic;
                float3 WorldNormal;
                float3 WorldPos;
+               float3 EmissiveColor;
            };
 
            sampler2D SRP_GBuffer_0;
@@ -103,7 +104,7 @@ Shader "CustomSRP/GBufferLight"
                float4 GBuffer_1 = tex2D(SRP_GBuffer_1, screenUV); // WorldNormal.rgb Metallic.a
                float4 GBuffer_2 = tex2D(SRP_GBuffer_2, screenUV); // WorldPos.rgb    MaterialType.r
                float4 GBuffer_3 = tex2D(SRP_GBuffer_3, screenUV); // IndirectCol.rgb None
-               float4 GBuffer_4 = tex2D(SRP_GBuffer_4, screenUV); // None.rgba
+               float4 GBuffer_4 = tex2D(SRP_GBuffer_4, screenUV); // EmissiveColor.rgba
 
                data.MaterialType = GBuffer_2.a;
                data.Albedo = GBuffer_0.rgb;
@@ -111,6 +112,7 @@ Shader "CustomSRP/GBufferLight"
                data.Metallic = GBuffer_1.a;
                data.WorldNormal = GBuffer_1.rgb;
                data.WorldPos = GBuffer_2.rgb;
+               data.EmissiveColor = GBuffer_4.rgb;
 
                return data;
            }
@@ -205,6 +207,9 @@ Shader "CustomSRP/GBufferLight"
 
                // PBR
                col = ComputeDirectLight(pbr, light) /** shadow*/;
+
+               // エミッション
+               col += gData.EmissiveColor;
 
                return float4(col, alpha);
            }

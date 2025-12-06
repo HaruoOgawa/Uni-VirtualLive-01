@@ -203,7 +203,7 @@ namespace srp
             }
         }
 
-        public bool Render(ScriptableRenderContext context, Camera camera, Camera mainCamera)
+        public bool Render(ScriptableRenderContext context, Camera camera, Camera mainCamera, SRenderSettings settings)
         {
             // メインカメラの画面サイズが変わっていればリサイズを実行し、資材を再生する
             if (mainCamera.pixelWidth != m_CurrentScreenWidth || mainCamera.pixelHeight != m_CurrentScreenHeight)
@@ -307,7 +307,7 @@ namespace srp
             }
 
             // ポストプロセス
-            if (!m_PostProcess.Draw(context, m_CommandBuffer, camera, m_FinalResultRT, m_SceneController)) return false;
+            if (!m_PostProcess.Draw(context, m_CommandBuffer, camera, m_FinalResultRT, m_SceneController, settings.PostProcessSettings)) return false;
 
             // 最終描画結果
             {

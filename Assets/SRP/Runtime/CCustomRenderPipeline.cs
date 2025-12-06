@@ -9,8 +9,11 @@ namespace srp
     {
         CCustomRenderer m_Renderer = new CCustomRenderer();
 
-        public CCustomRenderPipeline(bool PerObjLight)
+        SRenderSettings m_Settings;
+
+        public CCustomRenderPipeline(SRenderSettings settings)
         {
+            m_Settings = settings;
         }
 
         protected override void Render(ScriptableRenderContext context, List<Camera> cameras)
@@ -33,7 +36,7 @@ namespace srp
             {
                 var camera = cameras[i];
                  
-                if (!m_Renderer.Render(context, camera, mainCamera))
+                if (!m_Renderer.Render(context, camera, mainCamera, m_Settings))
                 {
                     Debug.LogErrorFormat("[CCustomRenderPipeline] {0} camera failed to render.", camera.name);
                     continue;

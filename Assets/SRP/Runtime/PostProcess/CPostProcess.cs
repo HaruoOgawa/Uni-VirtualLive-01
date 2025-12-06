@@ -62,7 +62,8 @@ namespace srp
             }
         }
 
-        public bool Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, CRenderTarget finalResultRT, CSceneController sceneController)
+        public bool Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, CRenderTarget finalResultRT, 
+            CSceneController sceneController, SPostProcessSettings settings)
         {
             // ここまでの描画結果をコピー
             m_ReadRT.CopyFrameBuffer(context, commandBuffer, finalResultRT);
@@ -72,7 +73,7 @@ namespace srp
             SwapRT(); // レンダーターゲットをスワップ
 
             // Bloom 
-            if (!m_BloomFilter.Draw(context, commandBuffer, camera, m_ReadRT, m_WriteRT, sceneController)) return false;
+            if (!m_BloomFilter.Draw(context, commandBuffer, camera, m_ReadRT, m_WriteRT, sceneController, settings)) return false;
             SwapRT(); // レンダーターゲットをスワップ
 
             // 最終描画結果を更新

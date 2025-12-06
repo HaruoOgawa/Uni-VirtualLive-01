@@ -9,6 +9,8 @@ Shader "CustomSRP/GBufferGen"
 
         _PlannerReflectMap ("PlannerReflectMap", 2D) = "white" {}
         [Toggle] _UsePlannerReflect("UsePlannerReflect", Int) = 0
+
+        [HDR] _EmissiveColor("EmissiveColor", Color) = (0.0, 0.0, 0.0, 1.0)
     }
     SubShader
     {
@@ -51,10 +53,9 @@ Shader "CustomSRP/GBufferGen"
             float4 _Color;
             float _Smoothness;
             float _Metallic;
-
             sampler2D _PlannerReflectMap;
-
             int _UsePlannerReflect;
+            float4 _EmissiveColor;
 
             v2f vert (appdata v)
             {
@@ -75,7 +76,7 @@ Shader "CustomSRP/GBufferGen"
                 float4 col1 : SV_Target1; // WorldNormal.rgb Metallic.a
                 float4 col2 : SV_Target2; // WorldPos.rgb    MaterialType.r
                 float4 col3 : SV_Target3; // IndirectCol.rgb None
-                float4 col4 : SV_Target4; // None.rgba
+                float4 col4 : SV_Target4; // EmissiveColor.rgba
             };
 
             FragOut frag (v2f i) : SV_Target
@@ -108,7 +109,7 @@ Shader "CustomSRP/GBufferGen"
                 o.col1 = float4(i.worldNormal.xyz, _Metallic);
                 o.col2 = float4(i.worldPos, MatType);
                 o.col3 = float4(IndirectCol.r, IndirectCol.g, IndirectCol.b, 0.0);
-                o.col4 = float4(0.0, 0.0, 0.0, 0.0);
+                o.col4 = _EmissiveColor;
 
                 return o;
             }
