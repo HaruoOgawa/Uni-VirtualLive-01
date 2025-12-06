@@ -339,6 +339,17 @@ namespace srp
         {
             if (mainCamera == null) return;
 
+            // メインカメラと解像度が違えばリサイズして再生成
+            if(mainCamera.pixelWidth != ReflectCamera.targetTexture.width || mainCamera.pixelHeight != ReflectCamera.targetTexture.height)
+            {
+                ReflectCamera.targetTexture.Release();
+
+                ReflectCamera.targetTexture.width = mainCamera.pixelWidth;
+                ReflectCamera.targetTexture.height = mainCamera.pixelHeight;
+
+                ReflectCamera.targetTexture.Create();
+            }
+
             // 平面反射用Plane
             Transform Plane = ReflectCamera.transform.parent;
             if (Plane == null) return;

@@ -206,7 +206,7 @@ Shader "CustomSRP/GBufferLight"
                }
 
                // PBR
-               col = ComputeDirectLight(pbr, light) /** shadow*/;
+               col = ComputeDirectLight(pbr, light) * shadow;
 
                // エミッション
                col += gData.EmissiveColor;
