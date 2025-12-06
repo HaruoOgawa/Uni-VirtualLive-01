@@ -29,13 +29,13 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Height: 2
-    - _Intensity: 2
+    - _Height: 3.81
+    - _Intensity: 1.31
     - _LightPower: 1
-    - _Power: 1
+    - _Power: 1.84
     - _Radius: 1
     - _Range: 1
-    - _SpotAngle: 45
+    - _SpotAngle: 30.7
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
