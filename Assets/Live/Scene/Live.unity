@@ -835,9 +835,25 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1090919492406476310, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1257229786787247569, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5984250431655281222, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_Name
       value: MovingLight (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 7722119264601254986, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

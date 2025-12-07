@@ -19,8 +19,9 @@ Shader "Custom/LightShaft"
 
         Pass
         {
-            Cull Back
+            Cull Front
             Blend SrcAlpha OneMinusSrcAlpha
+            ZWrite Off
 
             HLSLPROGRAM
 
@@ -92,26 +93,27 @@ Shader "Custom/LightShaft"
             {
                 float rate = 1.0 - IN.uv.y;
 
-                float3 ViewDir = normalize(IN.worldPos - _WorldSpaceCameraPos);
+                // 裏面描画で法線の向きが外を向いているのでViewDirは頂点座標からベクトルを出す
+                float3 ViewDir = normalize(_WorldSpaceCameraPos - IN.worldPos);
+                // float3 ViewDir = normalize(IN.worldPos - _WorldSpaceCameraPos);
                 ViewDir = normalize(mul(unity_WorldToObject, float4(ViewDir, 0.0)).xyz);
 
                 float3 normal = IN.localNormal;
 
-                float rim = pow(max(0.0, dot(normal.xy, -ViewDir.xy)), _Power);
+                float rim = pow(max(0.0, dot(normal, -ViewDir)), _Power);
+                // float rim = pow(max(0.0, dot(normal.xy, -ViewDir.xy)), _Power);
                 float mask = smoothstep(0.1, 1.0, rate);
 
                 float4 col = _Color * _Intensity * rim * mask;
 
-                //
-                float xzlength = length(mul(unity_WorldToObject, float4(_WorldSpaceCameraPos.xyz, 1.0)).xz);
-                // col *= clamp(1.0 / xzlength, 1.0, 3.0);
-                
-                // col.rgb = normal; col.a = 1.0;
-                // カラーデバッグ
-               /* col.rgb = float3(rate, rate, rate);
-               if(rate >= 0.0 && rate < 0.25) col.rgb = float3(1.0, 0.0, 0.0);
-               else if(rate >= 0.75 && rate <= 1.0) col.rgb = float3(0.0, 0.0, 1.0);
-               col.a = 1.0;*/
+                /*float xylength = clamp(
+                    length(mul(unity_WorldToObject, float4(_WorldSpaceCameraPos.xyz, 1.0)).xy),
+                    0.001,
+                    1.0
+                );
+                col *= clamp(0.06 / xylength, 1.0, 2.0);*/
+
+                col = clamp(col, 0.0, 3.0);
 
                return col;
             }

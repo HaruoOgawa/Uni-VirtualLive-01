@@ -30,7 +30,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _Height: 3.81
-    - _Intensity: 1.31
+    - _Intensity: 1.33
     - _LightPower: 1
     - _Power: 0.75
     - _Radius: 1
