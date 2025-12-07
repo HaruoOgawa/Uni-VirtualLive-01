@@ -2,8 +2,6 @@ Shader "CustomSRP/GBufferLight"
 {
     Properties
     {
-        [Toggle] _UseLightProjection("UseLightProjection", Int) = 0
-        _LightProjectTexture ("LightProjectTexture", 2D) = "white" {}
     }
     SubShader
     {
@@ -47,7 +45,6 @@ Shader "CustomSRP/GBufferLight"
                float4 vertex : SV_POSITION;
                float4 projPos : TEXCOORD0;
                float4 lightWorldPos : TEXCOORD1;
-               float4 LightProjPos : TEXCOORD2;
            };
 
            struct GBufferData
@@ -61,9 +58,6 @@ Shader "CustomSRP/GBufferLight"
                float3 EmissiveColor;
            };
 
-           int _UseLightProjection;
-           sampler2D _LightProjectTexture;
-
            sampler2D SRP_GBuffer_0;
            sampler2D SRP_GBuffer_1;
            sampler2D SRP_GBuffer_2;
@@ -76,7 +70,9 @@ Shader "CustomSRP/GBufferLight"
            float4 SRP_Deferred_SpotAngle;
            int    SRP_Deferred_DirectionalLightIndex;
 
-           float4x4 SRP_Deferred_LightViewMatrix;
+           float4x4 SRP_Deferred_SpotLightViewProjMatrix;
+           int SRP_Deferred_UseGobo;
+           sampler2D SRP_Deferred_Gobo_Texture;
 
            #define MAX_MAIN_LIGHT_COUNT 4
            #define MAX_SUB_LIGHT_COUNT 64
@@ -100,7 +96,6 @@ Shader "CustomSRP/GBufferLight"
                #endif
 
                o.projPos = o.vertex;
-               o.LightProjPos = mul(mul(unity_MatrixP, SRP_Deferred_LightViewMatrix), mul(unity_ObjectToWorld, v.vertex));
 
                return o;
            }
@@ -190,6 +185,17 @@ Shader "CustomSRP/GBufferLight"
                return pbr;
            }
 
+           float CalcGoboAttenuation(float3 worldPos)
+           {
+               float4 LightProjPos = mul(SRP_Deferred_SpotLightViewProjMatrix, float4(worldPos, 1.0));
+               float3 LightNDCPos = LightProjPos.xyz / LightProjPos.w;
+               float2 LightScreenUV = LightNDCPos.xy * 0.5 + 0.5;
+
+               float Gobo = tex2D(SRP_Deferred_Gobo_Texture, LightScreenUV).a;
+
+               return Gobo;
+           }
+
            float4 frag (v2f i) : SV_Target
            {
                float3 NDCPos = i.projPos.xyz / i.projPos.w;
@@ -220,18 +226,14 @@ Shader "CustomSRP/GBufferLight"
                // エミッション
                col += gData.EmissiveColor;
 
-               if(_UseLightProjection == 1)
+               // GoBoテクスチャ
+               if(SRP_Deferred_UseGobo == 1)
                {
-                   float3 LightNDCPos = i.LightProjPos.xyz / i.LightProjPos.w;
-
-                   float2 LightScreenUV = LightNDCPos * 0.5 + 0.5;
-                   float4 ProjectColor = tex2D(_LightProjectTexture, LightScreenUV);
-                   // float4 ProjectColor = tex2D(_LightProjectTexture, screenUV);
-
-                   col *= ProjectColor.rgb;
-                   alpha *= ProjectColor.a;
+                   float GoboAtten = CalcGoboAttenuation(gData.WorldPos);
+                   col *= GoboAtten;
+                   alpha *= GoboAtten;
                }
-
+               
                return float4(col, alpha);
            }
            ENDHLSL

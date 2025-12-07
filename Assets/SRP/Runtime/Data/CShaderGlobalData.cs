@@ -64,6 +64,7 @@ namespace srp
             return true;
         }
     }
+
     public static class CShaderConstants
     {
         // Deferred Rendering
@@ -72,7 +73,9 @@ namespace srp
         public static int SRP_Deferred_LightDir = Shader.PropertyToID("SRP_Deferred_LightDir");
         public static int SRP_Deferred_SpotAngle = Shader.PropertyToID("SRP_Deferred_SpotAngle");
         public static int SRP_Deferred_DirectionalLightIndex = Shader.PropertyToID("SRP_Deferred_DirectionalLightIndex");
-        public static int SRP_Deferred_LightViewMatrix = Shader.PropertyToID("SRP_Deferred_LightViewMatrix");
+        public static int SRP_Deferred_SpotLightViewProjMatrix = Shader.PropertyToID("SRP_Deferred_SpotLightViewProjMatrix");
+        public static int SRP_Deferred_UseGobo = Shader.PropertyToID("SRP_Deferred_UseGobo");
+        public static int SRP_Deferred_Gobo_Texture = Shader.PropertyToID("SRP_Deferred_Gobo_Texture");
 
         // Foreground Rendering
         public static int SRP_Foreground_MainLightCount = Shader.PropertyToID("SRP_Foreground_MainLightCount");
