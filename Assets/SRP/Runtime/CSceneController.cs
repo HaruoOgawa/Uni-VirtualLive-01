@@ -438,8 +438,17 @@ namespace srp
             // スポットライトは回転情報も大切
             Matrix4x4 worldMat = light.localToWorldMatrix * scaleMat;
 
+            // 専用マテリアルを持っていれば使用
+            Material material = m_DeferredLightMat;
+
+            MovingLightController controller = light.light.transform.GetComponent<MovingLightController>();
+            if (controller != null && controller.LightMaterial != null)
+            {
+                material = controller.LightMaterial;
+            }
+
             // 描画実行
-            commandBuffer.DrawMesh(m_ConeMesh, worldMat, m_DeferredLightMat);
+            commandBuffer.DrawMesh(m_ConeMesh, worldMat, material);
 
             // 描画終了
             commandBuffer.SetKeyword(CShaderGlobalKeywordList._LIGHT_SPOT, false);
@@ -682,6 +691,9 @@ namespace srp
             commandBuffer.SetGlobalVector(CShaderConstants.SRP_Deferred_LightDir, spotLightDir);
             commandBuffer.SetGlobalVector(CShaderConstants.SRP_Deferred_SpotAngle, spotAngle);
             commandBuffer.SetGlobalInt(CShaderConstants.SRP_Deferred_DirectionalLightIndex, DirectionalLightIndex);
+
+            Matrix4x4 LightViewMatrix = visibleLight.localToWorldMatrix.inverse;
+            commandBuffer.SetGlobalMatrix(CShaderConstants.SRP_Deferred_LightViewMatrix, LightViewMatrix);
         }
 
         void CalcLightParam(VisibleLight light, out Vector4 lightPos, out Vector4 soptLightDir)

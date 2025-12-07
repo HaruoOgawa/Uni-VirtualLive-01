@@ -72,6 +72,7 @@ namespace srp
         public static int SRP_Deferred_LightDir = Shader.PropertyToID("SRP_Deferred_LightDir");
         public static int SRP_Deferred_SpotAngle = Shader.PropertyToID("SRP_Deferred_SpotAngle");
         public static int SRP_Deferred_DirectionalLightIndex = Shader.PropertyToID("SRP_Deferred_DirectionalLightIndex");
+        public static int SRP_Deferred_LightViewMatrix = Shader.PropertyToID("SRP_Deferred_LightViewMatrix");
 
         // Foreground Rendering
         public static int SRP_Foreground_MainLightCount = Shader.PropertyToID("SRP_Foreground_MainLightCount");

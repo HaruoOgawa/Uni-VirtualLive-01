@@ -3,11 +3,14 @@ using UnityEngine.Experimental.GlobalIllumination;
 
 public class MovingLightController : MonoBehaviour
 {
+    public Material LightMaterial = null;
+
     [SerializeField] Transform m_Pan = null;
     [SerializeField] Transform m_Tilt = null;
     [SerializeField] Transform m_Emitter = null;
     [SerializeField] Transform m_LightShaft = null;
     [SerializeField] Light m_Light = null;
+
     void Start()
     {
     }

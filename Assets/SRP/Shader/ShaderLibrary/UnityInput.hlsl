@@ -9,6 +9,10 @@ float4x4 unity_MatrixVP;
 float4x4 unity_MatrixV;
 float4x4 unity_MatrixInvV;
 
+float4x4 glstate_matrix_projection;
+#define unity_MatrixP glstate_matrix_projection
+
+
 float3 _WorldSpaceCameraPos;
 
 // unity_LightData‚Æunity_LightIndices‚ÍRendererListDesc.rendererConfiguration‚ÉPerObjectData‚ğİ’è‚µ‚½‚¤‚¦‚Å

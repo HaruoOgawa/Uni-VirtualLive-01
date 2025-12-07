@@ -2,7 +2,8 @@ Shader "CustomSRP/GBufferLight"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
+        [Toggle] _UseLightProjection("UseLightProjection", Int) = 0
+        _LightProjectTexture ("LightProjectTexture", 2D) = "white" {}
     }
     SubShader
     {
@@ -46,6 +47,7 @@ Shader "CustomSRP/GBufferLight"
                float4 vertex : SV_POSITION;
                float4 projPos : TEXCOORD0;
                float4 lightWorldPos : TEXCOORD1;
+               float4 LightProjPos : TEXCOORD2;
            };
 
            struct GBufferData
@@ -59,6 +61,9 @@ Shader "CustomSRP/GBufferLight"
                float3 EmissiveColor;
            };
 
+           int _UseLightProjection;
+           sampler2D _LightProjectTexture;
+
            sampler2D SRP_GBuffer_0;
            sampler2D SRP_GBuffer_1;
            sampler2D SRP_GBuffer_2;
@@ -70,6 +75,8 @@ Shader "CustomSRP/GBufferLight"
            float4 SRP_Deferred_LightDir;
            float4 SRP_Deferred_SpotAngle;
            int    SRP_Deferred_DirectionalLightIndex;
+
+           float4x4 SRP_Deferred_LightViewMatrix;
 
            #define MAX_MAIN_LIGHT_COUNT 4
            #define MAX_SUB_LIGHT_COUNT 64
@@ -93,6 +100,8 @@ Shader "CustomSRP/GBufferLight"
                #endif
 
                o.projPos = o.vertex;
+               o.LightProjPos = mul(mul(unity_MatrixP, SRP_Deferred_LightViewMatrix), mul(unity_ObjectToWorld, v.vertex));
+
                return o;
            }
 
@@ -210,6 +219,18 @@ Shader "CustomSRP/GBufferLight"
 
                // エミッション
                col += gData.EmissiveColor;
+
+               if(_UseLightProjection == 1)
+               {
+                   float3 LightNDCPos = i.LightProjPos.xyz / i.LightProjPos.w;
+
+                   float2 LightScreenUV = LightNDCPos * 0.5 + 0.5;
+                   float4 ProjectColor = tex2D(_LightProjectTexture, LightScreenUV);
+                   // float4 ProjectColor = tex2D(_LightProjectTexture, screenUV);
+
+                   col *= ProjectColor.rgb;
+                   alpha *= ProjectColor.a;
+               }
 
                return float4(col, alpha);
            }
