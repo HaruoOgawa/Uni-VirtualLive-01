@@ -2627,6 +2627,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Audience
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: ff907c84a5550c7419361f0fa9d0611a, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -8703,6 +8707,53 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 1606511211}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1636211225
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1636211227}
+  - component: {fileID: 1636211226}
+  m_Layer: 0
+  m_Name: GPUAudience
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1636211226
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1636211225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91c3f6a1be053744b801bf152bd17b86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::livesystem.GPUAudienceDrawer
+  InstanceCount: 10
+  target: {fileID: 919132149155446097, guid: ff907c84a5550c7419361f0fa9d0611a, type: 3}
+  material: {fileID: 2100000, guid: 5190f9f3a067658408cdae46726b9ff8, type: 2}
+--- !u!4 &1636211227
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1636211225}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1642553365
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11192,3 +11243,4 @@ SceneRoots:
   - {fileID: 1656732293}
   - {fileID: 1835324324205477542}
   - {fileID: 437637747}
+  - {fileID: 1636211227}
