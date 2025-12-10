@@ -2,8 +2,6 @@ Shader "Custom/GPUAudience"
 {
     Properties
     {
-        [MainColor] _BaseColor("Base Color", Color) = (1, 1, 1, 1)
-        [MainTexture] _BaseMap("Base Map", 2D) = "white"
     }
 
     SubShader
@@ -23,6 +21,7 @@ Shader "Custom/GPUAudience"
             {
                 float4 positionOS : POSITION;
                 float2 uv : TEXCOORD0;
+                uint vertexID : SV_VertexID;
             };
 
             struct Varyings
@@ -31,25 +30,31 @@ Shader "Custom/GPUAudience"
                 float2 uv : TEXCOORD0;
             };
 
-            TEXTURE2D(_BaseMap);
-            SAMPLER(sampler_BaseMap);
+            struct BoneWeightIndex
+            {
+                int4 Index;
+                float4 Weight;
+            };
 
-            CBUFFER_START(UnityPerMaterial)
-                half4 _BaseColor;
-                float4 _BaseMap_ST;
-            CBUFFER_END
+            float4x4 ParentWorldMatrix;
+            StructuredBuffer<float4x4> WorldMatrixList;
+            
+            StructuredBuffer<float4x4> BindPoseList;
+            StructuredBuffer<BoneWeightIndex> BoneWeightIndexList;
 
             Varyings vert(Attributes IN)
             {
+                float4 worldPos = mul(ParentWorldMatrix, float4(IN.positionOS.xyz, 1.0));
+
                 Varyings OUT;
-                OUT.positionHCS = TransformObjectToHClip(IN.positionOS.xyz);
-                OUT.uv = TRANSFORM_TEX(IN.uv, _BaseMap);
+                OUT.positionHCS = mul(mul(UNITY_MATRIX_P, UNITY_MATRIX_V), worldPos);
+                OUT.uv = IN.uv;
                 return OUT;
             }
 
-            half4 frag(Varyings IN) : SV_Target
+            float4 frag(Varyings IN) : SV_Target
             {
-                half4 color = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, IN.uv) * _BaseColor;
+                float4 color = float4(1.0, 1.0, 1.0, 1.0);
                 return color;
             }
             ENDHLSL
