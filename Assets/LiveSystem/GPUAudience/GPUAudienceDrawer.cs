@@ -73,11 +73,11 @@ namespace livesystem
 
             for(int i = 0; i < InstanceCount; i++)
             {
-                int ColumnIndex = InstanceCount / RowCount;
-                int RowIndex = InstanceCount % RowCount;
+                int RowIndex = i % RowCount;
+                int ColumnIndex = (i - RowIndex) / RowCount;
 
                 Vector3 pos = new Vector3(
-                      Width * (float)(RowIndex), 0.0f, Height * (float)(RowIndex)  
+                      Width * (float)(RowIndex), 0.0f, Height * (float)(ColumnIndex)  
                 );
 
                 Quaternion quat = Quaternion.identity;

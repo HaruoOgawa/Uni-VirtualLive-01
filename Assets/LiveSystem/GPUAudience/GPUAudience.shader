@@ -22,6 +22,7 @@ Shader "Custom/GPUAudience"
                 float4 positionOS : POSITION;
                 float2 uv : TEXCOORD0;
                 uint vertexID : SV_VertexID;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct Varyings
@@ -42,9 +43,11 @@ Shader "Custom/GPUAudience"
             StructuredBuffer<float4x4> BindPoseList;
             StructuredBuffer<BoneWeightIndex> BoneWeightIndexList;
 
-            Varyings vert(Attributes IN)
+            Varyings vert(Attributes IN, uint id : SV_InstanceID)
             {
-                float4 worldPos = mul(ParentWorldMatrix, float4(IN.positionOS.xyz, 1.0));
+                float4x4 WorldMatrix = mul(ParentWorldMatrix, WorldMatrixList[id]);
+
+                float4 worldPos = mul(WorldMatrix, float4(IN.positionOS.xyz, 1.0));
 
                 Varyings OUT;
                 OUT.positionHCS = mul(mul(UNITY_MATRIX_P, UNITY_MATRIX_V), worldPos);
