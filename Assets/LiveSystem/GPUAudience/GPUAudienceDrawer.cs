@@ -16,7 +16,7 @@ namespace livesystem
         [SerializeField] float Height = 1.0f;
 
         SkinnedMeshRenderer[] MeshRenderers;
-        List<ComputeBuffer> BindPoseBufferList = new List<ComputeBuffer>();
+        List<ComputeBuffer> InvBindPoseBufferList = new List<ComputeBuffer>();
         List<ComputeBuffer> BoneWeightIndexBufferList = new List<ComputeBuffer>();
         ComputeBuffer WorldMatrixBuffer = null;
 
@@ -27,12 +27,12 @@ namespace livesystem
         void OnDestroy()
         {
             // コンピュートバッファを明示的にリリースする
-            foreach(ComputeBuffer buffer in BindPoseBufferList)
+            foreach(ComputeBuffer buffer in InvBindPoseBufferList)
             {
                 buffer.Release();
             }
 
-            BindPoseBufferList.Clear();
+            InvBindPoseBufferList.Clear();
 
             foreach(ComputeBuffer buffer in BoneWeightIndexBufferList)
             {
@@ -59,10 +59,18 @@ namespace livesystem
 
                 var bones = renderer.bones;
 
-                // バインドポーズ行列のバッファを作成
-                ComputeBuffer bindPoseBuffer = new ComputeBuffer(mesh.bindposeCount, sizeof(float) * 16);
-                bindPoseBuffer.SetData(mesh.bindposes);
-                BindPoseBufferList.Add(bindPoseBuffer);
+                // 逆バインドポーズ行列のバッファを作成
+                ComputeBuffer InvBindPoseBuffer = new ComputeBuffer(mesh.bindposeCount, sizeof(float) * 16);
+
+                // バインドポーズを逆行列にする
+                var invBindposes = mesh.bindposes;
+                for (int b = 0; b < invBindposes.Length; b++)
+                {
+                    invBindposes[b] = invBindposes[b].inverse;
+                }
+                
+                InvBindPoseBuffer.SetData(invBindposes);
+                InvBindPoseBufferList.Add(InvBindPoseBuffer);
 
                 // ボーンウェイトインデックスのバッファを作成
                 ComputeBuffer boneWeightIndexBuffer = new ComputeBuffer(mesh.boneWeights.Length, (sizeof(float) * 4 + sizeof(int) * 4));
@@ -105,8 +113,8 @@ namespace livesystem
                 Mesh mesh = renderer.sharedMesh;
                 if(mesh == null) continue;
 
-                if(renderIndex < 0 || renderIndex >= BindPoseBufferList.Count) continue;
-                ComputeBuffer bindPoseBuffer = BindPoseBufferList[renderIndex];
+                if(renderIndex < 0 || renderIndex >= InvBindPoseBufferList.Count) continue;
+                ComputeBuffer InvBindPoseBuffer = InvBindPoseBufferList[renderIndex];
 
                 if (renderIndex < 0 || renderIndex >= BoneWeightIndexBufferList.Count) continue;
                 ComputeBuffer boneWeightIndexBuffer = BoneWeightIndexBufferList[renderIndex];
@@ -117,7 +125,7 @@ namespace livesystem
                     MaterialPropertyBlock propertyBlock = new MaterialPropertyBlock();
                     propertyBlock.SetMatrix("ParentWorldMatrix", this.gameObject.transform.localToWorldMatrix);
                     propertyBlock.SetBuffer("WorldMatrixList", WorldMatrixBuffer);
-                    propertyBlock.SetBuffer("BindPoseList", bindPoseBuffer);
+                    propertyBlock.SetBuffer("InvBindPoseList", InvBindPoseBuffer);
                     propertyBlock.SetBuffer("BoneWeightIndexList", boneWeightIndexBuffer);
 
                     // 描画パラメーター作成

@@ -2,6 +2,7 @@ Shader "Custom/GPUAudience"
 {
     Properties
     {
+        _VAT("VAT", 2D) = "white"{}
     }
 
     SubShader
@@ -40,12 +41,74 @@ Shader "Custom/GPUAudience"
             float4x4 ParentWorldMatrix;
             StructuredBuffer<float4x4> WorldMatrixList;
             
-            StructuredBuffer<float4x4> BindPoseList;
+            StructuredBuffer<float4x4> InvBindPoseList;
             StructuredBuffer<BoneWeightIndex> BoneWeightIndexList;
+
+            sampler2D _VAT;
+            float2 _VAT_TexelSize;
+
+            float4 fetchElement(float JointIndex, int Offset, float v)
+            {
+                // テクスチャに焼いたデータを使う時はテクセルの中心からサンプリングすることを心がける(texelSizeX * 0.5 を足す)
+                // これを足さない時の値はテクセルの左下、つまりテクセルとテクセルの境界線を差している
+                // もしこのままだと補完時にとなりのテクセルの影響を受けて、意図しない値が返ってくることがある
+                // この結果、ボーンの動きがブレたり、不安定になるといったことが起こる。
+                // VATにはGL_RGBA32F, GL_FLOATのテクスチャに対して、GL_NEAREST・CLAMP_TO_EDGEのサンプラーを適応している
+                // GL_NEARESTはサンプリングに最も近い値に補完して返す機能だが、テクセル境界のままだとこれで混ざってしまう
+                // 用語整理 /////
+                // - ピクセル: 画面上の最小単位(ディスプレイのドット)
+                // - テクセル: テクスチャ画像内の最小単位(テクスチャのピクセル)
+                ////////////////
+                float texelSizeX = _VAT_TexelSize.x;
+
+                float2 st = float2((float(JointIndex * 4 + Offset) + 0.5) * texelSizeX, v);
+
+                float4 val = tex2Dlod(_VAT, float4(st, 0.0, 0.0));
+
+                return val;
+            }
+
+            float4x4 GetSkinMatFromVAT(uint JointIndex, int FrameIndex)
+            {
+                float f_JointIndex = float(JointIndex);
+    
+                // テクスチャに焼いたデータを使う時はテクセルの中心からサンプリングすることを心がける(texelSizeX * 0.5 を足す)
+                // これを足さない時の値はテクセルの左下、つまりテクセルとテクセルの境界線を差している
+                // もしこのままだと補完時にとなりのテクセルの影響を受けて、意図しない値が返ってくることがある
+                // この結果、ボーンの動きがブレたり、不安定になるといったことが起こる。
+                // VATにはGL_RGBA32F, GL_FLOATのテクスチャに対して、GL_NEAREST・CLAMP_TO_EDGEのサンプラーを適応している
+                // GL_NEARESTはサンプリングに最も近い値に補完して返す機能だが、テクセル境界のままだとこれで混ざってしまう
+                // 用語整理 /////
+                // - ピクセル: 画面上の最小単位(ディスプレイのドット)
+                // - テクセル: テクスチャ画像内の最小単位(テクスチャのピクセル)
+                ////////////////
+                float texelSizeY = _VAT_TexelSize.y;
+
+                float v = (float(FrameIndex) + 0.5) * texelSizeY;
+
+                float4x4 SkinMatrix = float4x4(
+                    fetchElement(f_JointIndex, 0, v),
+                    fetchElement(f_JointIndex, 1, v),
+                    fetchElement(f_JointIndex, 2, v),
+                    fetchElement(f_JointIndex, 3, v)
+                );
+    
+                return SkinMatrix;
+            }
 
             Varyings vert(Attributes IN, uint id : SV_InstanceID)
             {
-                float4x4 WorldMatrix = mul(ParentWorldMatrix, WorldMatrixList[id]);
+                BoneWeightIndex weightIndex = BoneWeightIndexList[IN.vertexID];
+
+                int CurrentFrame = 0.25;
+
+                float4x4 SkinMatrix =
+                    weightIndex.Weight.x * GetSkinMatFromVAT(weightIndex.Index.x, CurrentFrame) * InvBindPoseList[weightIndex.Index.x] +
+                    weightIndex.Weight.y * GetSkinMatFromVAT(weightIndex.Index.y, CurrentFrame) * InvBindPoseList[weightIndex.Index.y] +
+                    weightIndex.Weight.z * GetSkinMatFromVAT(weightIndex.Index.z, CurrentFrame) * InvBindPoseList[weightIndex.Index.z] +
+                    weightIndex.Weight.w * GetSkinMatFromVAT(weightIndex.Index.w, CurrentFrame) * InvBindPoseList[weightIndex.Index.w];
+
+                float4x4 WorldMatrix = mul(ParentWorldMatrix, mul(WorldMatrixList[id], SkinMatrix));
 
                 float4 worldPos = mul(WorldMatrix, float4(IN.positionOS.xyz, 1.0));
 
