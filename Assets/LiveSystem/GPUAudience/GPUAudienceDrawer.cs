@@ -57,6 +57,8 @@ namespace livesystem
                 Mesh mesh = renderer.sharedMesh;
                 if (mesh == null) continue;
 
+                var bones = renderer.bones;
+
                 // バインドポーズ行列のバッファを作成
                 ComputeBuffer bindPoseBuffer = new ComputeBuffer(mesh.bindposeCount, sizeof(float) * 16);
                 bindPoseBuffer.SetData(mesh.bindposes);
