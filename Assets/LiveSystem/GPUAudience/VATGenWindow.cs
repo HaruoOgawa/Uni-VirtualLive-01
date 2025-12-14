@@ -122,23 +122,15 @@ namespace livesystem
                 // アセット生成
                 if(VAT != null)
                 {
-                    // アセットを保存
                     string ClipAssetPath = AssetDatabase.GetAssetPath(clipObj);
 
-                    // PNGはRGBA32しか取り扱えなくてfloatの残りが失われてしまうのでEXRフォーマットとして保存する
                     string AssetName = Path.Combine(
                         Path.GetDirectoryName(ClipAssetPath),
-                        Path.GetFileNameWithoutExtension(ClipAssetPath) + "_" + RendererIndex.ToString() + ".exr");
-                        //Path.GetFileNameWithoutExtension(ClipAssetPath) + "_" + RendererIndex.ToString() + ".png");
-                    
-                    byte[] EXRBytes = VAT.EncodeToEXR();
-                    //byte[] pngBytes = VAT.EncodeToPNG();
+                        Path.GetFileNameWithoutExtension(ClipAssetPath) + "_" + RendererIndex.ToString() + ".asset");
 
-                    File.WriteAllBytes(AssetName, EXRBytes);
-                    //File.WriteAllBytes(AssetName, pngBytes);
-
-                    // アセットインポート
-                    AssetDatabase.ImportAsset(AssetName, ImportAssetOptions.Default);
+                    AssetDatabase.CreateAsset(VAT, AssetName);
+                    AssetDatabase.SaveAssets();
+                    AssetDatabase.Refresh();
 
                     // テクスチャアセット設定を変更
                     TextureImporter textureImporter = AssetImporter.GetAtPath(AssetName) as TextureImporter;
@@ -147,7 +139,7 @@ namespace livesystem
                         textureImporter.wrapMode = TextureWrapMode.Clamp;
                         textureImporter.filterMode = FilterMode.Point; // No Filter
                         textureImporter.npotScale = TextureImporterNPOTScale.None; // Non-Power of Two(強制的に2の累乗に変換するやつ)
-                        //textureImporter.sRGBTexture = false; // これはいらないかも
+                        textureImporter.sRGBTexture = false;
 
                         // 再インポート
                         textureImporter.SaveAndReimport();
