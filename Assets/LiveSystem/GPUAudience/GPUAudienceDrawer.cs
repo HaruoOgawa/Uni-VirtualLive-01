@@ -78,6 +78,9 @@ namespace livesystem
             }
 
             // 座標を準備
+            Vector3 MinPos = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            Vector3 MaxPos = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+
             Matrix4x4[] WorldMatrixArray = new Matrix4x4[InstanceCount];
 
             for(int i = 0; i < InstanceCount; i++)
@@ -86,7 +89,7 @@ namespace livesystem
                 int ColumnIndex = (i - RowIndex) / RowCount;
 
                 Vector3 pos = new Vector3(
-                      Width * (float)(RowIndex), 0.0f, Height * (float)(ColumnIndex)  
+                      Width * (float)(RowIndex), 0.0f, (-1.0f) * Height * (float)(ColumnIndex)  
                 );
 
                 Quaternion quat = Quaternion.identity;
@@ -94,12 +97,33 @@ namespace livesystem
                 Matrix4x4 WorldMatrix = Matrix4x4.Translate(pos) * Matrix4x4.Rotate(quat);
 
                 WorldMatrixArray[i] = WorldMatrix;
+
+                // バウンディングボックス用のMinMaxを更新
+                if(pos.x < MinPos.x) MinPos.x = pos.x;
+                if(pos.y < MinPos.y) MinPos.y = pos.y;
+                if(pos.z < MinPos.z) MinPos.z = pos.z;
+
+                if(pos.x > MaxPos.x) MaxPos.x = pos.x;
+                if(pos.y > MaxPos.y) MaxPos.y = pos.y;
+                if(pos.z > MaxPos.z) MaxPos.z = pos.z;
             }
 
-            // とりあえず適当にバウンディングボックスは特大サイズにしておく
-            // あとでちゃんと計算する
-            InstanceBounds.center = new Vector3(0.0f, 0.0f, 0.0f);
-            InstanceBounds.size = new Vector3(100.0f, 100.0f, 100.0f);
+
+            // バウンディングボックスの再計算
+            Vector3 center = (MinPos + MaxPos) * 0.5f;
+            Vector3 size = new Vector3(
+                Mathf.Abs(MaxPos.x - MinPos.x),
+                Mathf.Abs(MaxPos.y - MinPos.y),
+                Mathf.Abs(MaxPos.z - MinPos.z)
+            );
+
+            // 観衆モデルの身長を考慮
+            float height = 1.5f;
+            size.y = height;
+            center.y = height * 0.5f;
+
+            InstanceBounds.center = center;
+            InstanceBounds.size = size;
 
             WorldMatrixBuffer = new ComputeBuffer(InstanceCount, sizeof(float) * 16);
             WorldMatrixBuffer.SetData(WorldMatrixArray);

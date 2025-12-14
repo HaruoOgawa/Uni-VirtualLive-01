@@ -119,6 +119,60 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &5135638
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5135640}
+  - component: {fileID: 5135639}
+  m_Layer: 0
+  m_Name: GPUAudience (2)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &5135639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5135638}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91c3f6a1be053744b801bf152bd17b86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::livesystem.GPUAudienceDrawer
+  InstanceCount: 200
+  target: {fileID: 4818408402333807915, guid: 0c7f7cc77228fc04c92b42359d08ae2a, type: 3}
+  material: {fileID: 2100000, guid: 5190f9f3a067658408cdae46726b9ff8, type: 2}
+  VATList:
+  - {fileID: 2800000, guid: cecd6c4992ed0c341b470d45526e050b, type: 2}
+  - {fileID: 2800000, guid: a186a7d993fb98a4c8f34f1f879f429e, type: 2}
+  RowCount: 4
+  Width: 1
+  Height: 0.5
+  Clip: {fileID: 7400000, guid: bea2a178f0812e446a1ac7e77205b82f, type: 2}
+--- !u!4 &5135640
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5135638}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -1.22, y: 0, z: -16.09}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1758476134}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &90937501
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7550,6 +7604,60 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1040563088527990596, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
   m_PrefabInstance: {fileID: 1472765930}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1491213907
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1491213909}
+  - component: {fileID: 1491213908}
+  m_Layer: 0
+  m_Name: GPUAudience (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1491213908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1491213907}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91c3f6a1be053744b801bf152bd17b86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::livesystem.GPUAudienceDrawer
+  InstanceCount: 1024
+  target: {fileID: 4818408402333807915, guid: 0c7f7cc77228fc04c92b42359d08ae2a, type: 3}
+  material: {fileID: 2100000, guid: 5190f9f3a067658408cdae46726b9ff8, type: 2}
+  VATList:
+  - {fileID: 2800000, guid: cecd6c4992ed0c341b470d45526e050b, type: 2}
+  - {fileID: 2800000, guid: a186a7d993fb98a4c8f34f1f879f429e, type: 2}
+  RowCount: 16
+  Width: 1
+  Height: 0.5
+  Clip: {fileID: 7400000, guid: bea2a178f0812e446a1ac7e77205b82f, type: 2}
+--- !u!4 &1491213909
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1491213907}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.64, y: 0, z: -10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1758476134}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1504200754
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8439,9 +8547,9 @@ MonoBehaviour:
   VATList:
   - {fileID: 2800000, guid: cecd6c4992ed0c341b470d45526e050b, type: 2}
   - {fileID: 2800000, guid: a186a7d993fb98a4c8f34f1f879f429e, type: 2}
-  RowCount: 8
+  RowCount: 16
   Width: 1
-  Height: 1
+  Height: 0.5
   Clip: {fileID: 7400000, guid: bea2a178f0812e446a1ac7e77205b82f, type: 2}
 --- !u!4 &1636211227
 Transform:
@@ -8451,12 +8559,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1636211225}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -17, y: 0, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1758476134}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1642553365
 PrefabInstance:
@@ -8963,6 +9071,40 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 1747545249}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1758476133
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1758476134}
+  m_Layer: 0
+  m_Name: Audience
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1758476134
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1758476133}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1636211227}
+  - {fileID: 1491213909}
+  - {fileID: 5135640}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1785642291
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10944,4 +11086,4 @@ SceneRoots:
   - {fileID: 882361613}
   - {fileID: 1656732293}
   - {fileID: 1835324324205477542}
-  - {fileID: 1636211227}
+  - {fileID: 1758476134}

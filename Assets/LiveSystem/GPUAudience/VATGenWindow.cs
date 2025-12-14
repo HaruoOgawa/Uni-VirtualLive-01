@@ -17,7 +17,6 @@ namespace livesystem
         [MenuItem("Assets/Create/Animation/Generate VAT")]
         public static void ShowWindow()
         {
-
             EditorWindow.GetWindow(typeof(VATGenWindow));
         }
 
