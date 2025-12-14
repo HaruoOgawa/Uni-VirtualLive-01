@@ -10,10 +10,12 @@ namespace livesystem
         [SerializeField] int InstanceCount = 1;
         [SerializeField] GameObject target = null;
         [SerializeField] Material material = null;
+        [SerializeField] List<Texture> VATList = new List<Texture>();
 
         [SerializeField] int RowCount = 1;
         [SerializeField] float Width = 1.0f;
         [SerializeField] float Height = 1.0f;
+        [SerializeField] AnimationClip Clip = null;
 
         SkinnedMeshRenderer[] MeshRenderers;
         List<ComputeBuffer> InvBindPoseBufferList = new List<ComputeBuffer>();
@@ -103,21 +105,30 @@ namespace livesystem
 
         void Update()
         {
-            if(material == null) return;
+            if(material == null || Clip == null) return;
 
-            for(int renderIndex = 0; renderIndex < MeshRenderers.Length; renderIndex++)
+            float FrameRate = Clip.frameRate;
+            float StartTime = 0.0f;
+            float EndTime = Clip.length;
+            float DeltaTime = 1.0f / FrameRate;
+            int NumOfFrame = (int)((EndTime - StartTime) / DeltaTime) + 1;
+
+            for (int rendererIndex = 0; rendererIndex < MeshRenderers.Length; rendererIndex++)
             {
-                var renderer = MeshRenderers[renderIndex];
+                var renderer = MeshRenderers[rendererIndex];
                 if (renderer == null) continue;
 
                 Mesh mesh = renderer.sharedMesh;
                 if(mesh == null) continue;
 
-                if(renderIndex < 0 || renderIndex >= InvBindPoseBufferList.Count) continue;
-                ComputeBuffer InvBindPoseBuffer = InvBindPoseBufferList[renderIndex];
+                if(rendererIndex < 0 || rendererIndex >= InvBindPoseBufferList.Count) continue;
+                ComputeBuffer InvBindPoseBuffer = InvBindPoseBufferList[rendererIndex];
 
-                if (renderIndex < 0 || renderIndex >= BoneWeightIndexBufferList.Count) continue;
-                ComputeBuffer boneWeightIndexBuffer = BoneWeightIndexBufferList[renderIndex];
+                if (rendererIndex < 0 || rendererIndex >= BoneWeightIndexBufferList.Count) continue;
+                ComputeBuffer boneWeightIndexBuffer = BoneWeightIndexBufferList[rendererIndex];
+
+                if (rendererIndex < 0 || rendererIndex >= VATList.Count) continue;
+                Texture VAT = VATList[rendererIndex];
 
                 for (int subMeshIndex = 0; subMeshIndex < mesh.subMeshCount; subMeshIndex++)
                 {
@@ -127,6 +138,11 @@ namespace livesystem
                     propertyBlock.SetBuffer("WorldMatrixList", WorldMatrixBuffer);
                     propertyBlock.SetBuffer("InvBindPoseList", InvBindPoseBuffer);
                     propertyBlock.SetBuffer("BoneWeightIndexList", boneWeightIndexBuffer);
+                    propertyBlock.SetTexture("_VAT", VAT);
+                    propertyBlock.SetInt("_RowCount", RowCount);
+                    propertyBlock.SetFloat("_StartTime", StartTime);
+                    propertyBlock.SetFloat("_EndTime", EndTime);
+                    propertyBlock.SetInt("_NumOfFrame", NumOfFrame);
 
                     // 描画パラメーター作成
                     RenderParams renderParams = new RenderParams(material);

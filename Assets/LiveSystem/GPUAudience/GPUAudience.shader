@@ -2,7 +2,6 @@ Shader "Custom/GPUAudience"
 {
     Properties
     {
-        _VAT("VAT", 2D) = "white"{}
     }
 
     SubShader
@@ -34,8 +33,8 @@ Shader "Custom/GPUAudience"
 
             struct BoneWeightIndex
             {
-                int4 Index;
                 float4 Weight;
+                int4 Index;
             };
 
             float4x4 ParentWorldMatrix;
@@ -46,6 +45,11 @@ Shader "Custom/GPUAudience"
 
             sampler2D _VAT;
             float2 _VAT_TexelSize;
+
+            int _RowCount;
+            float _StartTime;
+            float _EndTime;
+            int _NumOfFrame;
 
             float4 fetchElement(float JointIndex, int Offset, float v)
             {
@@ -96,11 +100,22 @@ Shader "Custom/GPUAudience"
                 return SkinMatrix;
             }
 
+            float rand(float2 st)
+            {
+	            return frac(sin(dot(st, float2(12.9898, 78.233))) * 43758.5453123) * 2.0 - 1.0;
+            }
+
             Varyings vert(Attributes IN, uint id : SV_InstanceID)
             {
                 BoneWeightIndex weightIndex = BoneWeightIndexList[IN.vertexID];
 
-                int CurrentFrame = 0.25;
+                float yid = floor(float(id) / float(_RowCount));
+                float xid = float(id) - yid * float(_RowCount);
+                xid = xid - float(_RowCount) * 0.5;
+
+                // ÉtÉåÅ[ÉÄÇåvéZ
+                float LocalTime = fmod(_Time.y + rand(float2(xid, yid) * 0.5), _EndTime);
+                int CurrentFrame = int(floor((LocalTime / _EndTime) * float(_NumOfFrame)));
 
                 float4x4 SkinMatrix =
                     weightIndex.Weight.x * GetSkinMatFromVAT(weightIndex.Index.x, CurrentFrame) * InvBindPoseList[weightIndex.Index.x] +

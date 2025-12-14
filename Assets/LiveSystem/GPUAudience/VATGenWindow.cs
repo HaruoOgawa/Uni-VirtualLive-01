@@ -65,8 +65,10 @@ namespace livesystem
             AnimationMode.StartAnimationMode();
             AnimationMode.BeginSampling();
 
-            foreach (var renderer in MeshRenderers)
+            for(int RendererIndex = 0; RendererIndex < MeshRenderers.Length; RendererIndex++)
             {
+                var renderer = MeshRenderers[RendererIndex];
+
                 NativeList<Matrix4x4> BoneWorldMatrixList = new NativeList<Matrix4x4>(Allocator.Temp);
 
                 float ParseTime = 0.0f;
@@ -79,9 +81,6 @@ namespace livesystem
                     // 経過時間を更新
                     ParseTime += DeltaTime;
                 }
-
-                AnimationMode.EndSampling();
-                AnimationMode.StopAnimationMode();
 
                 // 行列データをピクセルのbyteデータに変換
                 NativeArray<byte> PixelData = new NativeArray<byte>(BoneWorldMatrixList.Length * sizeof(float) * 16, Allocator.Temp);
@@ -109,7 +108,10 @@ namespace livesystem
                 {
                     // アセットを保存
                     string ClipAssetPath = AssetDatabase.GetAssetPath(clipObj);
-                    string AssetName = Path.ChangeExtension(ClipAssetPath, "png");
+                    
+                    string AssetName = Path.Combine(
+                        Path.GetDirectoryName(ClipAssetPath),
+                        Path.GetFileNameWithoutExtension(ClipAssetPath) + "_" + RendererIndex.ToString() + ".png");
 
                     byte[] pngBytes = VAT.EncodeToPNG();
 
@@ -123,6 +125,9 @@ namespace livesystem
                 BoneWorldMatrixList.Dispose();
                 PixelData.Dispose();
             }
+
+            AnimationMode.EndSampling();
+            AnimationMode.StopAnimationMode();
 
             // シーンに新規生成されてしまうので削除
             DestroyImmediate(rootObject);
