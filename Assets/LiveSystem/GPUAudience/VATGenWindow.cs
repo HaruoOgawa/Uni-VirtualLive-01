@@ -76,41 +76,19 @@ namespace livesystem
 
                 float ParseTime = 0.0f;
 
-                bool IsFirstFrameLoop = false;
-                int NumOfBone = 0;
-
-                //bool Show = true;
-
                 while (ParseTime >= StartTime && ParseTime <= EndTime)
                 {
                     AnimationMode.SampleAnimationClip(rootObject, clip, ParseTime);
-
-                    //int NumOfNode = 0;
-
-                    //RegistBoneWorldMatrixWithChild(rootBone.transform.parent.localToWorldMatrix, rootBone, ref BoneWorldMatrixList, Show, ref NumOfNode);
-
-                    //if (Show) Show = false;
-
-                    Matrix4x4 RootParentWorldMatrix = rootBone.transform.parent.localToWorldMatrix;
-
+                    
                     foreach (var bone in bones)
                     {
-                        // 動かす可能性があるのでルートボーンの親ワールド行列は省く
-                        Matrix4x4 WorldMatrix = RootParentWorldMatrix.inverse * bone.localToWorldMatrix;
+                        Matrix4x4 WorldMatrix = bone.localToWorldMatrix;
 
                         BoneWorldMatrixList.Add(WorldMatrix);
                     }
 
                     // 経過時間を更新
                     ParseTime += DeltaTime;
-
-                    // 最初のフレームにおけるボーンワールド行列の数をVATで処理するボーンの数とする
-                    if(!IsFirstFrameLoop)
-                    {
-                        NumOfBone = BoneWorldMatrixList.Length;
-
-                        IsFirstFrameLoop = true;
-                    }
                 }
 
                 // 行列データをピクセルのbyteデータに変換
@@ -124,9 +102,6 @@ namespace livesystem
                 {
                     // vec4が1つで1ピクセルとするのでmat4型(つまり1つのSkinMatrix)は4ピクセルで構成される
                     // それがボーン数だけ存在するのでそれらを考慮したものがテクスチャの幅となる
-                    // 一方でUnityだとrendererに登録しているボーン数が処理したいボーン数と一致していないので
-                    // 
-                    //int TextureWidth = NumOfBone * (16 / 4);
                     int TextureWidth = bones.Length * (16 / 4);
 
                     // 縦にボーンのフレームごとのデータが並ぶのでフレーム数がそのままテクスチャの高さになる
@@ -176,29 +151,6 @@ namespace livesystem
             DestroyImmediate(rootObject);
 
             return true;
-        }
-
-        void RegistBoneWorldMatrixWithChild(Matrix4x4 RootParentWorldMatrix, Transform node, ref NativeList<Matrix4x4> BoneWorldMatrixList, 
-            bool Show, ref int NumOfNode)
-        {
-            if(Show)
-            {
-                Debug.LogFormat("NodeIndex: {0}, node.name: {1}", NumOfNode, node.name);
-            }
-
-            // 動かす可能性があるのでルートボーンの親ワールド行列は省く
-            Matrix4x4 WorldMatrix = RootParentWorldMatrix.inverse * node.localToWorldMatrix;
-
-            NumOfNode++;
-
-            BoneWorldMatrixList.Add(WorldMatrix);
-
-            for (int c = 0; c < node.childCount; c++)
-            {
-                Transform childNode = node.GetChild(c);
-
-                RegistBoneWorldMatrixWithChild(RootParentWorldMatrix, childNode, ref BoneWorldMatrixList, Show, ref NumOfNode);
-            }
         }
     }
 }

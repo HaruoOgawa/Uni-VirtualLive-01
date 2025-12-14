@@ -2,6 +2,7 @@ Shader "Custom/GPUAudience"
 {
     Properties
     {
+        [HDR] _EmitColor("EmitColor", Color) = (0.0, 0.0, 0.0, 0.0)
     }
 
     SubShader
@@ -22,6 +23,7 @@ Shader "Custom/GPUAudience"
                 float4 positionOS : POSITION;
                 float2 uv : TEXCOORD0;
                 uint vertexID : SV_VertexID;
+                float3 normal : NORMAL;
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
@@ -29,6 +31,7 @@ Shader "Custom/GPUAudience"
             {
                 float4 positionHCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
+                float3 worldNormal : TEXCOORD1;
             };
 
             struct BoneWeightIndex
@@ -50,6 +53,8 @@ Shader "Custom/GPUAudience"
             float _StartTime;
             float _EndTime;
             int _NumOfFrame;
+
+            float4 _EmitColor;
 
             float4 fetchElement(float JointIndex, int Offset, float v)
             {
@@ -131,13 +136,16 @@ Shader "Custom/GPUAudience"
                 Varyings OUT;
                 OUT.positionHCS = mul(mul(UNITY_MATRIX_P, UNITY_MATRIX_V), worldPos);
                 OUT.uv = IN.uv;
+                OUT.worldNormal = normalize((mul(WorldMatrix, float4(IN.normal, 0.0))).xyz);
                 return OUT;
             }
 
             float4 frag(Varyings IN) : SV_Target
             {
-                float4 color = float4(1.0, 1.0, 1.0, 1.0);
-                return color;
+                float4 col = float4(0.0, 0.0, 0.0, 1.0);
+                col.rgb += _EmitColor.rgb;
+
+                return col;
             }
             ENDHLSL
         }

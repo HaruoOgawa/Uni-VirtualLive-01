@@ -134,6 +134,8 @@ namespace livesystem
 
                 for (int subMeshIndex = 0; subMeshIndex < mesh.subMeshCount; subMeshIndex++)
                 {
+                    Material subMeshMaterial = renderer.sharedMaterials[subMeshIndex];
+
                     // ShaderUniformを設定
                     MaterialPropertyBlock propertyBlock = new MaterialPropertyBlock();
                     propertyBlock.SetMatrix("ParentWorldMatrix", this.gameObject.transform.localToWorldMatrix);
@@ -147,7 +149,7 @@ namespace livesystem
                     propertyBlock.SetInt("_NumOfFrame", NumOfFrame);
 
                     // 描画パラメーター作成
-                    RenderParams renderParams = new RenderParams(material);
+                    RenderParams renderParams = new RenderParams(subMeshMaterial);
                     renderParams.matProps = propertyBlock;
                     renderParams.worldBounds = InstanceBounds;
 
