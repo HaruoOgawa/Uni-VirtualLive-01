@@ -119,10 +119,10 @@ Shader "Custom/GPUAudience"
                 int CurrentFrame = int(floor((LocalTime / _EndTime) * float(_NumOfFrame)));
 
                 float4x4 SkinMatrix =
-                    weightIndex.Weight.x * GetSkinMatFromVAT(weightIndex.Index.x, CurrentFrame) * InvBindPoseList[weightIndex.Index.x] +
-                    weightIndex.Weight.y * GetSkinMatFromVAT(weightIndex.Index.y, CurrentFrame) * InvBindPoseList[weightIndex.Index.y] +
-                    weightIndex.Weight.z * GetSkinMatFromVAT(weightIndex.Index.z, CurrentFrame) * InvBindPoseList[weightIndex.Index.z] +
-                    weightIndex.Weight.w * GetSkinMatFromVAT(weightIndex.Index.w, CurrentFrame) * InvBindPoseList[weightIndex.Index.w];
+                    weightIndex.Weight.x * mul(GetSkinMatFromVAT(weightIndex.Index.x, CurrentFrame), InvBindPoseList[weightIndex.Index.x]) +
+                    weightIndex.Weight.y * mul(GetSkinMatFromVAT(weightIndex.Index.y, CurrentFrame), InvBindPoseList[weightIndex.Index.y]) +
+                    weightIndex.Weight.z * mul(GetSkinMatFromVAT(weightIndex.Index.z, CurrentFrame), InvBindPoseList[weightIndex.Index.z]) +
+                    weightIndex.Weight.w * mul(GetSkinMatFromVAT(weightIndex.Index.w, CurrentFrame), InvBindPoseList[weightIndex.Index.w]);
 
                 float4x4 WorldMatrix = mul(ParentWorldMatrix, mul(WorldMatrixList[id], SkinMatrix));
 

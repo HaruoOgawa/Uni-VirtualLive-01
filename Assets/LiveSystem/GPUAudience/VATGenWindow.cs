@@ -70,6 +70,7 @@ namespace livesystem
                 var renderer = MeshRenderers[RendererIndex];
 
                 var rootBone = renderer.rootBone;
+                var bones = renderer.bones;
 
                 NativeList<Matrix4x4> BoneWorldMatrixList = new NativeList<Matrix4x4>(Allocator.Temp);
 
@@ -78,11 +79,27 @@ namespace livesystem
                 bool IsFirstFrameLoop = false;
                 int NumOfBone = 0;
 
+                //bool Show = true;
+
                 while (ParseTime >= StartTime && ParseTime <= EndTime)
                 {
                     AnimationMode.SampleAnimationClip(rootObject, clip, ParseTime);
 
-                    RegistBoneWorldMatrixWithChild(rootBone.transform.parent.localToWorldMatrix, rootBone, ref BoneWorldMatrixList);
+                    //int NumOfNode = 0;
+
+                    //RegistBoneWorldMatrixWithChild(rootBone.transform.parent.localToWorldMatrix, rootBone, ref BoneWorldMatrixList, Show, ref NumOfNode);
+
+                    //if (Show) Show = false;
+
+                    Matrix4x4 RootParentWorldMatrix = rootBone.transform.parent.localToWorldMatrix;
+
+                    foreach (var bone in bones)
+                    {
+                        // 動かす可能性があるのでルートボーンの親ワールド行列は省く
+                        Matrix4x4 WorldMatrix = RootParentWorldMatrix.inverse * bone.localToWorldMatrix;
+
+                        BoneWorldMatrixList.Add(WorldMatrix);
+                    }
 
                     // 経過時間を更新
                     ParseTime += DeltaTime;
@@ -109,7 +126,8 @@ namespace livesystem
                     // それがボーン数だけ存在するのでそれらを考慮したものがテクスチャの幅となる
                     // 一方でUnityだとrendererに登録しているボーン数が処理したいボーン数と一致していないので
                     // 
-                    int TextureWidth = NumOfBone * (16 / 4);
+                    //int TextureWidth = NumOfBone * (16 / 4);
+                    int TextureWidth = bones.Length * (16 / 4);
 
                     // 縦にボーンのフレームごとのデータが並ぶのでフレーム数がそのままテクスチャの高さになる
                     int TextureHeight = NumOfFrame;
@@ -160,10 +178,18 @@ namespace livesystem
             return true;
         }
 
-        void RegistBoneWorldMatrixWithChild(Matrix4x4 RootParentWorldMatrix, Transform node, ref NativeList<Matrix4x4> BoneWorldMatrixList)
+        void RegistBoneWorldMatrixWithChild(Matrix4x4 RootParentWorldMatrix, Transform node, ref NativeList<Matrix4x4> BoneWorldMatrixList, 
+            bool Show, ref int NumOfNode)
         {
+            if(Show)
+            {
+                Debug.LogFormat("NodeIndex: {0}, node.name: {1}", NumOfNode, node.name);
+            }
+
             // 動かす可能性があるのでルートボーンの親ワールド行列は省く
             Matrix4x4 WorldMatrix = RootParentWorldMatrix.inverse * node.localToWorldMatrix;
+
+            NumOfNode++;
 
             BoneWorldMatrixList.Add(WorldMatrix);
 
@@ -171,7 +197,7 @@ namespace livesystem
             {
                 Transform childNode = node.GetChild(c);
 
-                RegistBoneWorldMatrixWithChild(RootParentWorldMatrix, childNode, ref BoneWorldMatrixList);
+                RegistBoneWorldMatrixWithChild(RootParentWorldMatrix, childNode, ref BoneWorldMatrixList, Show, ref NumOfNode);
             }
         }
     }

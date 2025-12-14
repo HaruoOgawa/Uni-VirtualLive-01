@@ -65,11 +65,8 @@ namespace livesystem
                 ComputeBuffer InvBindPoseBuffer = new ComputeBuffer(mesh.bindposeCount, sizeof(float) * 16);
 
                 // バインドポーズを逆行列にする
+                // mesh.bindposesは既に逆行列なので転置は不要
                 var invBindposes = mesh.bindposes;
-                for (int b = 0; b < invBindposes.Length; b++)
-                {
-                    invBindposes[b] = invBindposes[b].inverse;
-                }
                 
                 InvBindPoseBuffer.SetData(invBindposes);
                 InvBindPoseBufferList.Add(InvBindPoseBuffer);
