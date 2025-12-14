@@ -124,14 +124,18 @@ namespace livesystem
                 {
                     // アセットを保存
                     string ClipAssetPath = AssetDatabase.GetAssetPath(clipObj);
-                    
+
+                    // PNGはRGBA32しか取り扱えなくてfloatの残りが失われてしまうのでEXRフォーマットとして保存する
                     string AssetName = Path.Combine(
                         Path.GetDirectoryName(ClipAssetPath),
-                        Path.GetFileNameWithoutExtension(ClipAssetPath) + "_" + RendererIndex.ToString() + ".png");
+                        Path.GetFileNameWithoutExtension(ClipAssetPath) + "_" + RendererIndex.ToString() + ".exr");
+                        //Path.GetFileNameWithoutExtension(ClipAssetPath) + "_" + RendererIndex.ToString() + ".png");
+                    
+                    byte[] EXRBytes = VAT.EncodeToEXR();
+                    //byte[] pngBytes = VAT.EncodeToPNG();
 
-                    byte[] pngBytes = VAT.EncodeToPNG();
-
-                    File.WriteAllBytes(AssetName, pngBytes);
+                    File.WriteAllBytes(AssetName, EXRBytes);
+                    //File.WriteAllBytes(AssetName, pngBytes);
 
                     // アセットインポート
                     AssetDatabase.ImportAsset(AssetName, ImportAssetOptions.Default);

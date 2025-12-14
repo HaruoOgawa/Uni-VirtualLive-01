@@ -90,12 +90,13 @@ Shader "Custom/GPUAudience"
 
                 float v = (float(FrameIndex) + 0.5) * texelSizeY;
 
-                float4x4 SkinMatrix = float4x4(
+                // C#‚Í—ñ—DæEShaderLab‚Ís—Dæ‚È‚Ì‚Å“]’u‚·‚é
+                float4x4 SkinMatrix = transpose(float4x4(
                     fetchElement(f_JointIndex, 0, v),
                     fetchElement(f_JointIndex, 1, v),
                     fetchElement(f_JointIndex, 2, v),
                     fetchElement(f_JointIndex, 3, v)
-                );
+                ));
     
                 return SkinMatrix;
             }

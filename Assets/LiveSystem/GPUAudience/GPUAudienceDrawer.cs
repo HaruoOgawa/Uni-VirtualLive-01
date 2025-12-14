@@ -22,6 +22,7 @@ namespace livesystem
         List<ComputeBuffer> BoneWeightIndexBufferList = new List<ComputeBuffer>();
         ComputeBuffer WorldMatrixBuffer = null;
 
+        Bounds InstanceBounds = new Bounds();
         public GPUAudienceDrawer()
         {
         }
@@ -46,7 +47,6 @@ namespace livesystem
             WorldMatrixBuffer.Release();
             WorldMatrixBuffer = null;
         }
-
         void Start()
         {
             if (target == null) return;
@@ -99,6 +99,11 @@ namespace livesystem
                 WorldMatrixArray[i] = WorldMatrix;
             }
 
+            // とりあえず適当にバウンディングボックスは特大サイズにしておく
+            // あとでちゃんと計算する
+            InstanceBounds.center = new Vector3(0.0f, 0.0f, 0.0f);
+            InstanceBounds.size = new Vector3(100.0f, 100.0f, 100.0f);
+
             WorldMatrixBuffer = new ComputeBuffer(InstanceCount, sizeof(float) * 16);
             WorldMatrixBuffer.SetData(WorldMatrixArray);
         }
@@ -147,6 +152,7 @@ namespace livesystem
                     // 描画パラメーター作成
                     RenderParams renderParams = new RenderParams(material);
                     renderParams.matProps = propertyBlock;
+                    renderParams.worldBounds = InstanceBounds;
 
                     // 描画実行
                     Graphics.RenderMeshPrimitives(renderParams, mesh, subMeshIndex, InstanceCount);
