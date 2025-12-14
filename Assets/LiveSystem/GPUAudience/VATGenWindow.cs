@@ -135,6 +135,19 @@ namespace livesystem
 
                     // アセットインポート
                     AssetDatabase.ImportAsset(AssetName, ImportAssetOptions.Default);
+
+                    // テクスチャアセット設定を変更
+                    TextureImporter textureImporter = AssetImporter.GetAtPath(AssetName) as TextureImporter;
+                    if(textureImporter != null)
+                    {
+                        textureImporter.wrapMode = TextureWrapMode.Clamp;
+                        textureImporter.filterMode = FilterMode.Point; // No Filter
+                        textureImporter.npotScale = TextureImporterNPOTScale.None; // Non-Power of Two(強制的に2の累乗に変換するやつ)
+                        //textureImporter.sRGBTexture = false; // これはいらないかも
+
+                        // 再インポート
+                        textureImporter.SaveAndReimport();
+                    }
                 }
 
                 // メモリ解放
