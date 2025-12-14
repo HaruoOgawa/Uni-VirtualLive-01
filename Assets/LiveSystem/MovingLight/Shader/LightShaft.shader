@@ -19,8 +19,9 @@ Shader "Custom/LightShaft"
 
         Pass
         {
-            Cull Off
+            Cull Front
             Blend SrcAlpha OneMinusSrcAlpha
+            ZWrite Off
 
             HLSLPROGRAM
 
@@ -42,6 +43,8 @@ Shader "Custom/LightShaft"
                 float2 uv : TEXCOORD0;
                 float3 worldNormal : TEXCOORD1;
                 float3 worldPos : TEXCOORD2;
+                float3 localPos : TEXCOORD3;
+                float3 localNormal : TEXCOORD4;
             };
 
             CBUFFER_START(UnityPerMaterial)
@@ -73,11 +76,16 @@ Shader "Custom/LightShaft"
 
                 pos = mul(scaleMat, pos);
 
+                float3 normal = IN.normal;
+                normal = normalize(mul(scaleMat, float4(normal, 0.0)).xyz);
+
                 Varyings OUT;
                 OUT.positionHCS = mul(UNITY_MATRIX_MVP, pos);
                 OUT.uv = IN.uv;
-                OUT.worldNormal = normalize(mul(unity_ObjectToWorld, float4(IN.normal, 0.0)).xyz);
+                OUT.worldNormal = normalize(mul(unity_ObjectToWorld, float4(normal, 0.0)).xyz);
                 OUT.worldPos = mul(unity_ObjectToWorld, pos).xyz;
+                OUT.localPos = pos.xyz;
+                OUT.localNormal = normal;
                 return OUT;
             }
 
@@ -85,21 +93,29 @@ Shader "Custom/LightShaft"
             {
                 float rate = 1.0 - IN.uv.y;
 
-                float3 ViewDir = normalize(IN.worldPos - _WorldSpaceCameraPos);
+                // 裏面描画で法線の向きが外を向いているのでViewDirは頂点座標からベクトルを出す
+                float3 ViewDir = normalize(_WorldSpaceCameraPos - IN.worldPos);
+                // float3 ViewDir = normalize(IN.worldPos - _WorldSpaceCameraPos);
+                ViewDir = normalize(mul(unity_WorldToObject, float4(ViewDir, 0.0)).xyz);
 
-                float rim = pow(max(0.0, dot(IN.worldNormal, -ViewDir)), _Power);
+                float3 normal = IN.localNormal;
+
+                float rim = pow(max(0.0, dot(normal, -ViewDir)), _Power);
+                // float rim = pow(max(0.0, dot(normal.xy, -ViewDir.xy)), _Power);
                 float mask = smoothstep(0.1, 1.0, rate);
 
                 float4 col = _Color * _Intensity * rim * mask;
-                
-                // col.rgb = IN.worldNormal; col.a = 1.0;
-                /*// カラーデバッグ
-                col.rgb = float3(rate, rate, rate);
-                if(rate >= 0.0 && rate < 0.25) col.rgb = float3(1.0, 0.0, 0.0);
-                else if(rate >= 0.75 && rate <= 1.0) col.rgb = float3(0.0, 0.0, 1.0);
-                col.a = 1.0;*/
 
-                return col;
+                /*float xylength = clamp(
+                    length(mul(unity_WorldToObject, float4(_WorldSpaceCameraPos.xyz, 1.0)).xy),
+                    0.001,
+                    1.0
+                );
+                col *= clamp(0.06 / xylength, 1.0, 2.0);*/
+
+                col = clamp(col, 0.0, 3.0);
+
+               return col;
             }
             ENDHLSL
         }

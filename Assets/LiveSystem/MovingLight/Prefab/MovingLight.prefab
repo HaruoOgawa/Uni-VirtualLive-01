@@ -371,6 +371,7 @@ GameObject:
   - component: {fileID: 8314356961814622420}
   - component: {fileID: 5574382593909546032}
   - component: {fileID: 4008309214061928142}
+  - component: {fileID: 1659927330172180978}
   m_Layer: 0
   m_Name: Spot
   m_TagString: Untagged
@@ -487,6 +488,23 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!114 &1659927330172180978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5984250431655281222}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3ff331005acf454595e80869acd5b76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MovingLightController
+  m_Pan: {fileID: 2257361687994849222}
+  m_Tilt: {fileID: 1401778303827362728}
+  m_Emitter: {fileID: 3665157589827873311}
+  m_LightShaft: {fileID: 3691373123695649651}
+  m_Light: {fileID: 5574382593909546032}
 --- !u!1 &6022869964590976163
 GameObject:
   m_ObjectHideFlags: 0
@@ -496,7 +514,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1040563088527990596}
-  - component: {fileID: 6174652024416566988}
   m_Layer: 0
   m_Name: MovingLight
   m_TagString: Untagged
@@ -520,20 +537,3 @@ Transform:
   - {fileID: 2257361687994849222}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6174652024416566988
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6022869964590976163}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b3ff331005acf454595e80869acd5b76, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MovingLightController
-  m_Pan: {fileID: 2257361687994849222}
-  m_Tilt: {fileID: 1401778303827362728}
-  m_Emitter: {fileID: 3665157589827873311}
-  m_LightShaft: {fileID: 3691373123695649651}
-  m_Light: {fileID: 5574382593909546032}

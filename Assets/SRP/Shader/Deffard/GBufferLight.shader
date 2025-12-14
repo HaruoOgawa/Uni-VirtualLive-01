@@ -2,7 +2,6 @@ Shader "CustomSRP/GBufferLight"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
     }
     SubShader
     {
@@ -56,6 +55,7 @@ Shader "CustomSRP/GBufferLight"
                float Metallic;
                float3 WorldNormal;
                float3 WorldPos;
+               float3 EmissiveColor;
            };
 
            sampler2D SRP_GBuffer_0;
@@ -69,6 +69,10 @@ Shader "CustomSRP/GBufferLight"
            float4 SRP_Deferred_LightDir;
            float4 SRP_Deferred_SpotAngle;
            int    SRP_Deferred_DirectionalLightIndex;
+
+           float4x4 SRP_Deferred_SpotLightViewProjMatrix;
+           int SRP_Deferred_UseGobo;
+           sampler2D SRP_Deferred_Gobo_Texture;
 
            #define MAX_MAIN_LIGHT_COUNT 4
            #define MAX_SUB_LIGHT_COUNT 64
@@ -92,6 +96,7 @@ Shader "CustomSRP/GBufferLight"
                #endif
 
                o.projPos = o.vertex;
+
                return o;
            }
 
@@ -103,7 +108,7 @@ Shader "CustomSRP/GBufferLight"
                float4 GBuffer_1 = tex2D(SRP_GBuffer_1, screenUV); // WorldNormal.rgb Metallic.a
                float4 GBuffer_2 = tex2D(SRP_GBuffer_2, screenUV); // WorldPos.rgb    MaterialType.r
                float4 GBuffer_3 = tex2D(SRP_GBuffer_3, screenUV); // IndirectCol.rgb None
-               float4 GBuffer_4 = tex2D(SRP_GBuffer_4, screenUV); // None.rgba
+               float4 GBuffer_4 = tex2D(SRP_GBuffer_4, screenUV); // EmissiveColor.rgba
 
                data.MaterialType = GBuffer_2.a;
                data.Albedo = GBuffer_0.rgb;
@@ -111,6 +116,7 @@ Shader "CustomSRP/GBufferLight"
                data.Metallic = GBuffer_1.a;
                data.WorldNormal = GBuffer_1.rgb;
                data.WorldPos = GBuffer_2.rgb;
+               data.EmissiveColor = GBuffer_4.rgb;
 
                return data;
            }
@@ -179,6 +185,17 @@ Shader "CustomSRP/GBufferLight"
                return pbr;
            }
 
+           float CalcGoboAttenuation(float3 worldPos)
+           {
+               float4 LightProjPos = mul(SRP_Deferred_SpotLightViewProjMatrix, float4(worldPos, 1.0));
+               float3 LightNDCPos = LightProjPos.xyz / LightProjPos.w;
+               float2 LightScreenUV = LightNDCPos.xy * 0.5 + 0.5;
+
+               float Gobo = tex2D(SRP_Deferred_Gobo_Texture, LightScreenUV).a;
+
+               return Gobo;
+           }
+
            float4 frag (v2f i) : SV_Target
            {
                float3 NDCPos = i.projPos.xyz / i.projPos.w;
@@ -206,6 +223,17 @@ Shader "CustomSRP/GBufferLight"
                // PBR
                col = ComputeDirectLight(pbr, light) * shadow;
 
+               // エミッション
+               col += gData.EmissiveColor;
+
+               // GoBoテクスチャ
+               if(SRP_Deferred_UseGobo == 1)
+               {
+                   float GoboAtten = CalcGoboAttenuation(gData.WorldPos);
+                   col *= GoboAtten;
+                   alpha *= GoboAtten;
+               }
+               
                return float4(col, alpha);
            }
            ENDHLSL

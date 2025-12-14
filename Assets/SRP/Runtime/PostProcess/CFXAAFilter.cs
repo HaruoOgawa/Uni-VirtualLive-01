@@ -6,13 +6,32 @@ namespace srp
 {
     public class CFXAAFilter
     {
-        CRenderPass m_RenderPass = new CRenderPass("FXAAPass");
+        CRenderPass m_RenderPass = null;
 
         Material m_Material = null;
 
         public CFXAAFilter()
         {
+        }
+
+        public void Release()
+        {
+            if (m_RenderPass != null)
+            {
+                m_RenderPass.Release();
+                m_RenderPass = null;
+            }
+
+            m_Material = null;
+        }
+
+        public bool Create(int ScreenWidth, int ScreenHeight)
+        {
+            m_RenderPass = new CRenderPass("FXAAPass");
+
             m_Material = new Material(Shader.Find("SRP/FXAA_PostProcess"));
+
+            return true;
         }
 
         public bool Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera,
@@ -22,7 +41,7 @@ namespace srp
             m_RenderPass.SetRenderTarget(writeRT);
 
             // •`‰æŠJŽn
-            if (!m_RenderPass.Begin(context, commandBuffer, camera)) return false;
+            if (!m_RenderPass.Begin(context, commandBuffer, camera, false)) return false;
             m_Material.SetTexture("_MainTex", readRT.GetColorBuffer());
 
             Vector4 _TexelSize = new Vector4();
@@ -32,7 +51,7 @@ namespace srp
 
             sceneController.DrawFullScreen(context, commandBuffer, camera, m_Material);
 
-            if (!m_RenderPass.End(context, commandBuffer, camera)) return false;
+            if (!m_RenderPass.End(context, commandBuffer, camera, false)) return false;
 
             return true;
         }

@@ -33,6 +33,38 @@ namespace srp
 
         public CBloomFilter()
         {
+        }
+
+        public void Release()
+        {
+            m_BrightnessMat = null;
+            m_ReduceMat = null;
+            m_BlurMat = null;
+            m_MixMat = null;
+
+            m_ReduceBufBlurList.Clear();
+
+            if(m_RenderPassMap.Count > 0)
+            {
+                foreach (var pass in m_RenderPassMap.Values)
+                {
+                    pass.Release();
+                }
+
+                m_RenderPassMap.Clear();
+            }
+            
+            if(m_BloomMixPass != null)
+            {
+                m_BloomMixPass.Release();
+                m_BloomMixPass = null;
+            }
+
+            m_LastPassName = string.Empty;
+        }
+
+        public bool Create(int ScreenWidth, int ScreenHeight)
+        {
             // É}ÉeÉäÉAÉãçÏê¨
             m_BrightnessMat = new Material(Shader.Find("SRP/BloomBrigtness"));
             m_ReduceMat = new Material(Shader.Find("SRP/BloomReduceBuffer"));
@@ -54,7 +86,7 @@ namespace srp
                 CRenderPass renderPass = new CRenderPass(PassName);
 
                 CRenderTarget renderTarget = new CRenderTarget();
-                renderTarget.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
+                renderTarget.Create(ScreenWidth, ScreenHeight, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
 
                 renderPass.SetRenderTarget(renderTarget);
 
@@ -68,7 +100,7 @@ namespace srp
                     var ReduceBufTuple = m_ReduceBufBlurList[i];
 
                     int Rate = (int)Mathf.Pow(2.0f, 1.0f + (float)i);
-                    int Size = 1024 / Rate;
+                    int Size = 2048 / Rate;
 
                     m_RenderPassMap.Add(ReduceBufTuple.Reduce.DstPass, CreateRenderPass(ReduceBufTuple.Reduce.DstPass, Size, Size));
                     m_RenderPassMap.Add(ReduceBufTuple.XBlur.DstPass, CreateRenderPass(ReduceBufTuple.XBlur.DstPass, Size, Size));
@@ -81,6 +113,8 @@ namespace srp
                 string PassName = "BloomMixPass";
                 m_BloomMixPass = new CRenderPass(PassName);
             }
+
+            return true;
         }
 
         private CRenderPass CreateRenderPass(string Name, int Width, int Height)
@@ -96,19 +130,16 @@ namespace srp
         }
 
         public bool Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera,
-            CRenderTarget readRT, CRenderTarget writeRT, CSceneController sceneController)
+            CRenderTarget readRT, CRenderTarget writeRT, CSceneController sceneController, SPostProcessSettings settings)
         {
-            // Ç∆ÇËÇ†Ç¶Ç∑íËêîåàÇﬂë≈Çø
-            float Threshold = 1.0f;
-            float Intencity = 1.5f;
 
             // BrigtnessPass
             {
                 if (!BeginRenderPass("BrigtnessPass", context, commandBuffer, camera)) return false;
 
                 m_BrightnessMat.SetTexture("_MainTex", readRT.GetColorBuffer());
-                m_BrightnessMat.SetFloat("_Threshold", Threshold);
-                m_BrightnessMat.SetFloat("_Intencity", Intencity);
+                m_BrightnessMat.SetFloat("_Threshold", settings.Threshold);
+                m_BrightnessMat.SetFloat("_Intencity", settings.Intensity);
                 sceneController.DrawFullScreen(context, commandBuffer, camera, m_BrightnessMat);
 
                 if (!EndRenderPass("BrigtnessPass", context, commandBuffer, camera)) return false;
@@ -154,13 +185,13 @@ namespace srp
             {
                 m_BloomMixPass.SetRenderTarget(writeRT);
 
-                m_BloomMixPass.Begin(context, commandBuffer, camera, true, true);
+                m_BloomMixPass.Begin(context, commandBuffer, camera, false, true, true);
 
                 m_MixMat.SetTexture("_MainTex", readRT.GetColorBuffer());
                 if (!PrepareRenderTexture(m_LastPassName, "_BloomImage", m_MixMat)) return false;
                 sceneController.DrawFullScreen(context, commandBuffer, camera, m_MixMat);
 
-                m_BloomMixPass.End(context, commandBuffer, camera);
+                m_BloomMixPass.End(context, commandBuffer, camera, false);
             }
 
             return true;
@@ -172,7 +203,7 @@ namespace srp
 
             if (!m_RenderPassMap.TryGetValue(Name, out renderPass)) return false;
 
-            if (!renderPass.Begin(context, commandBuffer, camera, true, true)) return false;
+            if (!renderPass.Begin(context, commandBuffer, camera, false, true, true)) return false;
 
             return true;
         }
@@ -183,7 +214,7 @@ namespace srp
 
             if (!m_RenderPassMap.TryGetValue(Name, out renderPass)) return false;
 
-            if (!renderPass.End(context, commandBuffer, camera)) return false;
+            if (!renderPass.End(context, commandBuffer, camera, false)) return false;
 
             return true;
         }

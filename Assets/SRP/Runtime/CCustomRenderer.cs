@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -7,51 +8,57 @@ namespace srp
 {
     public class CCustomRenderer
     {
+        int m_CurrentScreenWidth = 0;
+        int m_CurrentScreenHeight = 0;
+
         // シーン
-        CSceneController m_SceneController = new CSceneController();
+        CSceneController m_SceneController = null;
 
         // コマンドバッファ
-        CommandBuffer m_CommandBuffer = new CommandBuffer();
+        CommandBuffer m_CommandBuffer = null;
 
         // 最終的に画面に描画されるレンダーターゲット
-        CRenderTarget m_FinalResultRT = new CRenderTarget();
+        CRenderTarget m_FinalResultRT = null;
 
         // デファードレンダリング GBufferパス
-        CRenderPass m_GBufferGenPass = new CRenderPass("GBufferGenPass");
+        CRenderPass m_GBufferGenPass = null;
 
         // デファードレンダリング
-        CRenderPass m_GBufferLightPass = new CRenderPass("GBufferLightPass"); // GBufferライティングパス
-        CRenderPass m_GBufferIndirectLightPass = new CRenderPass("GBufferIndirectLightPass"); // GBuffer間接照明パス
+        CRenderPass m_GBufferLightPass = null; // GBufferライティングパス
+        CRenderPass m_GBufferIndirectLightPass = null; // GBuffer間接照明パス
 
         // フォアグラウンドレンダーパス
-        CRenderPass m_ForegroundPass = new CRenderPass("ForegroundPass");
+        CRenderPass m_ForegroundPass = null;
 
         // シャドウマップパス
-        SShadowDescriptor m_ShadowDescriptor = new SShadowDescriptor();
-        CRenderPass m_ShadowMapPass = new CRenderPass("ShadowMapPass");
+        SShadowDescriptor m_ShadowDescriptor = null;
+        CRenderPass m_ShadowMapPass = null;
 
         // ポストプロセス
-        CPostProcess m_PostProcess = new CPostProcess();
+        CPostProcess m_PostProcess = null;
 
         // 最終描画結果
-        CRenderPass m_MainResultPass = new CRenderPass("MainResultPass");
+        CRenderPass m_MainResultPass = null;
 
         public CCustomRenderer()
         {
-            // RenderPipeineAssetのプロパティが更新されるたびにコンストラクタが走る
-            // なのでプロパティの数値を見てパスを増減させることも可能
-            Create();
+            m_SceneController = new CSceneController();
+            m_CommandBuffer = new CommandBuffer();
         }
 
-        void Create()
+        bool Create(int ScreenWidth, int ScreenHeight)
         {
             // FinalResultRT
             {
-                m_FinalResultRT.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
+                m_FinalResultRT = new CRenderTarget();
+                m_FinalResultRT.Create(ScreenWidth, ScreenHeight, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
             }
 
             // ShadowMapPass
             {
+                m_ShadowDescriptor = new SShadowDescriptor();
+                m_ShadowMapPass = new CRenderPass("ShadowMapPass");
+
                 // ShadowMap描画のRenderList API CreateShadowListは内部的に自動でShadowCasterのShaderPassのみが収集されるのでこれは不要
                 //m_ShadowMapPass.AddShaderTag("ShadowCaster");
 
@@ -66,35 +73,43 @@ namespace srp
 
             // GBufferGenPass
             {
+                m_GBufferGenPass = new CRenderPass("GBufferGenPass");
+
                 m_GBufferGenPass.AddShaderTag("CustomGBufferGen");
                 CRenderTarget renderTarget = new CRenderTarget();
-                renderTarget.Create(Screen.width, Screen.height, 5, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
+                renderTarget.Create(ScreenWidth, ScreenHeight, 5, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
 
                 m_GBufferGenPass.SetRenderTarget(renderTarget);
             }
 
             // GBufferLightPass
             {
+                m_GBufferLightPass = new CRenderPass("GBufferLightPass"); // GBufferライティングパス
+
                 m_GBufferLightPass.AddShaderTag("CustomGBufferLight");
 
                 CRenderTarget renderTarget = new CRenderTarget();
-                renderTarget.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
+                renderTarget.Create(ScreenWidth, ScreenHeight, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
 
                 m_GBufferLightPass.SetRenderTarget(renderTarget);
             }
 
             // GBufferIndirectLightPass
             {
+                m_GBufferIndirectLightPass = new CRenderPass("GBufferIndirectLightPass"); // GBuffer間接照明パス
+
                 m_GBufferIndirectLightPass.AddShaderTag("CustomGBufferIndirectLight");
 
                 CRenderTarget renderTarget = new CRenderTarget();
-                renderTarget.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
+                renderTarget.Create(ScreenWidth, ScreenHeight, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
 
                 m_GBufferIndirectLightPass.SetRenderTarget(renderTarget);
             }
 
             // ForegroundPass
             {
+                m_ForegroundPass = new CRenderPass("ForegroundPass");
+
                 m_ForegroundPass.AddShaderTag("SRPDefaultUnlit");
                 m_ForegroundPass.AddShaderTag("SRPDefaultUnlit_Outline");
                 m_ForegroundPass.AddShaderTag("Always");
@@ -105,13 +120,15 @@ namespace srp
                 m_ForegroundPass.AddShaderTag("VertexLM");
 
                 CRenderTarget renderTarget = new CRenderTarget();
-                renderTarget.Create(Screen.width, Screen.height, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
+                renderTarget.Create(ScreenWidth, ScreenHeight, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
 
                 m_ForegroundPass.SetRenderTarget(renderTarget);
             }
 
             // MainResultPass
             {
+                m_MainResultPass = new CRenderPass("MainResultPass");
+
                 m_MainResultPass.AddShaderTag("SRPDefaultUnlit");
                 m_MainResultPass.AddShaderTag("SRPDefaultUnlit_Outline");
                 m_MainResultPass.AddShaderTag("Always");
@@ -123,10 +140,77 @@ namespace srp
 
                 // RenderTargetを指定しなかったらUnity内部で現在のカメラの最終結果描画用フレームバッファがバインドされる
             }
+
+            // PostProcess
+            {
+                m_PostProcess = new CPostProcess();
+                if (!m_PostProcess.Create(ScreenWidth, ScreenHeight)) return false;
+            }
+
+            return true;
         }
 
-        public bool Render(ScriptableRenderContext context, Camera camera, Camera mainCamera)
+        void Release()
         {
+            if(m_FinalResultRT != null)
+            {
+                m_FinalResultRT.Release();
+                m_FinalResultRT = null;
+            }
+
+            if (m_GBufferGenPass != null)
+            {
+                m_GBufferGenPass.Release();
+                m_GBufferGenPass = null;
+            }
+
+            if (m_GBufferLightPass != null)
+            {
+                m_GBufferLightPass.Release();
+                m_GBufferLightPass = null;
+            }
+
+            if (m_GBufferIndirectLightPass != null)
+            {
+                m_GBufferIndirectLightPass.Release();
+                m_GBufferIndirectLightPass = null;
+            }
+
+            if (m_ForegroundPass != null)
+            {
+                m_ForegroundPass.Release();
+                m_ForegroundPass = null;
+            }
+
+            m_ShadowDescriptor = null;
+
+            if (m_ShadowMapPass != null)
+            {
+                m_ShadowMapPass.Release();
+                m_ShadowMapPass = null;
+            }
+
+            if (m_PostProcess != null)
+            {
+                m_PostProcess.Release();
+                m_PostProcess = null;
+            }
+
+            if (m_MainResultPass != null)
+            {
+                m_MainResultPass.Release();
+                m_MainResultPass = null;
+            }
+        }
+
+        public bool Render(ScriptableRenderContext context, Camera camera, Camera mainCamera, SRenderSettings settings)
+        {
+            // メインカメラの画面サイズが変わっていればリサイズを実行し、資材を再生する
+            if (mainCamera.pixelWidth != m_CurrentScreenWidth || mainCamera.pixelHeight != m_CurrentScreenHeight)
+            {
+                if (!Resize(mainCamera.pixelWidth, mainCamera.pixelHeight)) return false;
+            }
+
             // Scene Previewカメラはクラッシュしたり何かと問題が発生するのでスキップする
             if (camera.cameraType == CameraType.Preview) return true;
 
@@ -147,9 +231,9 @@ namespace srp
 
             // シャドウマッピング
             {
-                if (!m_ShadowMapPass.Begin(context, m_CommandBuffer, camera, true, true)) return false;
+                if (!m_ShadowMapPass.Begin(context, m_CommandBuffer, camera, IsPlannerReflection, true, true)) return false;
                 if (!m_SceneController.DrawShadowMap(context, m_CommandBuffer, camera, m_ShadowDescriptor)) return false;
-                if (!m_ShadowMapPass.End(context, m_CommandBuffer, camera)) return false;
+                if (!m_ShadowMapPass.End(context, m_CommandBuffer, camera, IsPlannerReflection)) return false;
             }
 
             // デファードレンダリング
@@ -159,9 +243,9 @@ namespace srp
                     SPassDescriptor descriptor = new SPassDescriptor();
                     descriptor.TargetShaderTags = m_GBufferGenPass.GetTargetShaderTags();
 
-                    if (!m_GBufferGenPass.Begin(context, m_CommandBuffer, camera)) return false;
+                    if (!m_GBufferGenPass.Begin(context, m_CommandBuffer, camera, IsPlannerReflection)) return false;
                     m_SceneController.Draw(context, m_CommandBuffer, camera, descriptor, null);
-                    if (!m_GBufferGenPass.End(context, m_CommandBuffer, camera)) return false;
+                    if (!m_GBufferGenPass.End(context, m_CommandBuffer, camera, IsPlannerReflection)) return false;
                 }
 
                 // GBufferライティング
@@ -172,9 +256,9 @@ namespace srp
                     SPassDescriptor descriptor = new SPassDescriptor();
                     descriptor.TargetShaderTags = m_GBufferLightPass.GetTargetShaderTags();
 
-                    if (!m_GBufferLightPass.Begin(context, m_CommandBuffer, camera, true, false)) return false;
+                    if (!m_GBufferLightPass.Begin(context, m_CommandBuffer, camera, false, true, false)) return false;
                     m_SceneController.DrawDeferredLight(context, m_CommandBuffer, camera, descriptor, m_GBufferGenPass.GetRenderTarget(), m_ShadowMapPass.GetRenderTarget());
-                    if (!m_GBufferLightPass.End(context, m_CommandBuffer, camera)) return false;
+                    if (!m_GBufferLightPass.End(context, m_CommandBuffer, camera, false)) return false;
                 }
 
                 // GBufferライティング(間接照明)
@@ -185,9 +269,9 @@ namespace srp
                     SPassDescriptor descriptor = new SPassDescriptor();
                     descriptor.TargetShaderTags = m_GBufferIndirectLightPass.GetTargetShaderTags();
 
-                    if (!m_GBufferIndirectLightPass.Begin(context, m_CommandBuffer, camera, false, false)) return false;
+                    if (!m_GBufferIndirectLightPass.Begin(context, m_CommandBuffer, camera, IsPlannerReflection, false, false)) return false;
                     m_SceneController.DrawDeferredIndirectLight(context, m_CommandBuffer, camera, descriptor, m_GBufferGenPass.GetRenderTarget());
-                    if (!m_GBufferIndirectLightPass.End(context, m_CommandBuffer, camera)) return false;
+                    if (!m_GBufferIndirectLightPass.End(context, m_CommandBuffer, camera, IsPlannerReflection)) return false;
                 }
             }
 
@@ -200,10 +284,10 @@ namespace srp
                 descriptor.TargetShaderTags = m_ForegroundPass.GetTargetShaderTags();
                 descriptor.DrawSky = true;
 
-                if (!m_ForegroundPass.Begin(context, m_CommandBuffer, camera, false, false)) return false;
+                if (!m_ForegroundPass.Begin(context, m_CommandBuffer, camera, IsPlannerReflection, false, false)) return false;
                 m_SceneController.Draw(context, m_CommandBuffer, camera, descriptor, m_ShadowMapPass.GetRenderTarget());
                 m_SceneController.DrawGizmo(context, m_CommandBuffer, camera);
-                if (!m_ForegroundPass.End(context, m_CommandBuffer, camera)) return false;
+                if (!m_ForegroundPass.End(context, m_CommandBuffer, camera, IsPlannerReflection)) return false;
             }
 
             // リアルタイムGI
@@ -217,14 +301,29 @@ namespace srp
             }
 
             // ポストプロセス
-            if (!m_PostProcess.Draw(context, m_CommandBuffer, camera, m_FinalResultRT, m_SceneController)) return false;
+            if (!m_PostProcess.Draw(context, m_CommandBuffer, camera, m_FinalResultRT, m_SceneController, settings.PostProcessSettings)) return false;
 
             // 最終描画結果
             {
-                if (!m_MainResultPass.Begin(context, m_CommandBuffer, camera, true, true)) return false;
+                if (!m_MainResultPass.Begin(context, m_CommandBuffer, camera, IsPlannerReflection, true, true)) return false;
                 m_SceneController.DrawFullScreenRT(context, m_CommandBuffer, camera, m_FinalResultRT.GetColorBuffer());
-                if (!m_MainResultPass.End(context, m_CommandBuffer, camera)) return false;
+                if (!m_MainResultPass.End(context, m_CommandBuffer, camera, IsPlannerReflection)) return false;
             }
+
+            return true;
+        }
+
+        bool Resize(int NewScreenWidth, int NewScreenHeight)
+        {
+            //Debug.LogFormat("OnResize / NewScreenWidth: {0}, NewScreenHeight: {1}", NewScreenWidth, NewScreenHeight);
+
+            Release();
+
+            // Screen.width、Screen.heightは想定外の値を返すことがあるのでカメラのプロジェクションからサイズを受け取るようにする
+            m_CurrentScreenWidth = NewScreenWidth;
+            m_CurrentScreenHeight = NewScreenHeight;
+
+            if (!Create(m_CurrentScreenWidth, m_CurrentScreenHeight)) return false;
 
             return true;
         }
@@ -233,6 +332,17 @@ namespace srp
         void RecalcPlannerTransform(ref Camera ReflectCamera, Camera mainCamera)
         {
             if (mainCamera == null) return;
+
+            // メインカメラと解像度が違えばリサイズして再生成
+            if(mainCamera.pixelWidth != ReflectCamera.targetTexture.width || mainCamera.pixelHeight != ReflectCamera.targetTexture.height)
+            {
+                ReflectCamera.targetTexture.Release();
+
+                ReflectCamera.targetTexture.width = mainCamera.pixelWidth;
+                ReflectCamera.targetTexture.height = mainCamera.pixelHeight;
+
+                ReflectCamera.targetTexture.Create();
+            }
 
             // 平面反射用Plane
             Transform Plane = ReflectCamera.transform.parent;
@@ -247,7 +357,21 @@ namespace srp
                 }
             }
 
-            // メインカメラ情報
+            Vector3 PlaneNormal = Plane.up;
+            Vector3 PlanePos = Plane.position;
+            float d = - Vector3.Dot(PlaneNormal, PlanePos);
+
+            Matrix4x4 refMatrix = CalcReflectionMatrix(new Vector4(PlaneNormal.x, PlaneNormal.y, PlaneNormal.z, d));
+
+            ReflectCamera.worldToCameraMatrix = mainCamera.worldToCameraMatrix * refMatrix;
+
+            Vector3 cNormal = ReflectCamera.worldToCameraMatrix.MultiplyVector(PlaneNormal);
+            Vector3 cPos = ReflectCamera.worldToCameraMatrix.MultiplyPoint(PlanePos);
+            Vector4 ClipPlane = new Vector4(cNormal.x, cNormal.y, cNormal.z, -Vector3.Dot(cPos, cNormal));
+
+            ReflectCamera.projectionMatrix = mainCamera.CalculateObliqueMatrix(ClipPlane);
+
+            /*// メインカメラ情報
             Vector3 forward = mainCamera.transform.forward;
             Vector3 up = mainCamera.transform.up;
             Vector3 right = mainCamera.transform.right;
@@ -287,6 +411,42 @@ namespace srp
             ReflectCamera.fieldOfView = mainCamera.fieldOfView;
             ReflectCamera.nearClipPlane = mainCamera.nearClipPlane;
             ReflectCamera.farClipPlane = mainCamera.farClipPlane;
+
+            //
+            Vector3 pNormal = (-1.0f) * Plane.up;
+            Vector3 pPos = Plane.position;
+
+            Vector3 cNormal = ReflectCamera.worldToCameraMatrix.MultiplyVector(pNormal);
+            Vector3 cPos = ReflectCamera.worldToCameraMatrix.MultiplyPoint(pPos);
+
+            Vector4 clipPlane = new Vector4(cNormal.x, cNormal.y, cNormal.z, -Vector3.Dot(cPos, cNormal));
+
+            ReflectCamera.projectionMatrix = ReflectCamera.CalculateObliqueMatrix(clipPlane);*/
+        }
+
+        private Matrix4x4 CalcReflectionMatrix(Vector4 n)
+        {
+            var refMatrix = new Matrix4x4
+            {
+                m00 = 1f - 2f * n.x * n.x,
+                m01 = -2f * n.x * n.y,
+                m02 = -2f * n.x * n.z,
+                m03 = -2f * n.x * n.w,
+                m10 = -2f * n.x * n.y,
+                m11 = 1f - 2f * n.y * n.y,
+                m12 = -2f * n.y * n.z,
+                m13 = -2f * n.y * n.w,
+                m20 = -2f * n.x * n.z,
+                m21 = -2f * n.y * n.z,
+                m22 = 1f - 2f * n.z * n.z,
+                m23 = -2f * n.z * n.w,
+                m30 = 0F,
+                m31 = 0F,
+                m32 = 0F,
+                m33 = 1F
+            };
+
+            return refMatrix;
         }
     }
 

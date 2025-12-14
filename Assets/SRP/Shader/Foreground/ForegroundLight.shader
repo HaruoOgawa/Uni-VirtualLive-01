@@ -9,6 +9,8 @@ Shader "CustomSRP/ForegroundLight"
         _Metallic("Metallic", Float) = 0.0
 
         [Toggle] _UsePlannerReflect("UsePlannerReflect", Int) = 0
+
+        [HDR] _EmissiveColor("EmissiveColor", Color) = (0.0, 0.0, 0.0, 1.0)
     }
     SubShader
     {
@@ -54,8 +56,8 @@ Shader "CustomSRP/ForegroundLight"
             float4 _Color;
             float _Smoothness;
             float _Metallic;
-
             int _UsePlannerReflect;
+            float4 _EmissiveColor;
 
             v2f vert (appdata v)
             {
@@ -185,6 +187,8 @@ Shader "CustomSRP/ForegroundLight"
                 {
                     col.rgb += ComputeIndirectLight(pbr);
                 }
+
+                col.rgb += _EmissiveColor.rgb;
 
                 return float4(col, alpha);
             }

@@ -8,6 +8,7 @@ public class MovingLightController : MonoBehaviour
     [SerializeField] Transform m_Emitter = null;
     [SerializeField] Transform m_LightShaft = null;
     [SerializeField] Light m_Light = null;
+
     void Start()
     {
     }

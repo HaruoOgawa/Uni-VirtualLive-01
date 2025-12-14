@@ -12,4 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65697d93498f271428d2da29b122f6ac, type: 3}
   m_Name: CustomRP
   m_EditorClassIdentifier: 
-  PerObjLight: 1
+  settings:
+    PostProcessSettings:
+      Threshold: 2
+      Intensity: 2

@@ -993,6 +993,9 @@ namespace mmdlib
                 rigidbody.linearDamping = PmxRigidbody.TransDamping;
                 rigidbody.angularDamping = PmxRigidbody.RotateDamping;
 
+                // 高速に動き、回転していてかつ動的に動くオブジェクト同士の衝突を検知したいのでContinuousSpeculative
+                rigidbody.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+
                 // 自身の衝突グループ(レイヤー)を設定
                 List<string> SelfGroup = GetPmxPhysicsLayerList(PmxRigidbody.group);
                 if(SelfGroup.Count == 1) PhysicsNode.layer = LayerMask.NameToLayer(SelfGroup[0]);
@@ -1156,6 +1159,24 @@ namespace mmdlib
                             damper = pmxRigidbodyB.RotateDamping
                         };
 
+                        joint.xDrive = new JointDrive()
+                        {
+                            positionSpring = Mathf.Max(Mathf.Max(PmxJoint.TransSpring.x, PmxJoint.TransSpring.y), PmxJoint.TransSpring.z),
+                            positionDamper = pmxRigidbodyB.TransDamping
+                        };
+
+                        joint.yDrive = new JointDrive()
+                        {
+                            positionSpring = Mathf.Max(Mathf.Max(PmxJoint.TransSpring.x, PmxJoint.TransSpring.y), PmxJoint.TransSpring.z),
+                            positionDamper = pmxRigidbodyB.TransDamping
+                        };
+
+                        joint.zDrive = new JointDrive()
+                        {
+                            positionSpring = Mathf.Max(Mathf.Max(PmxJoint.TransSpring.x, PmxJoint.TransSpring.y), PmxJoint.TransSpring.z),
+                            positionDamper = pmxRigidbodyB.TransDamping
+                        };
+
                         // 位置制限
                         {
                             joint.xMotion = ConfigurableJointMotion.Limited;
@@ -1179,19 +1200,22 @@ namespace mmdlib
                             Vector3 LowerRotateLimit = PmxJoint.LowerRotateLimit * Mathf.Rad2Deg;
                             Vector3 UpperRotateLimit = PmxJoint.UpperRotateLimit * Mathf.Rad2Deg;
 
+                            float MinLower = MathF.Min(MathF.Min(LowerRotateLimit.x, LowerRotateLimit.y), LowerRotateLimit.z);
+                            float MaxUpper = MathF.Max(MathF.Max(UpperRotateLimit.x, UpperRotateLimit.y), UpperRotateLimit.z);
+
                             joint.angularXMotion = ConfigurableJointMotion.Limited;
                             joint.angularYMotion = ConfigurableJointMotion.Limited;
                             joint.angularZMotion = ConfigurableJointMotion.Limited;
 
                             // X制限
-                            joint.lowAngularXLimit = new SoftJointLimit() { limit = LowerRotateLimit.x };
-                            joint.highAngularXLimit = new SoftJointLimit() { limit = UpperRotateLimit.x };
+                            joint.lowAngularXLimit = new SoftJointLimit() { limit = MinLower };
+                            joint.highAngularXLimit = new SoftJointLimit() { limit = MaxUpper };
 
                             // Y制限
-                            joint.angularYLimit = new SoftJointLimit() { limit = Mathf.Min(Mathf.Abs(LowerRotateLimit.y), Mathf.Abs(UpperRotateLimit.y)) };
+                            joint.angularYLimit = new SoftJointLimit() { limit = Mathf.Min(Mathf.Abs(MinLower), Mathf.Abs(MaxUpper)) };
 
                             // Z制限
-                            joint.angularZLimit = new SoftJointLimit() { limit = Mathf.Min(Mathf.Abs(LowerRotateLimit.z), Mathf.Abs(UpperRotateLimit.z)) };
+                            joint.angularZLimit = new SoftJointLimit() { limit = Mathf.Min(Mathf.Abs(MinLower), Mathf.Abs(MaxUpper)) };
 
                             if (LowerRotateLimit.x == UpperRotateLimit.x) joint.angularXMotion = ConfigurableJointMotion.Locked;
                             if (LowerRotateLimit.y == UpperRotateLimit.y) joint.angularXMotion = ConfigurableJointMotion.Locked;

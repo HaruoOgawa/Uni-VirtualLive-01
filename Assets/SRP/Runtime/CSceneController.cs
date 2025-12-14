@@ -314,7 +314,7 @@ namespace srp
             SetCamera(commandBuffer, camera);
 
             // 各ライトボリュームの描画
-            if (!DrawLights(context, commandBuffer, int.MaxValue)) return false;
+            if (!DrawLights(context, commandBuffer, int.MaxValue, camera)) return false;
 
             return true;
         }
@@ -334,7 +334,7 @@ namespace srp
             return true;
         }
 
-        bool DrawLights(ScriptableRenderContext context, CommandBuffer commandBuffer, int maxLightCount)
+        bool DrawLights(ScriptableRenderContext context, CommandBuffer commandBuffer, int maxLightCount, Camera camera)
         {
             // 各ライトボリュームの描画
             for (int i = 0; i < m_CullingResults.visibleLights.Length; i++)
@@ -356,7 +356,7 @@ namespace srp
                         break;
 
                     case LightType.Spot:
-                        if (!DrawSpotLight(context, commandBuffer, light)) return false;
+                        if (!DrawSpotLight(context, commandBuffer, light, camera)) return false;
                         break;
 
                     default:
@@ -370,7 +370,7 @@ namespace srp
         bool DrawDirectionalLight(ScriptableRenderContext context, CommandBuffer commandBuffer, VisibleLight light)
         {
             // ライト情報をセット
-            SetDeferredLight(context, commandBuffer, light);
+            SetDeferredLight(context, commandBuffer, light, Matrix4x4.identity, light.light.cookie);
 
             // 描画開始
             commandBuffer.SetKeyword(CShaderGlobalKeywordList._LIGHT_DIRECTIONAL, true);
@@ -387,7 +387,7 @@ namespace srp
         bool DrawPointLight(ScriptableRenderContext context, CommandBuffer commandBuffer, VisibleLight light)
         {
             // ライト情報をセット
-            SetDeferredLight(context, commandBuffer, light);
+            SetDeferredLight(context, commandBuffer, light, Matrix4x4.identity, light.light.cookie);
 
             // 描画開始
             commandBuffer.SetKeyword(CShaderGlobalKeywordList._LIGHT_POINT, true);
@@ -413,20 +413,25 @@ namespace srp
             return true;
         }
 
-        bool DrawSpotLight(ScriptableRenderContext context, CommandBuffer commandBuffer, VisibleLight light)
+        bool DrawSpotLight(ScriptableRenderContext context, CommandBuffer commandBuffer, VisibleLight light, Camera camera)
         {
-            // ライト情報をセット
-            SetDeferredLight(context, commandBuffer, light);
-
-            // 描画開始
-            commandBuffer.SetKeyword(CShaderGlobalKeywordList._LIGHT_SPOT, true);
-
             // 正弦定理より半径を求める
             float height = light.range;
 
             float spotAngle = math.radians(light.spotAngle) * 0.5f;
             float radius = (height / math.sin(math.PI * 0.5f - spotAngle)) * math.sin(spotAngle);
 
+            // スポットライトのビュープロジェクション行列を設定
+            Matrix4x4 VMat = light.localToWorldMatrix.inverse;
+            Matrix4x4 PMat = Matrix4x4.Perspective(light.spotAngle, 1.0f, 0.01f, height);
+            Matrix4x4 VPMat = PMat * VMat;
+            
+            // ライト情報をセット
+            SetDeferredLight(context, commandBuffer, light, VPMat, light.light.cookie);
+
+            // 描画開始
+            commandBuffer.SetKeyword(CShaderGlobalKeywordList._LIGHT_SPOT, true);
+            
             // スポットライトのスケール行列を構築
             Matrix4x4 scaleMat = new Matrix4x4(
                 new Vector4(radius, 0.0f, 0.0f, 0.0f),
@@ -639,7 +644,7 @@ namespace srp
             LightAngleList[LightIndex] = new Vector4(angleRangeInv, -outterCos * angleRangeInv);
         }
 
-        void SetDeferredLight(ScriptableRenderContext context, CommandBuffer commandBuffer, VisibleLight visibleLight)
+        void SetDeferredLight(ScriptableRenderContext context, CommandBuffer commandBuffer, VisibleLight visibleLight, Matrix4x4 VPMat, Texture goboTexture)
         {
             // ライト
             Vector4 lightPos, spotLightDir = new Vector4();
@@ -682,6 +687,9 @@ namespace srp
             commandBuffer.SetGlobalVector(CShaderConstants.SRP_Deferred_LightDir, spotLightDir);
             commandBuffer.SetGlobalVector(CShaderConstants.SRP_Deferred_SpotAngle, spotAngle);
             commandBuffer.SetGlobalInt(CShaderConstants.SRP_Deferred_DirectionalLightIndex, DirectionalLightIndex);
+            commandBuffer.SetGlobalMatrix(CShaderConstants.SRP_Deferred_SpotLightViewProjMatrix, VPMat);
+            commandBuffer.SetGlobalInt(CShaderConstants.SRP_Deferred_UseGobo, (goboTexture != null)? 1 : 0);
+            commandBuffer.SetGlobalTexture(CShaderConstants.SRP_Deferred_Gobo_Texture, goboTexture);
         }
 
         void CalcLightParam(VisibleLight light, out Vector4 lightPos, out Vector4 soptLightDir)

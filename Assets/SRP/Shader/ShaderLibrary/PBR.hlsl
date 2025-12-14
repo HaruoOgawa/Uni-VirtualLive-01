@@ -245,7 +245,7 @@ float3 ComputeIndirectLightByPlannerReflection(PBRData pbr, sampler2D reflectMap
     float3 ResultCol = float3(0.0, 0.0, 0.0);
     
     float2 NdcUV = (screenPos.xy / screenPos.w) * 0.5 + 0.5;
-    NdcUV.y = 1.0 - NdcUV.y;
+    //NdcUV.y = 1.0 - NdcUV.y;
 
     ResultCol += CalcPlannerReflection(pbr, reflectMap, NdcUV);
     
