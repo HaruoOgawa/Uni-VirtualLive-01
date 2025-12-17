@@ -24,6 +24,14 @@ namespace binary
             return true;
         }
 
+        public bool Init(byte[] SrcData)
+        {
+            this.m_Data = SrcData;
+            if (this.m_Data.Length == 0) return false;
+
+            return true;
+        }
+
         public bool IsEnd()
         {
             return (m_Data.Length == m_Offset);
