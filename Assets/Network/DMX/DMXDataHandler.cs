@@ -1,11 +1,19 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace network.dmx
 {
     public class DMXDataHandler : MonoBehaviour
     {
+        [SerializeField] List<DMXFixtureGroup> m_FixtureGroupList = new List<DMXFixtureGroup>();
+
+        Dictionary<(ushort Net, ushort SubNet, ushort Universe), DMXFixtureGroup> m_UniverseGroupMap = 
+            new Dictionary<(ushort Net, ushort SubNet, ushort Universe), DMXFixtureGroup>();
+
         public DMXDataHandler()
         {
+            Init();
+
             // イベント購読
             UDPSocket.OnReceivedDMX += OnReceivedDMX;
         }
@@ -14,22 +22,28 @@ namespace network.dmx
         {
             // イベント購読解除
             UDPSocket.OnReceivedDMX -= OnReceivedDMX;
+
+            m_UniverseGroupMap.Clear();
+        }
+
+        void Init()
+        {
+            // DMXのユニバース番号とFixtureGroupのペアを作成
+            foreach (var group in m_FixtureGroupList)
+            {
+                m_UniverseGroupMap.Add((group.Net, group.SubNet, group.Universe), group);
+            }
         }
 
         void OnReceivedDMX(ushort Net, ushort SubNet, ushort Universe, byte[] DataBuffer)
         {
-            Debug.LogFormat("[DMXDataHandler.OnReceivedDMX] Net: {0}, SubNet: {1}, Universe: {2}, DataBuffer.Length: {3}", 
-                Net, SubNet, Universe, DataBuffer.Length);
-        }
+            // 該当ユニバースのグループが登録されていれば値を渡す
+            DMXFixtureGroup fixtureGroup = null;
+            if (!m_UniverseGroupMap.TryGetValue((Net, SubNet, Universe), out fixtureGroup)) return;
 
-        void Start()
-        {
+            if (fixtureGroup == null) return;
 
-        }
-
-        void Update()
-        {
-
+            fixtureGroup.DispatchDMXData(DataBuffer);
         }
     }
 }
