@@ -21,8 +21,14 @@ public class MovingLightController : MonoBehaviour, IDMXFixture
     Quaternion m_DefaultPanRotate = Quaternion.identity;
     Quaternion m_DefaultTiltRotate = Quaternion.identity;
 
+    // プレファブのインスタンス単位でマテリアルに違う値をセットするためにMaterialPropertyBlockを使用
+    MaterialPropertyBlock m_ProperyBlock = null;
+
     void Start()
     {
+        // 実行時にメモリを確保しないとnull扱いになる
+        m_ProperyBlock = new MaterialPropertyBlock();
+
         if (m_Pan != null) m_DefaultPanRotate = m_Pan.transform.localRotation;
         if (m_Tilt != null) m_DefaultTiltRotate = m_Tilt.transform.localRotation;
     }
@@ -46,11 +52,16 @@ public class MovingLightController : MonoBehaviour, IDMXFixture
             (float)(Analyser.GetByte()) / 255.0f
         );
 
-        m_DMXDimmer = (float)(Analyser.GetByte()) / 255.0f;
+        float NewDMXDimmer = (float)(Analyser.GetByte()) / 255.0f;
         m_DMXTilt = Mathf.Rad2Deg * 2.0f * 3.1415f * (float)(Analyser.GetByte()) / 255.0f;
         m_DMXPan = Mathf.Rad2Deg * 2.0f * 3.1415f * (float)(Analyser.GetByte()) / 255.0f;
-        m_DMXAngle = 90.0f * (float)(Analyser.GetByte()) / 255.0f; // 0 ~ 90度まで
-        m_DMXHeight = 50.0f * (float)(Analyser.GetByte()) / 255.0f; // 50mまで伸びる
+        float NewDMXAngle = 180.0f * (float)(Analyser.GetByte()) / 255.0f; // 0 ~ 90度まで
+        float NewDMXHeight = 50.0f * (float)(Analyser.GetByte()) / 255.0f; // 50mまで伸びる
+
+        // 少し古い値を受信して急激に値が変わることがあるのでイージングを入れる
+        m_DMXDimmer = Mathf.Lerp(m_DMXDimmer, NewDMXDimmer, 0.1f);
+        m_DMXAngle = Mathf.Lerp(m_DMXAngle, NewDMXAngle, 0.1f);
+        m_DMXHeight = Mathf.Lerp(NewDMXHeight, NewDMXHeight, 0.1f);
     }
 
     void Update()
@@ -61,7 +72,7 @@ public class MovingLightController : MonoBehaviour, IDMXFixture
             Quaternion OldRotate = m_Pan.transform.localRotation;
             Quaternion NewRotate = Quaternion.AngleAxis(m_DMXPan, Vector3.forward) * m_DefaultPanRotate;
 
-            // イージング
+            // 少し古い値を受信して急激に値が変わることがあるのでイージングを入れる
             m_Pan.transform.localRotation = Quaternion.Slerp(OldRotate, NewRotate, 0.1f); 
         }
 
@@ -71,11 +82,11 @@ public class MovingLightController : MonoBehaviour, IDMXFixture
             Quaternion OldRotate = m_Tilt.transform.localRotation;
             Quaternion NewRotate = Quaternion.AngleAxis(m_DMXTilt, Vector3.right) * m_DefaultTiltRotate;
 
-            // イージング
+            // 少し古い値を受信して急激に値が変わることがあるのでイージングを入れる
             m_Tilt.transform.localRotation = Quaternion.Slerp(OldRotate, NewRotate, 0.1f);
         }
 
-        if (m_Light == null || m_LightShaft == null) return;
+        if (m_LightShaft == null) return;
 
         // ライトシャフトの値を常にライトにも反映する
         MeshRenderer renderer = m_LightShaft.GetComponent<MeshRenderer>();
@@ -84,14 +95,25 @@ public class MovingLightController : MonoBehaviour, IDMXFixture
         Material material = renderer.material;
         if(material == null) return;
 
-        Color _Color = material.GetColor("_Color");
-        float _Intensity = material.GetFloat("_Intensity");
-        float _Height = material.GetFloat("_Height");
-        float _SpotAngle = material.GetFloat("_SpotAngle");
+        {
+            // プロパティブロック取得
+            renderer.GetPropertyBlock(m_ProperyBlock);
 
-        m_Light.color = _Color;
-        m_Light.intensity = _Intensity;
-        m_Light.range = _Height;
-        m_Light.spotAngle = _SpotAngle;
+            m_ProperyBlock.SetColor("_Color", m_DMXColor);
+            m_ProperyBlock.SetFloat("_Intensity", m_DMXDimmer);
+            m_ProperyBlock.SetFloat("_Height", m_DMXHeight);
+            m_ProperyBlock.SetFloat("_SpotAngle", m_DMXAngle);
+
+            // プロパティブロック再設定
+            renderer.SetPropertyBlock(m_ProperyBlock);
+        }
+
+        if(m_Light != null)
+        {
+            m_Light.color = m_DMXColor;
+            m_Light.intensity = m_DMXDimmer;
+            m_Light.range = m_DMXHeight;
+            m_Light.spotAngle = m_DMXAngle;
+        }
     }
 }
