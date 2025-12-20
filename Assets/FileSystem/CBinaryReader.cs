@@ -1,9 +1,11 @@
+using NUnit.Framework;
 using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using UnityEngine;
+using System.Collections.Generic;
 
 namespace binary
 {
@@ -19,6 +21,14 @@ namespace binary
         public bool Init(string fileName)
         {
             this.m_Data = File.ReadAllBytes(fileName);
+            if (this.m_Data.Length == 0) return false;
+
+            return true;
+        }
+
+        public bool Init(byte[] SrcData)
+        {
+            this.m_Data = SrcData;
             if (this.m_Data.Length == 0) return false;
 
             return true;
@@ -65,6 +75,17 @@ namespace binary
             if(!IsValid(byteSize)) return false;
 
             UpdatePointer(byteSize);
+
+            return true;
+        }
+
+        public bool GetBinary(int DstByteOffset, ref byte[] Dst, int ByteSize)
+        {
+            if (!IsValid(ByteSize)) return false;
+
+            Dst = memcpy(ByteSize);
+
+            UpdatePointer(ByteSize);
 
             return true;
         }
@@ -249,6 +270,30 @@ namespace binary
 
                 Dst = System.Text.Encoding.Unicode.GetString(unicodeBytes);
             }
+
+            return true;
+        }
+
+        public bool GetStringToZeroByte(ref string Dst)
+        {
+            int ByteSize = 0;
+            int CurrentOffset = m_Offset;
+
+            List<byte> strByteArray = new List<byte>();
+
+            for(;;)
+            {
+                if (m_Data[CurrentOffset] == '\0') break;
+
+                strByteArray.Add(m_Data[CurrentOffset]);
+
+                ByteSize++;
+                CurrentOffset++;
+            }
+
+            Dst = System.Text.Encoding.UTF8.GetString(strByteArray.ToArray());
+
+            UpdatePointer(ByteSize + 1);
 
             return true;
         }
