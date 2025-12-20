@@ -12,10 +12,6 @@ namespace network.dmx
 
         public DMXDataHandler()
         {
-            Init();
-
-            // イベント購読
-            UDPSocket.OnReceivedDMX += OnReceivedDMX;
         }
 
         private void OnDestroy()
@@ -24,6 +20,14 @@ namespace network.dmx
             UDPSocket.OnReceivedDMX -= OnReceivedDMX;
 
             m_UniverseGroupMap.Clear();
+        }
+
+        private void Start()
+        {
+            // イベント購読
+            UDPSocket.OnReceivedDMX += OnReceivedDMX;
+
+            Init();
         }
 
         void Init()

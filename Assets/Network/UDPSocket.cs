@@ -63,7 +63,7 @@ namespace network
 
             int WaitMS = (int)(1000.0f * 1.0f / 30.0f);
 
-            for (; ; )
+            for (;;)
             {
                 var result = await m_UdpClient.ReceiveAsync();
 
