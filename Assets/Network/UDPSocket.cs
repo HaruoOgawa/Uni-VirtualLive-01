@@ -19,6 +19,7 @@ namespace network
         // https://learn.microsoft.com/ja-jp/dotnet/api/system.net.sockets.udpclient?view=net-8.0
         // https://learn.microsoft.com/ja-jp/dotnet/api/system.net.ipaddress.parse?view=net-9.0
         UdpClient m_UdpClient = null;
+        IPEndPoint m_IPEnd = null;
 
         Task m_RecieveTask = null;
         CancellationTokenSource m_CancellationTokenSource = new CancellationTokenSource();
@@ -41,10 +42,10 @@ namespace network
         {
             try
             {
-                IPEndPoint IPEnd = new IPEndPoint(IPAddress.Any, Port);
+                m_IPEnd = new IPEndPoint(IPAddress.Any, Port);
 
                 // コンストラクタでIPEndPointを指定していればConnect関数の呼び出しは不要。IPEndPointは特定のアドレスとやり取りしたいときのみ使用する
-                m_UdpClient = new UdpClient(IPEnd);
+                m_UdpClient = new UdpClient(m_IPEnd);
 
                 m_RecieveTask = Task.Run(Receive, m_CancellationTokenSource.Token);
             }
@@ -61,15 +62,10 @@ namespace network
             // タスク開始前にキャンセルが飛んできてないかチェック
             ct.ThrowIfCancellationRequested();
 
-            int WaitMS = (int)(1000.0f * 1.0f / 30.0f);
-
             for (;;)
             {
                 var result = await m_UdpClient.ReceiveAsync();
-
                 AnalyseData(result.Buffer);
-
-                await Task.Delay(WaitMS);
 
                 // キャンセルがリクエストされたら全てクリーンして終了
                 if (ct.IsCancellationRequested)

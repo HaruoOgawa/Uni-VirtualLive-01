@@ -18,8 +18,13 @@ public class MovingLightController : MonoBehaviour, IDMXFixture
     float m_DMXAngle = 0.0f;
     float m_DMXHeight = 0.0f;
 
+    Quaternion m_DefaultPanRotate = Quaternion.identity;
+    Quaternion m_DefaultTiltRotate = Quaternion.identity;
+
     void Start()
     {
+        if (m_Pan != null) m_DefaultPanRotate = m_Pan.transform.localRotation;
+        if (m_Tilt != null) m_DefaultTiltRotate = m_Tilt.transform.localRotation;
     }
 
     public void AssignDMXData(byte[] data)
@@ -42,14 +47,34 @@ public class MovingLightController : MonoBehaviour, IDMXFixture
         );
 
         m_DMXDimmer = (float)(Analyser.GetByte()) / 255.0f;
-        m_DMXPan = 2.0f * 3.1415f * (float)(Analyser.GetByte()) / 255.0f;
-        m_DMXTilt = 2.0f * 3.1415f * (float)(Analyser.GetByte()) / 255.0f;
-        m_DMXAngle = 90.0f * (float)(Analyser.GetByte()) / 255.0f;
-        m_DMXHeight = 50.0f * (float)(Analyser.GetByte()) / 255.0f;
+        m_DMXTilt = Mathf.Rad2Deg * 2.0f * 3.1415f * (float)(Analyser.GetByte()) / 255.0f;
+        m_DMXPan = Mathf.Rad2Deg * 2.0f * 3.1415f * (float)(Analyser.GetByte()) / 255.0f;
+        m_DMXAngle = 90.0f * (float)(Analyser.GetByte()) / 255.0f; // 0 ~ 90度まで
+        m_DMXHeight = 50.0f * (float)(Analyser.GetByte()) / 255.0f; // 50mまで伸びる
     }
 
     void Update()
     {
+        // Pan
+        if (m_Pan != null)
+        {
+            Quaternion OldRotate = m_Pan.transform.localRotation;
+            Quaternion NewRotate = Quaternion.AngleAxis(m_DMXPan, Vector3.forward) * m_DefaultPanRotate;
+
+            // イージング
+            m_Pan.transform.localRotation = Quaternion.Slerp(OldRotate, NewRotate, 0.1f); 
+        }
+
+        // Tilt
+        if (m_Tilt != null)
+        {
+            Quaternion OldRotate = m_Tilt.transform.localRotation;
+            Quaternion NewRotate = Quaternion.AngleAxis(m_DMXTilt, Vector3.right) * m_DefaultTiltRotate;
+
+            // イージング
+            m_Tilt.transform.localRotation = Quaternion.Slerp(OldRotate, NewRotate, 0.1f);
+        }
+
         if (m_Light == null || m_LightShaft == null) return;
 
         // ライトシャフトの値を常にライトにも反映する
