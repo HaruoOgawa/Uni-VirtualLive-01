@@ -172,19 +172,22 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>DLL_APP;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)Src\Library\NDI\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(ProjectDir)Src\Library\NDI\Lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>Processing.NDI.Lib.x64.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="NDI\CNDIReceiver.cpp" />
-    <ClCompile Include="Main\libmain.cpp" />
-    <ClCompile Include="Main\main.cpp" />
+    <ClCompile Include="Src\NDI\CNDIReceiver.cpp" />
+    <ClCompile Include="Src\Main\libmain.cpp" />
+    <ClCompile Include="Src\Main\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="NDI\CNDIReceiver.h" />
+    <ClInclude Include="Src\NDI\CNDIReceiver.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

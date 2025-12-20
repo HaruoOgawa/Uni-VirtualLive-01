@@ -40,11 +40,11 @@ DLLEXPORT void CALLING_WAY CNDIReceiver_Destructor(void* pObj)
 	delete pObj;
 }
 
-DLLEXPORT int CALLING_WAY CNDIReceiver_NDITestFunc(void* pObj, int a, int b)
+DLLEXPORT bool CALLING_WAY CNDIReceiver_NDITestFunc(void* pObj)
 {
 	network::CNDIReceiver* NDIReceiver = (network::CNDIReceiver*)pObj;
 
-	return NDIReceiver->NDITestFunc(a, b);
+	return NDIReceiver->Update();
 }
 
 #endif
