@@ -1,3 +1,4 @@
+using srp.postprocess;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEditor;
@@ -10,6 +11,9 @@ namespace srp
     {
         int m_CurrentScreenWidth = 0;
         int m_CurrentScreenHeight = 0;
+
+        SRenderSettings m_Settings;
+        List<CPostProcessFeature> m_ProcessFeatures = new List<CPostProcessFeature>();
 
         // シーン
         CSceneController m_SceneController = null;
@@ -40,8 +44,11 @@ namespace srp
         // 最終描画結果
         CRenderPass m_MainResultPass = null;
 
-        public CCustomRenderer()
+        public CCustomRenderer(SRenderSettings settings, List<CPostProcessFeature> processFeatures)
         {
+            m_Settings = settings;
+            m_ProcessFeatures = processFeatures;
+
             m_SceneController = new CSceneController();
             m_CommandBuffer = new CommandBuffer();
         }
@@ -144,7 +151,7 @@ namespace srp
             // PostProcess
             {
                 m_PostProcess = new CPostProcess();
-                if (!m_PostProcess.Create(ScreenWidth, ScreenHeight)) return false;
+                if (!m_PostProcess.Create(ScreenWidth, ScreenHeight, m_ProcessFeatures)) return false;
             }
 
             return true;
@@ -192,7 +199,7 @@ namespace srp
 
             if (m_PostProcess != null)
             {
-                m_PostProcess.Release();
+                m_PostProcess.Release(m_ProcessFeatures);
                 m_PostProcess = null;
             }
 
@@ -203,7 +210,7 @@ namespace srp
             }
         }
 
-        public bool Render(ScriptableRenderContext context, Camera camera, Camera mainCamera, SRenderSettings settings)
+        public bool Render(ScriptableRenderContext context, Camera camera, Camera mainCamera)
         {
             // メインカメラの画面サイズが変わっていればリサイズを実行し、資材を再生する
             if (mainCamera.pixelWidth != m_CurrentScreenWidth || mainCamera.pixelHeight != m_CurrentScreenHeight)
@@ -301,7 +308,8 @@ namespace srp
             }
 
             // ポストプロセス
-            if (!m_PostProcess.Draw(context, m_CommandBuffer, camera, m_FinalResultRT, m_SceneController, settings.PostProcessSettings)) return false;
+            if (!m_PostProcess.Draw(context, m_CommandBuffer, camera, m_FinalResultRT, m_SceneController, 
+                m_Settings.PostProcessSettings, m_ProcessFeatures)) return false;
 
             // 最終描画結果
             {

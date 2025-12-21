@@ -1,5 +1,5 @@
-using Mono.Cecil;
-using NUnit.Framework;
+#if UNITY_EDITOR
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +9,6 @@ using UnityEditor;
 using UnityEditor.AssetImporters;
 using UnityEngine;
 using UnityEngine.Rendering;
-using static UnityEditor.PlayerSettings;
 
 // ScriptedImporter
 // https://docs.unity3d.com/6000.2/Documentation/ScriptReference/AssetImporters.ScriptedImporter.html
@@ -1230,3 +1229,5 @@ namespace mmdlib
     }
 
 }
+
+#endif // UNITY_EDITOR

@@ -5,6 +5,7 @@ using Unity.Collections.LowLevel.Unsafe;
 using UnityEditor;
 using UnityEngine;
 
+#if UNITY_EDITOR
 // https://docs.unity3d.com/6000.3/Documentation/Manual/editor-EditorWindows.html
 // about unsafe : https://annulusgames.com/blog/unity-nativearray/
 namespace livesystem
@@ -154,3 +155,4 @@ namespace livesystem
     }
 }
 
+#endif // UNITY_EDITOR

@@ -16,3 +16,5 @@ MonoBehaviour:
     PostProcessSettings:
       Threshold: 2
       Intensity: 2
+  processFeatures:
+  - {fileID: 11400000, guid: bb6aaaa5036cf144ba6058bfababdfc3, type: 2}

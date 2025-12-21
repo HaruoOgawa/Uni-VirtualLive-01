@@ -1,3 +1,5 @@
+using srp.postprocess;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -18,7 +20,7 @@ namespace srp
         {
         }
 
-        public bool Create(int ScreenWidth, int ScreenHeight)
+        public bool Create(int ScreenWidth, int ScreenHeight, List<CPostProcessFeature> processFeatures)
         {
             m_FXAAFilter = new CFXAAFilter();
             if (!m_FXAAFilter.Create(ScreenWidth, ScreenHeight)) return false;
@@ -32,10 +34,17 @@ namespace srp
             m_ReadRT = new CRenderTarget();
             m_ReadRT.Create(ScreenWidth, ScreenHeight, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
 
+            foreach (var feature in processFeatures)
+            {
+                if(feature == null) continue;
+
+                if(!feature.Create(ScreenWidth, ScreenHeight)) return false;
+            }
+
             return true;
         }
 
-        public void Release()
+        public void Release(List<CPostProcessFeature> processFeatures)
         {
             if(m_WriteRT != null)
             {
@@ -60,10 +69,17 @@ namespace srp
                 m_BloomFilter.Release();
                 m_BloomFilter = null;
             }
+
+            foreach (var feature in processFeatures)
+            {
+                if (feature == null) continue;
+
+                feature.Release();
+            }
         }
 
         public bool Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, CRenderTarget finalResultRT, 
-            CSceneController sceneController, SPostProcessSettings settings)
+            CSceneController sceneController, SPostProcessSettings settings, List<CPostProcessFeature> processFeatures)
         {
             // ここまでの描画結果をコピー
             m_ReadRT.CopyFrameBuffer(context, commandBuffer, finalResultRT);
@@ -75,6 +91,16 @@ namespace srp
             // Bloom 
             if (!m_BloomFilter.Draw(context, commandBuffer, camera, m_ReadRT, m_WriteRT, sceneController, settings)) return false;
             SwapRT(); // レンダーターゲットをスワップ
+
+            // カスタムポストプロセス
+            foreach (var feature in processFeatures)
+            {
+                if(feature == null) continue;
+
+                if (!feature.Draw(context, commandBuffer, camera, m_ReadRT, m_WriteRT, sceneController)) continue;
+
+                SwapRT(); // レンダーターゲットをスワップ
+            }
 
             // 最終描画結果を更新
             finalResultRT.CopyFrameBuffer(context, commandBuffer, m_ReadRT);

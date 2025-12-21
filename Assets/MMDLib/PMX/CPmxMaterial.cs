@@ -1,5 +1,3 @@
-using mmdlib;
-using UnityEditor.AssetImporters;
 using UnityEngine;
 
 namespace mmdlib
