@@ -22,6 +22,6 @@ namespace network
 
 		bool Initialize();
 
-		bool Update();
+		bool FetchPixelData(void*& pPixelData, int& PixelByteSize, int& TextureWidth, int& TextureHeight);
 	};
 }

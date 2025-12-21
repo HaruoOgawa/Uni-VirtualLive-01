@@ -48,7 +48,7 @@ namespace network
 		return true;
 	}
 
-	bool CNDIReceiver::Update()
+	bool CNDIReceiver::FetchPixelData(void*& pPixelData, int& PixelByteSize, int& TextureWidth, int& TextureHeight)
 	{
 		if (!m_Connected || !m_NDI_recv) return true;
 
@@ -60,20 +60,32 @@ namespace network
 
 		if (frameType == NDIlib_frame_type_video)
 		{
-			std::vector<unsigned char> pixelData;
-
 			// 変換処理が重いのでBGRAしか見ない
 			// TouchDesignerでUYVYではなくBGRAを受け取るにはAlphaチャンネルを含める必要がある
 			if (videoFrame.FourCC == NDIlib_FourCC_video_type_BGRA)
 			{
 				int ByteSize = videoFrame.xres * videoFrame.yres * 4;
-				pixelData.resize(ByteSize);
 
-				std::memcpy(&pixelData[0], videoFrame.p_data, ByteSize);
+				pPixelData = new unsigned char[ByteSize];
+				PixelByteSize = ByteSize;
+				TextureWidth = Width;
+				TextureHeight = Height;
+
+				std::memcpy(pPixelData, videoFrame.p_data, ByteSize);
 			}
+			else
+			{
+				return false;
+			}
+		}
+		else
+		{
+			return false;
 		}
 
 		NDIlib_recv_free_video_v2(m_NDI_recv, &videoFrame);
+
+		if (PixelByteSize == 0) return false;
 
 		return true;
 	}

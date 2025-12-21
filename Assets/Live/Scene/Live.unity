@@ -8314,6 +8314,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a78d44d040ee64b47a6e92ddc07c2645, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NDIReciever
+  m_NDITexture: {fileID: 8400000, guid: 177fec0ea1adf11468666e975ae6c65c, type: 2}
 --- !u!4 &1572608019
 Transform:
   m_ObjectHideFlags: 0

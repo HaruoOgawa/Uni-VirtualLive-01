@@ -15,20 +15,15 @@
 
 // <呼び出し規約> 関数と呼び出し元の間で、引数や戻り値の受け渡し方法を決める
 // https://learn.microsoft.com/ja-jp/cpp/cpp/argument-passing-and-naming-conventions?view=msvc-170
+#ifdef _WIN32
 // __cdecl : 呼び出し元が引数のスタックを片付ける
 #define CALLING_WAY __cdecl
 // __stdcall : 呼び出し先が引数のスタックを片付ける
 //#define CALLING_WAY __stdcall
-
-DLLEXPORT void CALLING_WAY LogTest()
-{
-	printf("Hello Cpp Lib\n");
-}
-
-DLLEXPORT int CALLING_WAY ComputeTest(int a, int b)
-{
-	return a + b;
-}
+#else
+// Mac・Linuxの時は何もつけない
+#define CALLING_WAY
+#endif // _WIN32
 
 DLLEXPORT void* CALLING_WAY CNDIReceiver_Constructor()
 {
@@ -40,11 +35,20 @@ DLLEXPORT void CALLING_WAY CNDIReceiver_Destructor(void* pObj)
 	delete pObj;
 }
 
-DLLEXPORT bool CALLING_WAY CNDIReceiver_NDITestFunc(void* pObj)
+DLLEXPORT bool CALLING_WAY CNDIReceiver_Initialize(void* pObj)
 {
 	network::CNDIReceiver* NDIReceiver = (network::CNDIReceiver*)pObj;
+	if (!NDIReceiver) return false;
 
-	return NDIReceiver->Update();
+	return NDIReceiver->Initialize();
+}
+
+DLLEXPORT bool CALLING_WAY CNDIReceiver_FetchPixelData(void* pObj, void*& pPixelData, int& PixelByteSize, int& TextureWidth, int& TextureHeight)
+{
+	network::CNDIReceiver* NDIReceiver = (network::CNDIReceiver*)pObj;
+	if (!NDIReceiver) return false;
+
+	return NDIReceiver->FetchPixelData(pPixelData, PixelByteSize, TextureWidth, TextureHeight);
 }
 
 #endif
