@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -20,15 +21,16 @@ namespace srp
         {
             // 現在のモードを見てメインカメラを事前に決定しておく
             Camera mainCamera = null;
-            if (Application.isFocused)
-            {
-                // GameViewにフォーカスしている
-                mainCamera = Camera.main;
-            }
-            else
+
+            if(SceneView.lastActiveSceneView.IsFocused())
             {
                 // SceneViewにフォーカスしている
                 mainCamera = SceneView.lastActiveSceneView.camera;
+            }
+            else
+            {
+                // GameViewにフォーカスしている
+                mainCamera = Camera.main;
             }
 
             // 描画実行
