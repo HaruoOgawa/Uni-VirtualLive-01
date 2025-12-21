@@ -2438,6 +2438,7 @@ GameObject:
   - component: {fileID: 439197920}
   - component: {fileID: 439197919}
   - component: {fileID: 439197918}
+  - component: {fileID: 439197921}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -2513,12 +2514,25 @@ Transform:
   m_GameObject: {fileID: 439197917}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.56337, y: 4.51752, z: -27.62537}
+  m_LocalPosition: {x: 0, y: 1, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1717219530}
+  m_Children:
+  - {fileID: 1185577113}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &439197921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 439197917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d549047dfab2a6049980ec4426de54f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::camera.CameraController
 --- !u!1 &464011697
 GameObject:
   m_ObjectHideFlags: 0
@@ -3432,11 +3446,11 @@ Transform:
   m_GameObject: {fileID: 681082599}
   serializedVersion: 2
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: -2.56337, y: 6.51752, z: -17.62537}
+  m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1717219530}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!1001 &681377734
 PrefabInstance:
@@ -6466,6 +6480,84 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 1181523652}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1185577112
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1185577113}
+  - component: {fileID: 1185577114}
+  m_Layer: 0
+  m_Name: CameraDMXGroup
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1185577113
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1185577112}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 439197920}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1185577114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1185577112}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6e19e08c0452a945a88d12f42b18770, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::network.dmx.DMXFixtureGroup
+  m_Net: 2
+  m_SubNet: 0
+  m_Universe: 0
+  m_Channels:
+  - PosX_Byte_0
+  - PosX_Byte_1
+  - PosX_Byte_2
+  - PosX_Byte_3
+  - PosY_Byte_0
+  - PosY_Byte_1
+  - PosY_Byte_2
+  - PosY_Byte_3
+  - PosZ_Byte_0
+  - PosZ_Byte_1
+  - PosZ_Byte_2
+  - PosZ_Byte_3
+  - ZAngle_Byte_0
+  - ZAngle_Byte_1
+  - ZAngle_Byte_2
+  - ZAngle_Byte_3
+  - CenterX_Byte_0
+  - CenterX_Byte_1
+  - CenterX_Byte_2
+  - CenterX_Byte_3
+  - CenterY_Byte_0
+  - CenterY_Byte_1
+  - CenterY_Byte_2
+  - CenterY_Byte_3
+  - CenterZ_Byte_0
+  - CenterZ_Byte_1
+  - CenterZ_Byte_2
+  - CenterZ_Byte_3
+  m_Devices:
+  - {fileID: 439197917}
 --- !u!1 &1214980012 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
@@ -7395,6 +7487,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::network.dmx.DMXDataHandler
   m_FixtureGroupList:
+  - {fileID: 1185577114}
   - {fileID: 464011699}
 --- !u!4 &1414856482
 Transform:
@@ -9170,8 +9263,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 439197920}
-  - {fileID: 681082601}
   - {fileID: 1463176836}
   - {fileID: 745812209}
   - {fileID: 1356764161}
@@ -11353,6 +11444,8 @@ PrefabInstance:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
+  - {fileID: 439197920}
+  - {fileID: 681082601}
   - {fileID: 1717219530}
   - {fileID: 385114398}
   - {fileID: 882361613}
