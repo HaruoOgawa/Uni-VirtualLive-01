@@ -22,7 +22,8 @@ namespace srp
             // 現在のモードを見てメインカメラを事前に決定しておく
             Camera mainCamera = null;
 
-            if(SceneView.lastActiveSceneView.IsFocused())
+#if UNITY_EDITOR
+            if (SceneView.lastActiveSceneView.IsFocused())
             {
                 // SceneViewにフォーカスしている
                 mainCamera = SceneView.lastActiveSceneView.camera;
@@ -32,6 +33,10 @@ namespace srp
                 // GameViewにフォーカスしている
                 mainCamera = Camera.main;
             }
+#else
+            // 常にGameViewにフォーカス
+            mainCamera = Camera.main;
+#endif // UNITY_EDITOR
 
             // 描画実行
             for (int i = 0; i < cameras.Count; i++)
