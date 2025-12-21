@@ -57,6 +57,8 @@ namespace srp
             {
                 foreach(var buffer in m_ColorBuffers)
                 {
+                    if(buffer == null) continue;
+
                     buffer.Release();
                 }
 
