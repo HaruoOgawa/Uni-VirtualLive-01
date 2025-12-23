@@ -6,6 +6,7 @@ Shader "Custom/LightShaft"
         _Power("Power", Float) = 1.0
         _Intensity("Intensity", Float) = 1.0
         _Height("Height", Float) = 10.0
+        _BaseRadius("BaseRadius", Float) = 1.0
         _SpotAngle("SpotAngle", Range(0.0, 179.0)) = 45.0
     }
 
@@ -52,6 +53,7 @@ Shader "Custom/LightShaft"
                 float _Power;
                 float _Intensity;
                 float _Height;
+                float _BaseRadius;
                 float _SpotAngle;
             CBUFFER_END
 
@@ -67,9 +69,11 @@ Shader "Custom/LightShaft"
                 float spotAngle = radians(_SpotAngle) * 0.5;
                 float radius = (height / sin(3.1415 * 0.5 - spotAngle)) * sin(spotAngle);
 
+                float sizeXY = _BaseRadius + radius * rate;
+
                 float4x4 scaleMat = float4x4(
-                    radius, 0.0, 0.0, 0.0,
-                    0.0, radius, 0.0, 0.0,
+                    sizeXY, 0.0, 0.0, 0.0,
+                    0.0, sizeXY, 0.0, 0.0,
                     0.0, 0.0, height, 0.0,
                     0.0, 0.0, 0.0,    1.0
                 ); 
