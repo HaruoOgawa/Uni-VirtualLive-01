@@ -173,6 +173,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1758476134}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &59929935 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 413067321}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &59929939
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 59929935}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &90937501
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -265,6 +282,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -292,7 +313,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1771973739}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &90937502 stripped
 Transform:
@@ -339,6 +363,23 @@ Transform:
   - {fileID: 351724604}
   m_Father: {fileID: 385114398}
   m_LocalEulerAnglesHint: {x: 34.368, y: -1.287, z: 0.508}
+--- !u!1 &112595010 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 464700095}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &112595014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 112595010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &125515705
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -416,7 +457,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &141089304
 Transform:
   m_ObjectHideFlags: 0
@@ -440,6 +481,40 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
   m_PrefabInstance: {fileID: 1472765930}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &153457769 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 696231248}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &153457773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 153457769}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &173478996 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 524623343}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &173479000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 173478996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &177296341
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -532,6 +607,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -559,7 +638,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 502876772}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &177296342 stripped
 Transform:
@@ -663,6 +745,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -690,7 +776,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1133350990}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &201472817 stripped
 Transform:
@@ -723,7 +812,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.8
+      value: 5.3240004
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.y
@@ -731,7 +820,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalRotation.w
@@ -789,6 +878,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -816,7 +909,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1071158818}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &216506099 stripped
 Transform:
@@ -989,7 +1085,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.5239999
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.y
@@ -997,7 +1093,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1055,6 +1151,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -1082,13 +1182,33 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 855760465}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &242487849 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 242487848}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &243685704 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 949246896}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &243685708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 243685704}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &245816332
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1115,7 +1235,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.2
+      value: 3.724
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1123,7 +1243,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1181,6 +1301,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -1208,13 +1332,33 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1150751810}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &245816333 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 245816332}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &246581120 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1597286605}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &246581124
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 246581120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &275258219
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1374,6 +1518,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -1401,7 +1549,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 753058999}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &282643033 stripped
 Transform:
@@ -1565,7 +1716,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.4
+      value: 2.924
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1573,7 +1724,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1631,6 +1782,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -1658,7 +1813,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 428779198}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &343232436 stripped
 Transform:
@@ -1757,6 +1915,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -1784,7 +1946,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 690414034}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &347056936 stripped
 Transform:
@@ -1829,7 +1994,6 @@ Transform:
   - {fileID: 524623344}
   - {fileID: 2075527056}
   - {fileID: 949246897}
-  - {fileID: 783808684}
   m_Father: {fileID: 385114398}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &351724603
@@ -1924,6 +2088,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -1951,139 +2119,50 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2071968224}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &351724604 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 351724603}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &358114289
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 978111586}
-    m_Modifications:
-    - target: {fileID: -8865495843214767778, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.59022605
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.59022605
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.59022605
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 6.4
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 3.53
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0.7072302
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0.7069834
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: -89.98
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 180
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -7415686972458042565, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.013590981
-      objectReference: {fileID: 0}
-    - target: {fileID: -7415686972458042565, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.013590981
-      objectReference: {fileID: 0}
-    - target: {fileID: -7415686972458042565, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.013590981
-      objectReference: {fileID: 0}
-    - target: {fileID: -7415686972458042565, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.54323
-      objectReference: {fileID: 0}
-    - target: {fileID: -7415686972458042565, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.55123
-      objectReference: {fileID: 0}
-    - target: {fileID: -7415686972458042565, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0.47071
-      objectReference: {fileID: 0}
-    - target: {fileID: -6663729753074727323, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
-    - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 410831867655410839, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 410831867655410839, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
-    - target: {fileID: 410831867655410839, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: 'm_Materials.Array.data[1]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 34862baa76197594b8cdea13939eeca8, type: 2}
-    - target: {fileID: 919132149155446097, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_Name
-      value: FlashLight (9)
-      objectReference: {fileID: 0}
-    - target: {fileID: 8734045227428280566, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
---- !u!4 &358114290 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-  m_PrefabInstance: {fileID: 358114289}
+--- !u!1 &360087106 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1578941002}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &360087110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 360087106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &376162578 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1504200754}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &376162582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 376162578}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1 &385114397
 GameObject:
   m_ObjectHideFlags: 0
@@ -2113,6 +2192,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1752612852}
   - {fileID: 350871996}
   - {fileID: 978111586}
   - {fileID: 2041255076}
@@ -2121,6 +2201,23 @@ Transform:
   - {fileID: 95994773}
   m_Father: {fileID: 578959747}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &391288100 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 788852312}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &391288104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 391288100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &395198788
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2213,6 +2310,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -2240,7 +2341,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 561505238}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &395198789 stripped
 Transform:
@@ -2273,7 +2377,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4
+      value: 4.524
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2281,7 +2385,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2339,6 +2443,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -2366,13 +2474,33 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 403026161}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &395689605 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 395689604}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &403026157 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 395689604}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &403026161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 403026157}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1 &404517762
 GameObject:
   m_ObjectHideFlags: 0
@@ -2501,6 +2629,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -2528,13 +2660,67 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 59929939}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &413067322 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 413067321}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &419952575 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1747545249}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &419952579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 419952575}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &427170125 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1277053430}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &427170129
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 427170125}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &428779194 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 343232435}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &428779198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 428779194}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1 &439197917
 GameObject:
   m_ObjectHideFlags: 0
@@ -2803,6 +2989,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -2830,13 +3020,33 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 112595014}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &464700096 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 464700095}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &502876768 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 177296341}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &502876772
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 502876768}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &513169222
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2899,6 +3109,40 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1040563088527990596, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
   m_PrefabInstance: {fileID: 513169222}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &514636313 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1851870842}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &514636317
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 514636313}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &515774758 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1864444365}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &515774762
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 515774758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &519996208
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2987,7 +3231,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4
+      value: 4.524
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.y
@@ -2995,7 +3239,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalRotation.w
@@ -3053,6 +3297,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -3080,7 +3328,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 173479000}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &524623344 stripped
 Transform:
@@ -3149,6 +3400,40 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1040563088527990596, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
   m_PrefabInstance: {fileID: 529185630}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &544627135 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1312973219}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &544627139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 544627135}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &561505234 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 395198788}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &561505238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 561505234}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1 &578959746
 GameObject:
   m_ObjectHideFlags: 0
@@ -3375,6 +3660,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 141089304}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &614229100 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1785642291}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &614229104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 614229100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &625167087
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3467,6 +3769,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -3494,7 +3800,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1590559063}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &625167088 stripped
 Transform:
@@ -3593,6 +3902,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -3620,7 +3933,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1460258363}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &626880028 stripped
 Transform:
@@ -3910,6 +4226,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -3937,7 +4257,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1454555175}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &682189499 stripped
 Transform:
@@ -3949,6 +4272,23 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
   m_PrefabInstance: {fileID: 513169222}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &690414030 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 347056935}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &690414034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 690414030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &696231248
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4041,6 +4381,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -4068,7 +4412,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 153457773}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &696231249 stripped
 Transform:
@@ -4177,6 +4524,40 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: beb1408b470a11f4f84b779deac1f302, type: 3}
+--- !u!1 &712257098 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1347914516}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &712257102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 712257098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &720916579 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1099173996}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &720916583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 720916579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &722423026
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4370,6 +4751,23 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1717219530}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &753058995 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 282643032}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &753058999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 753058995}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1 &774011522
 GameObject:
   m_ObjectHideFlags: 0
@@ -4402,132 +4800,6 @@ Transform:
   - {fileID: 1002517410}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &783808683
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 350871996}
-    m_Modifications:
-    - target: {fileID: -8865495843214767778, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.59022605
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.59022605
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.59022605
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 6.4
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 3.53
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0.7072302
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0.7069834
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: -89.98
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 180
-      objectReference: {fileID: 0}
-    - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: -7415686972458042565, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.013590981
-      objectReference: {fileID: 0}
-    - target: {fileID: -7415686972458042565, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.013590981
-      objectReference: {fileID: 0}
-    - target: {fileID: -7415686972458042565, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.013590981
-      objectReference: {fileID: 0}
-    - target: {fileID: -7415686972458042565, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.54323
-      objectReference: {fileID: 0}
-    - target: {fileID: -7415686972458042565, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.55123
-      objectReference: {fileID: 0}
-    - target: {fileID: -7415686972458042565, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0.47071
-      objectReference: {fileID: 0}
-    - target: {fileID: -6663729753074727323, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
-    - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 410831867655410839, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 410831867655410839, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
-    - target: {fileID: 410831867655410839, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: 'm_Materials.Array.data[1]'
-      value: 
-      objectReference: {fileID: 2100000, guid: 34862baa76197594b8cdea13939eeca8, type: 2}
-    - target: {fileID: 919132149155446097, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_Name
-      value: FlashLight (9)
-      objectReference: {fileID: 0}
-    - target: {fileID: 8734045227428280566, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
---- !u!4 &783808684 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
-  m_PrefabInstance: {fileID: 783808683}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &786445279
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4744,6 +5016,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -4771,7 +5047,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 391288104}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &788852313 stripped
 Transform:
@@ -4870,6 +5149,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -4897,7 +5180,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1774021148}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &796130975 stripped
 Transform:
@@ -4940,6 +5226,57 @@ Transform:
   - {fileID: 519996209}
   m_Father: {fileID: 882361613}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!1 &836036880 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1251960904}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &836036884
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 836036880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &855760461 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 242487848}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &855760465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 855760461}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &863131890 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1080629739}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &863131894
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 863131890}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &864545455
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5094,6 +5431,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -5121,7 +5462,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 984544043}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &865360945 stripped
 Transform:
@@ -5227,7 +5571,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.8
+      value: 1.3239999
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.y
@@ -5235,7 +5579,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalRotation.w
@@ -5293,6 +5637,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -5320,7 +5668,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1328332292}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &889270313 stripped
 Transform:
@@ -5485,6 +5836,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -5512,7 +5867,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1532642555}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &912219259 stripped
 Transform:
@@ -5611,6 +5969,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -5638,7 +6000,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1468308102}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &941300116 stripped
 Transform:
@@ -5671,7 +6036,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.6
+      value: 6.1239996
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.y
@@ -5679,7 +6044,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalRotation.w
@@ -5737,6 +6102,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -5764,7 +6133,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 243685708}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &949246897 stripped
 Transform:
@@ -5925,6 +6297,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -5952,13 +6328,33 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1884481549}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &951292341 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 951292340}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &972856467 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1416056248}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &972856471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 972856467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1 &978111585
 GameObject:
   m_ObjectHideFlags: 0
@@ -5997,9 +6393,25 @@ Transform:
   - {fileID: 395689605}
   - {fileID: 216506099}
   - {fileID: 1785642292}
-  - {fileID: 358114290}
   m_Father: {fileID: 385114398}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &984544039 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 865360944}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &984544043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 984544039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &987809736
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6186,6 +6598,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -6213,13 +6629,50 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1058157189}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1050739673 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 1050739672}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1058157185 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1050739672}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1058157189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1058157185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &1071158814 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 216506098}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1071158818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1071158814}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &1080629739
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6312,6 +6765,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -6339,7 +6796,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 863131894}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1080629740 stripped
 Transform:
@@ -6372,7 +6832,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.2
+      value: 3.724
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.y
@@ -6380,7 +6840,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalRotation.w
@@ -6438,6 +6898,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -6465,13 +6929,33 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 720916583}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1099173997 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 1099173996}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1115167204 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 2092272276}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1115167208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1115167204}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1 &1126526371
 GameObject:
   m_ObjectHideFlags: 0
@@ -6555,6 +7039,57 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!1 &1133350986 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 201472816}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1133350990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1133350986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &1139196130 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1857859445}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1139196134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1139196130}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &1150751806 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 245816332}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1150751810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1150751806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &1156930789
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6730,6 +7265,40 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1160617515}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1172157685 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1642553365}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1172157689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1172157685}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &1175911371 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1817047468}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1175911375
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1175911371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &1181523652
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6822,6 +7391,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -6849,7 +7422,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2040491542}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1181523653 stripped
 Transform:
@@ -7097,6 +7673,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -7124,7 +7704,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 836036884}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1251960905 stripped
 Transform:
@@ -7317,6 +7900,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -7344,7 +7931,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 427170129}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1277053431 stripped
 Transform:
@@ -7443,6 +8033,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -7470,13 +8064,33 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 544627139}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1312973220 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 1312973219}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1328332288 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 889270312}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1328332292
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1328332288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1 &1334019587
 GameObject:
   m_ObjectHideFlags: 0
@@ -7663,6 +8277,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -7690,7 +8308,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1530716730}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1337172413 stripped
 Transform:
@@ -7723,7 +8344,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.8
+      value: 1.3239999
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.y
@@ -7731,7 +8352,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalRotation.w
@@ -7789,6 +8410,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -7816,7 +8441,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 712257102}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1347914517 stripped
 Transform:
@@ -7901,6 +8529,7 @@ MonoBehaviour:
   m_FixtureGroupList:
   - {fileID: 1185577114}
   - {fileID: 464011699}
+  - {fileID: 1752612853}
 --- !u!4 &1414856482
 Transform:
   m_ObjectHideFlags: 0
@@ -7942,7 +8571,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.8
+      value: 1.3239999
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.y
@@ -7950,7 +8579,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalRotation.w
@@ -8008,6 +8637,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -8035,7 +8668,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 972856471}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1416056249 stripped
 Transform:
@@ -8089,6 +8725,40 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
   m_PrefabInstance: {fileID: 951217691}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1454555171 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 682189498}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1454555175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1454555171}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &1460258359 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 626880027}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1460258363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1460258359}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!4 &1463176836 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2fd188ab81ae1964792ecf35fb8c16c9, type: 3}
@@ -8226,6 +8896,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -8253,13 +8927,33 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1608326737}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1468228702 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 1468228701}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1468308098 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 941300115}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1468308102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1468308098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &1472765930
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8468,6 +9162,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -8495,7 +9193,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 376162582}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1504200755 stripped
 Transform:
@@ -8538,6 +9239,40 @@ Transform:
   - {fileID: 951217692}
   m_Father: {fileID: 464011698}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1530716726 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1337172412}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1530716730
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1530716726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &1532642551 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 912219258}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1532642555
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1532642551}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &1533245433
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8630,6 +9365,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -8657,7 +9396,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2034030295}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1533245434 stripped
 Transform:
@@ -8756,6 +9498,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -8783,18 +9529,55 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1561078968}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1542228139 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 1542228138}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1546893829 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 2075527055}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1546893833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1546893829}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1 &1552798782 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
   m_PrefabInstance: {fileID: 1335706868}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1561078964 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1542228138}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1561078968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1561078964}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1 &1572608017
 GameObject:
   m_ObjectHideFlags: 0
@@ -8866,7 +9649,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.4
+      value: 2.924
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.y
@@ -8874,7 +9657,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalRotation.w
@@ -8932,6 +9715,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -8959,13 +9746,33 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 360087110}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1578941003 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 1578941002}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1590559059 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 625167087}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1590559063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1590559059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &1596681251
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9054,7 +9861,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.6
+      value: 2.1239998
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.y
@@ -9062,7 +9869,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalRotation.w
@@ -9120,6 +9927,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -9147,7 +9958,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 246581124}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1597286606 stripped
 Transform:
@@ -9246,6 +10060,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -9273,13 +10091,33 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1811260087}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1606511212 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 1606511211}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1608326733 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1468228701}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1608326737
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1608326733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1 &1616330511 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
@@ -9431,6 +10269,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -9458,7 +10300,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1172157689}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1642553366 stripped
 Transform:
@@ -9557,7 +10402,7 @@ PlayableDirector:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1717219528}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_PlayableAsset: {fileID: 11400000, guid: 1e744ca7dca0b0742a3fc9c2cdb7a9ad, type: 2}
   m_InitialState: 0
@@ -9670,7 +10515,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.8
+      value: 1.3239999
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.y
@@ -9678,7 +10523,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalRotation.w
@@ -9736,6 +10581,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -9763,13 +10612,118 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 419952579}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1747545250 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 1747545249}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1752612851
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1752612852}
+  - component: {fileID: 1752612853}
+  m_Layer: 0
+  m_Name: DMXGroup_FlashLight
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1752612852
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1752612851}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 385114398}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1752612853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1752612851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6e19e08c0452a945a88d12f42b18770, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::network.dmx.DMXFixtureGroup
+  m_Net: 1
+  m_SubNet: 0
+  m_Universe: 0
+  m_Channels:
+  - R
+  - G
+  - B
+  - A
+  - Dimmer
+  m_Devices:
+  - {fileID: 1561078964}
+  - {fileID: 1608326733}
+  - {fileID: 502876768}
+  - {fileID: 1454555171}
+  - {fileID: 59929935}
+  - {fileID: 544627135}
+  - {fileID: 2040491538}
+  - {fileID: 1774021144}
+  - {fileID: 1910500296}
+  - {fileID: 376162578}
+  - {fileID: 1058157185}
+  - {fileID: 1532642551}
+  - {fileID: 1172157685}
+  - {fileID: 1175911371}
+  - {fileID: 1530716726}
+  - {fileID: 391288100}
+  - {fileID: 753058995}
+  - {fileID: 690414030}
+  - {fileID: 1590559059}
+  - {fileID: 1115167204}
+  - {fileID: 1811260083}
+  - {fileID: 836036880}
+  - {fileID: 1771973735}
+  - {fileID: 2071968220}
+  - {fileID: 1468308098}
+  - {fileID: 112595010}
+  - {fileID: 427170125}
+  - {fileID: 153457769}
+  - {fileID: 984544039}
+  - {fileID: 1133350986}
+  - {fileID: 2034030291}
+  - {fileID: 561505234}
+  - {fileID: 514636313}
+  - {fileID: 712257098}
+  - {fileID: 246581120}
+  - {fileID: 428779194}
+  - {fileID: 1150751806}
+  - {fileID: 173478996}
+  - {fileID: 1546893829}
+  - {fileID: 243685704}
+  - {fileID: 1328332288}
+  - {fileID: 855760461}
+  - {fileID: 360087106}
+  - {fileID: 1139196130}
+  - {fileID: 403026157}
+  - {fileID: 720916579}
+  - {fileID: 614229100}
+  - {fileID: 1071158814}
 --- !u!1 &1758476133
 GameObject:
   m_ObjectHideFlags: 0
@@ -9785,7 +10739,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1758476134
 Transform:
   m_ObjectHideFlags: 0
@@ -9804,6 +10758,40 @@ Transform:
   - {fileID: 5135640}
   m_Father: {fileID: 1862744368}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1771973735 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 90937501}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1771973739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1771973735}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &1774021144 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 796130974}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1774021148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1774021144}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &1785642291
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9830,7 +10818,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.6
+      value: 6.1239996
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.y
@@ -9838,7 +10826,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalRotation.w
@@ -9896,6 +10884,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -9923,7 +10915,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 614229104}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1785642292 stripped
 Transform:
@@ -10032,6 +11027,23 @@ Transform:
   - {fileID: 796130975}
   m_Father: {fileID: 385114398}
   m_LocalEulerAnglesHint: {x: 34.368, y: -1.287, z: 0.508}
+--- !u!1 &1811260083 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1606511211}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1811260087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1811260083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &1817047468
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10124,6 +11136,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -10151,7 +11167,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1175911375}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1817047469 stripped
 Transform:
@@ -10250,6 +11269,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -10277,7 +11300,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1910500300}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1826776429 stripped
 Transform:
@@ -10376,7 +11402,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 0.524
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.y
@@ -10442,6 +11468,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -10469,7 +11499,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 514636317}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1851870843 stripped
 Transform:
@@ -10502,7 +11535,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.6
+      value: 2.1239998
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.y
@@ -10510,7 +11543,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalRotation.w
@@ -10568,6 +11601,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -10595,7 +11632,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1139196134}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1857859446 stripped
 Transform:
@@ -10727,6 +11767,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -10754,13 +11798,33 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 515774762}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &1864444366 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 1864444365}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1884481545 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 951292340}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1884481549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1884481545}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &1887093458
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10885,6 +11949,23 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1040563088527990596, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
   m_PrefabInstance: {fileID: 1904394074}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1910500296 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1826776428}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1910500300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1910500296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &1951914627
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11598,6 +12679,40 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1040563088527990596, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
   m_PrefabInstance: {fileID: 2032485580}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2034030291 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1533245433}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2034030295
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2034030291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &2040491538 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 1181523652}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2040491542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2040491538}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1 &2041255075
 GameObject:
   m_ObjectHideFlags: 0
@@ -11766,6 +12881,23 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1040563088527990596, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
   m_PrefabInstance: {fileID: 2061141798}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2071968220 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+  m_PrefabInstance: {fileID: 351724603}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2071968224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2071968220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
 --- !u!1001 &2075527055
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11792,7 +12924,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.8
+      value: 5.3240004
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.y
@@ -11800,7 +12932,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_LocalRotation.w
@@ -11858,6 +12990,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -11885,7 +13021,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1546893833}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &2075527056 stripped
 Transform:
@@ -11984,6 +13123,10 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34cfec3221d328e4f8fe4fcff3eacb96, type: 2}
+    - target: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      propertyPath: m_Name
+      value: FlashLightEmitter
+      objectReference: {fileID: 0}
     - target: {fileID: -4664719263159942270, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -12011,7 +13154,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1115167208}
   m_SourcePrefab: {fileID: 100100000, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
 --- !u!4 &2092272277 stripped
 Transform:
