@@ -18,3 +18,4 @@ MonoBehaviour:
       Intensity: 2
   processFeatures:
   - {fileID: 11400000, guid: bb6aaaa5036cf144ba6058bfababdfc3, type: 2}
+  - {fileID: 11400000, guid: 1d8837702d00a2a4da3776ed198a4714, type: 2}
