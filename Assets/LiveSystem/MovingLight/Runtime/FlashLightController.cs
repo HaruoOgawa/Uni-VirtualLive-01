@@ -5,7 +5,7 @@ using binary;
 public class FlashLightController : MonoBehaviour, IDMXFixture
 {
     Color m_DMXColor = Color.white;
-    float m_DMXDimmer = 0.0f;
+    float m_DMXDimmer = 4.0f;
 
     // プレファブのインスタンス単位でマテリアルに違う値をセットするためにMaterialPropertyBlockを使用
     MaterialPropertyBlock m_ProperyBlock = null;
@@ -35,7 +35,7 @@ public class FlashLightController : MonoBehaviour, IDMXFixture
             (float)(Analyser.GetByte()) / 255.0f
         );
 
-        float NewDMXDimmer = (float)(Analyser.GetByte()) / 255.0f;
+        float NewDMXDimmer = 4.0f * (float)(Analyser.GetByte()) / 255.0f;
 
         // 少し古い値を受信して急激に値が変わることがあるのでイージングを入れる
         m_DMXDimmer = Mathf.Lerp(m_DMXDimmer, NewDMXDimmer, 0.1f);
@@ -48,13 +48,17 @@ public class FlashLightController : MonoBehaviour, IDMXFixture
         var meshRenderer = this.gameObject.GetComponent<MeshRenderer>();
         if(meshRenderer == null) return;
 
-        foreach(var material in meshRenderer.sharedMaterials)
+        for(int m = 0; m < meshRenderer.sharedMaterials.Length; m++)
         {
-            if(material == null) continue;
+            var material = meshRenderer.sharedMaterials[m];
+
+            if (material == null) continue;
 
             if(material.name == "Flash_Emit")
             {
-                material.SetColor("_EmissiveColor", m_DMXColor);
+                meshRenderer.GetPropertyBlock(m_ProperyBlock, m);
+                m_ProperyBlock.SetColor("_EmissiveColor", m_DMXColor);
+                meshRenderer.SetPropertyBlock(m_ProperyBlock, m);
             }
         }
     }

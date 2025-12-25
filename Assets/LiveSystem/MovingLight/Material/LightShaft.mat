@@ -30,13 +30,13 @@ Material:
     m_Ints: []
     m_Floats:
     - _BaseRadius: 0.17
-    - _Height: 3.81
-    - _Intensity: 1.33
+    - _Height: 3.94
+    - _Intensity: 1.46
     - _LightPower: 1
-    - _Power: 0.75
+    - _Power: 1.89
     - _Radius: 1
     - _Range: 1
-    - _SpotAngle: 3.6
+    - _SpotAngle: 13.8
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
