@@ -52,7 +52,7 @@ public class FlashLightController : MonoBehaviour, IDMXFixture
         FinalColor.g += m_DMXDimmer;
         FinalColor.b += m_DMXDimmer;
 
-        Debug.LogFormat("[{1}] FinalColor: {0}", FinalColor, this.gameObject.transform.parent.parent.name);
+        //Debug.LogFormat("[{1}] FinalColor: {0}", FinalColor, this.gameObject.transform.parent.parent.name);
 
         for (int m = 0; m < meshRenderer.sharedMaterials.Length; m++)
         {

@@ -11,14 +11,16 @@ public class MovingLightController : MonoBehaviour, IDMXFixture
     [SerializeField] Light m_Light = null;
 
     Color m_DMXColor = Color.white;
-    float m_DMXDimmer = 0.0f;
+    float m_DMXDimmer = 1.0f;
     float m_DMXPan = 0.0f;
     float m_DMXTilt = 0.0f;
     float m_DMXAngle = 0.0f;
     float m_DMXHeight = 0.0f;
+    float m_DMXMulIntensity = 1.0f;
 
     Quaternion m_DefaultPanRotate = Quaternion.identity;
     Quaternion m_DefaultTiltRotate = Quaternion.identity;
+    float m_DefaultIntensity = 1.0f;
 
     // プレファブのインスタンス単位でマテリアルに違う値をセットするためにMaterialPropertyBlockを使用
     MaterialPropertyBlock m_ProperyBlock = null;
@@ -30,12 +32,13 @@ public class MovingLightController : MonoBehaviour, IDMXFixture
 
         if (m_Pan != null) m_DefaultPanRotate = m_Pan.transform.localRotation;
         if (m_Tilt != null) m_DefaultTiltRotate = m_Tilt.transform.localRotation;
+        if(m_Light != null) m_DefaultIntensity = m_Light.intensity;
     }
 
     public void AssignDMXData(byte[] data)
     {
-        // 9チャンネルある想定
-        const int ExpectByteSize = 9;
+        // 10チャンネルある想定
+        const int ExpectByteSize = 10;
 
         if (data.Length != ExpectByteSize) return;
 
@@ -56,11 +59,13 @@ public class MovingLightController : MonoBehaviour, IDMXFixture
         m_DMXPan = Mathf.Rad2Deg * 2.0f * 3.1415f * (float)(Analyser.GetByte()) / 255.0f;
         float NewDMXAngle = 180.0f * (float)(Analyser.GetByte()) / 255.0f; // 0 ~ 90度まで
         float NewDMXHeight = 50.0f * (float)(Analyser.GetByte()) / 255.0f; // 50mまで伸びる
+        float NewMulIntensity = (float)(Analyser.GetByte()) / 255.0f;
 
         // 少し古い値を受信して急激に値が変わることがあるのでイージングを入れる
         m_DMXDimmer = Mathf.Lerp(m_DMXDimmer, NewDMXDimmer, 0.1f);
         m_DMXAngle = Mathf.Lerp(m_DMXAngle, NewDMXAngle, 0.1f);
         m_DMXHeight = Mathf.Lerp(NewDMXHeight, NewDMXHeight, 0.1f);
+        m_DMXMulIntensity = Mathf.Lerp(m_DMXMulIntensity, NewMulIntensity, 0.1f);
     }
 
     void Update()
@@ -99,7 +104,7 @@ public class MovingLightController : MonoBehaviour, IDMXFixture
             renderer.GetPropertyBlock(m_ProperyBlock);
 
             m_ProperyBlock.SetColor("_Color", m_DMXColor);
-            m_ProperyBlock.SetFloat("_Intensity", m_DMXDimmer);
+            m_ProperyBlock.SetFloat("_Dimmer", m_DMXDimmer);
             m_ProperyBlock.SetFloat("_Height", m_DMXHeight);
             m_ProperyBlock.SetFloat("_SpotAngle", m_DMXAngle);
 
@@ -110,7 +115,7 @@ public class MovingLightController : MonoBehaviour, IDMXFixture
         if(m_Light != null)
         {
             m_Light.color = m_DMXColor;
-            m_Light.intensity = m_DMXDimmer;
+            m_Light.intensity = m_DefaultIntensity * m_DMXMulIntensity;
             m_Light.range = m_DMXHeight;
             m_Light.spotAngle = m_DMXAngle;
         }
