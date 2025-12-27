@@ -4,8 +4,8 @@ using binary;
 
 public class FlashLightController : MonoBehaviour, IDMXFixture
 {
-    Color m_DMXColor = Color.white;
-    float m_DMXDimmer = 2.0f;
+    Color m_DMXColor = Color.black;
+    float m_DMXDimmer = 0.0f;
 
     // プレファブのインスタンス単位でマテリアルに違う値をセットするためにMaterialPropertyBlockを使用
     MaterialPropertyBlock m_ProperyBlock = null;
