@@ -33,12 +33,26 @@ namespace network.dmx
 
         public void DispatchDMXData(byte[] DataBuffer)
         {
+            int TimeCodeByte = 4;
             int ByteSizePerDevice = m_Channels.Count; // 各チャンネルを1バイトで計算する
-            int TotalByteSize = ByteSizePerDevice * m_Devices.Count;
+            int TotalByteSize = ByteSizePerDevice * m_Devices.Count + TimeCodeByte;
+
             if (TotalByteSize == 0 || TotalByteSize > DataBuffer.Length) return;
+
+            byte Frame = DataBuffer[0];
+            byte Second = DataBuffer[1];
+            byte Minute = DataBuffer[2];
+            byte Hour = DataBuffer[3];
+
+            float TimeCode = ((float)Hour) * 60.0f * 60.0f + ((float)Minute) * 60.0f + ((float)Second) + ((float)Frame) / 30.0f;
+            //Debug.LogFormat("TimeCode: {0}", TimeCode);
 
             // 各デバイスにバイト列を分けて送信
             int ByteOffset = 0;
+
+            // タイムコードの分だけ飛ばす
+            ByteOffset += TimeCodeByte;
+            
             foreach (IDMXFixture fixture in m_DMXFixtures)
             {
                 if(fixture == null) continue;
