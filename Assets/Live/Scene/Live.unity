@@ -431,6 +431,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5574382593909546032, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Cookie
+      value: 
+      objectReference: {fileID: 2800000, guid: 07c1848a8d38b634db476cd4fbb66629, type: 3}
     - target: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_Name
       value: MovingLight (3)
@@ -501,6 +505,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &173386889 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+  m_PrefabInstance: {fileID: 722423026}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &173478996 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
@@ -970,6 +979,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5574382593909546032, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Cookie
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_Name
       value: MovingLight
@@ -1040,6 +1053,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5574382593909546032, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Cookie
+      value: 
+      objectReference: {fileID: 2800000, guid: 07c1848a8d38b634db476cd4fbb66629, type: 3}
     - target: {fileID: 5984250431655281222, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -1409,6 +1426,10 @@ PrefabInstance:
     - target: {fileID: 1040563088527990596, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5574382593909546032, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Cookie
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_Name
@@ -2867,6 +2888,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5574382593909546032, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Cookie
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_Name
       value: MovingLight (1)
@@ -3147,6 +3172,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5574382593909546032, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Cookie
+      value: 
+      objectReference: {fileID: 2800000, guid: 07c1848a8d38b634db476cd4fbb66629, type: 3}
     - target: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_Name
       value: MovingLight
@@ -3444,6 +3473,76 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 625167087}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &648010777
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 648010778}
+  - component: {fileID: 648010779}
+  m_Layer: 0
+  m_Name: UpperStageDMXGroup
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &648010778
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 648010777}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1722222510}
+  - {fileID: 696958870}
+  m_Father: {fileID: 882361613}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &648010779
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 648010777}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6e19e08c0452a945a88d12f42b18770, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DMXFixtureGroup
+  m_Net: 3
+  m_SubNet: 0
+  m_Universe: 0
+  m_Channels:
+  - R
+  - G
+  - B
+  - A
+  - Dimmer
+  - Pan
+  - Tilt
+  - Angle
+  - Height
+  - MulIntensity
+  - ZAngle
+  m_Devices:
+  - {fileID: 1148090398}
+  - {fileID: 1594259118}
+  - {fileID: 1170801184}
+  - {fileID: 1962442500}
+  - {fileID: 1852279748}
+  - {fileID: 173386889}
+  - {fileID: 1073807834}
+  - {fileID: 1193889724}
 --- !u!1 &681082599
 GameObject:
   m_ObjectHideFlags: 0
@@ -3589,6 +3688,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5574382593909546032, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Cookie
+      value: 
+      objectReference: {fileID: 2800000, guid: 07c1848a8d38b634db476cd4fbb66629, type: 3}
     - target: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_Name
       value: MovingLight (1)
@@ -3907,7 +4010,7 @@ Transform:
   - {fileID: 722423027}
   - {fileID: 788138842}
   - {fileID: 228015094}
-  m_Father: {fileID: 882361613}
+  m_Father: {fileID: 648010778}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 30}
 --- !u!1 &700710599 stripped
 GameObject:
@@ -4041,6 +4144,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5574382593909546032, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Cookie
+      value: 
+      objectReference: {fileID: 2800000, guid: 07c1848a8d38b634db476cd4fbb66629, type: 3}
     - target: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_Name
       value: MovingLight (1)
@@ -4299,6 +4406,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5574382593909546032, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Cookie
+      value: 
+      objectReference: {fileID: 2800000, guid: 07c1848a8d38b634db476cd4fbb66629, type: 3}
     - target: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_Name
       value: MovingLight (2)
@@ -4678,6 +4789,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5574382593909546032, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Cookie
+      value: 
+      objectReference: {fileID: 2800000, guid: 07c1848a8d38b634db476cd4fbb66629, type: 3}
     - target: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_Name
       value: MovingLight
@@ -4856,8 +4971,7 @@ Transform:
   m_Children:
   - {fileID: 464011698}
   - {fileID: 1943633728}
-  - {fileID: 1722222510}
-  - {fileID: 696958870}
+  - {fileID: 648010778}
   m_Father: {fileID: 578959747}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &882650016
@@ -5434,6 +5548,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5574382593909546032, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Cookie
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_Name
       value: MovingLight (4)
@@ -5720,6 +5838,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &1073807834 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+  m_PrefabInstance: {fileID: 788138841}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1080629739
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6133,6 +6256,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &1148090398 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+  m_PrefabInstance: {fileID: 608348904}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1150751806 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
@@ -6197,6 +6325,10 @@ PrefabInstance:
     - target: {fileID: 1040563088527990596, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5574382593909546032, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Cookie
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_Name
@@ -6325,6 +6457,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1160617515}
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &1170801184 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+  m_PrefabInstance: {fileID: 2032485580}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1172157685 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -5625041584079149514, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
@@ -6570,6 +6707,11 @@ MonoBehaviour:
   - CenterZ_Byte_3
   m_Devices:
   - {fileID: 439197917}
+--- !u!1 &1193889724 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+  m_PrefabInstance: {fileID: 228015093}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1206397098 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
@@ -7251,6 +7393,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5574382593909546032, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Cookie
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_Name
       value: MovingLight (1)
@@ -7478,6 +7624,7 @@ MonoBehaviour:
   - {fileID: 464011699}
   - {fileID: 1752612853}
   - {fileID: 1943633729}
+  - {fileID: 648010779}
 --- !u!4 &1414856482
 Transform:
   m_ObjectHideFlags: 0
@@ -7944,6 +8091,10 @@ PrefabInstance:
     - target: {fileID: 1040563088527990596, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5574382593909546032, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Cookie
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_Name
@@ -8721,6 +8872,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4465b388e4ec241429e3fc6b84fa7daf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FlashLightController
+--- !u!1 &1594259118 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+  m_PrefabInstance: {fileID: 681377734}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1597286605
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9248,6 +9404,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5574382593909546032, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Cookie
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_Name
       value: MovingLight
@@ -9377,7 +9537,7 @@ Transform:
   - {fileID: 681377735}
   - {fileID: 2032485581}
   - {fileID: 125515706}
-  m_Father: {fileID: 882361613}
+  m_Father: {fileID: 648010778}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: -30}
 --- !u!1001 &1747545249
 PrefabInstance:
@@ -9866,6 +10026,10 @@ PrefabInstance:
     - target: {fileID: 1040563088527990596, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5574382593909546032, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Cookie
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_Name
@@ -10422,6 +10586,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a6db7a4c41d5be948b4e02a09ececa51, type: 3}
   m_PrefabInstance: {fileID: 1851870842}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1852279748 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+  m_PrefabInstance: {fileID: 864545455}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1857859445
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10940,6 +11109,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2fd188ab81ae1964792ecf35fb8c16c9, type: 3}
+--- !u!1 &1962442500 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+  m_PrefabInstance: {fileID: 125515705}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1968202940
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11246,6 +11420,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5574382593909546032, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Cookie
+      value: 
+      objectReference: {fileID: 2800000, guid: 07c1848a8d38b634db476cd4fbb66629, type: 3}
     - target: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_Name
       value: MovingLight (2)
@@ -11380,6 +11558,10 @@ PrefabInstance:
     - target: {fileID: 1040563088527990596, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5574382593909546032, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
+      propertyPath: m_Cookie
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6022869964590976163, guid: ab4d28ac8c83ac44a9eb93782ee78a1d, type: 3}
       propertyPath: m_Name
