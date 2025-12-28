@@ -20,4 +20,6 @@ float3 _WorldSpaceCameraPos;
 half4 unity_LightData;
 half4 unity_LightIndices[2];
 
+float4 _Time;
+
 #endif

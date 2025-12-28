@@ -17,6 +17,7 @@ public class MovingLightController : MonoBehaviour, IDMXFixture
     float m_DMXAngle = 0.0f;
     float m_DMXHeight = 0.0f;
     float m_DMXMulIntensity = 1.0f;
+    float m_DMXZAngle = 0.0f;
 
     Quaternion m_DefaultPanRotate = Quaternion.identity;
     Quaternion m_DefaultTiltRotate = Quaternion.identity;
@@ -37,8 +38,8 @@ public class MovingLightController : MonoBehaviour, IDMXFixture
 
     public void AssignDMXData(byte[] data)
     {
-        // 10チャンネルある想定
-        const int ExpectByteSize = 10;
+        // 11チャンネルある想定
+        const int ExpectByteSize = 11;
 
         if (data.Length != ExpectByteSize) return;
 
@@ -60,6 +61,7 @@ public class MovingLightController : MonoBehaviour, IDMXFixture
         float NewDMXAngle = 180.0f * (float)(Analyser.GetByte()) / 255.0f; // 0 ~ 90度まで
         float NewDMXHeight = 50.0f * (float)(Analyser.GetByte()) / 255.0f; // 50mまで伸びる
         float NewMulIntensity = (float)(Analyser.GetByte()) / 255.0f;
+        m_DMXZAngle = Mathf.Rad2Deg * 2.0f * 3.1415f * (float)(Analyser.GetByte()) / 255.0f;
 
         // 少し古い値を受信して急激に値が変わることがあるのでイージングを入れる
         m_DMXDimmer = Mathf.Lerp(m_DMXDimmer, NewDMXDimmer, 0.1f);
@@ -90,29 +92,41 @@ public class MovingLightController : MonoBehaviour, IDMXFixture
             m_Tilt.transform.localRotation = Quaternion.Slerp(OldRotate, NewRotate, 0.1f);
         }
 
-        if (m_LightShaft == null) return;
-
-        // ライトシャフトの値を常にライトにも反映する
-        MeshRenderer renderer = m_LightShaft.GetComponent<MeshRenderer>();
-        if (renderer == null) return;
-
-        Material material = renderer.material;
-        if(material == null) return;
-
+        // Emitter
+        if(m_Emitter != null)
         {
-            // プロパティブロック取得
-            renderer.GetPropertyBlock(m_ProperyBlock);
+            Quaternion OldRotate = m_Emitter.transform.localRotation;
+            Quaternion NewRotate = Quaternion.AngleAxis(m_DMXZAngle, Vector3.forward);
 
-            m_ProperyBlock.SetColor("_Color", m_DMXColor);
-            m_ProperyBlock.SetFloat("_Dimmer", m_DMXDimmer);
-            m_ProperyBlock.SetFloat("_Height", m_DMXHeight);
-            m_ProperyBlock.SetFloat("_SpotAngle", m_DMXAngle);
-
-            // プロパティブロック再設定
-            renderer.SetPropertyBlock(m_ProperyBlock);
+            m_Emitter.transform.localRotation = Quaternion.Slerp(OldRotate, NewRotate, 0.1f);
         }
 
-        if(m_Light != null)
+        // LightShaft
+        if (m_LightShaft != null)
+        {
+            // ライトシャフトの値を常にライトにも反映する
+            MeshRenderer renderer = m_LightShaft.GetComponent<MeshRenderer>();
+            if (renderer != null)
+            {
+                Material material = renderer.material;
+                if (material != null)
+                {
+                    // プロパティブロック取得
+                    renderer.GetPropertyBlock(m_ProperyBlock);
+
+                    m_ProperyBlock.SetColor("_Color", m_DMXColor);
+                    m_ProperyBlock.SetFloat("_Dimmer", m_DMXDimmer);
+                    m_ProperyBlock.SetFloat("_Height", m_DMXHeight);
+                    m_ProperyBlock.SetFloat("_SpotAngle", m_DMXAngle);
+
+                    // プロパティブロック再設定
+                    renderer.SetPropertyBlock(m_ProperyBlock);
+                }
+            }
+        }
+
+        // Light
+        if (m_Light != null)
         {
             m_Light.color = m_DMXColor;
             m_Light.intensity = m_DefaultIntensity * m_DMXMulIntensity;
