@@ -6677,6 +6677,7 @@ MonoBehaviour:
   m_SubNet: 0
   m_Universe: 0
   m_Channels:
+  - CameraEffectID
   - PosX_Byte_0
   - PosX_Byte_1
   - PosX_Byte_2
