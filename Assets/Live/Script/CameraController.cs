@@ -6,6 +6,8 @@ namespace camera
 {
     public class CameraController : MonoBehaviour, IDMXFixture
     {
+        byte m_CurrentCameraEffectID = 0;
+
         Vector3 m_WorldPos = Vector3.zero;
         Vector3 m_CenterPos = Vector3.zero;
         float m_ZAngle = 0.0f;
@@ -28,7 +30,8 @@ namespace camera
 
         public void AssignDMXData(byte[] data)
         {
-            const int ExpectByteSize = sizeof(float) * 7;
+            const int IDByteSize = 1;
+            const int ExpectByteSize = IDByteSize + sizeof(float) * 7;
 
             if (data.Length != ExpectByteSize) return;
 
@@ -37,15 +40,19 @@ namespace camera
 
             if (!Analyser.IsValid(ExpectByteSize)) return;
 
+            // カメラエフェクトの切り替えを検知する
+            byte CameraEffectID = Analyser.GetByte();
+            bool CameraChanged = (CameraEffectID != m_CurrentCameraEffectID);
+            m_CurrentCameraEffectID = CameraEffectID;
+
+            //
             Vector3 NewWorldPos = new Vector3(
                 Analyser.GetFloat(),
                 Analyser.GetFloat(),
                 Analyser.GetFloat()
             );
-            
-            m_WorldPos = Vector3.Lerp(m_WorldPos, NewWorldPos, 0.1f);
 
-            m_ZAngle = Mathf.Lerp(m_ZAngle, Analyser.GetFloat(), 0.1f);
+            float NewZAngle = Analyser.GetFloat();
 
             Vector3 NewCenterPos = new Vector3(
                 Analyser.GetFloat(),
@@ -53,7 +60,19 @@ namespace camera
                 Analyser.GetFloat()
             );
 
-            m_CenterPos = Vector3.Lerp(m_CenterPos, NewCenterPos, 0.1f);
+            if(CameraChanged)
+            {
+                // カメラが変わった瞬間だけイージングを切る
+                m_WorldPos = NewWorldPos;
+                m_ZAngle = NewZAngle;
+                m_CenterPos = NewCenterPos;
+            }
+            else
+            {
+                m_WorldPos = Vector3.Lerp(m_WorldPos, NewWorldPos, 0.1f);
+                m_ZAngle = Mathf.Lerp(m_ZAngle, NewZAngle, 0.1f);
+                m_CenterPos = Vector3.Lerp(m_CenterPos, NewCenterPos, 0.1f);
+            }
         }
     }
 }

@@ -6677,6 +6677,7 @@ MonoBehaviour:
   m_SubNet: 0
   m_Universe: 0
   m_Channels:
+  - CameraEffectID
   - PosX_Byte_0
   - PosX_Byte_1
   - PosX_Byte_2
@@ -9452,7 +9453,7 @@ PlayableDirector:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1717219528}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_PlayableAsset: {fileID: 11400000, guid: 1e744ca7dca0b0742a3fc9c2cdb7a9ad, type: 2}
   m_InitialState: 0
