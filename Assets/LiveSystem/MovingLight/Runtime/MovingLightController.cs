@@ -27,11 +27,13 @@ namespace livesystem
 
         // プレファブのインスタンス単位でマテリアルに違う値をセットするためにMaterialPropertyBlockを使用
         MaterialPropertyBlock m_ProperyBlock = null;
+        MaterialPropertyBlock m_EmitterProperyBlock = null;
 
         void Start()
         {
             // 実行時にメモリを確保しないとnull扱いになる
             m_ProperyBlock = new MaterialPropertyBlock();
+            m_EmitterProperyBlock = new MaterialPropertyBlock();
 
             if (m_Pan != null) m_DefaultPanRotate = m_Pan.transform.localRotation;
             if (m_Tilt != null) m_DefaultTiltRotate = m_Tilt.transform.localRotation;
@@ -69,12 +71,14 @@ namespace livesystem
 
             if (!Analyser.IsValid(ExpectByteSize)) return;
 
-            m_DMXColor = new Color(
+            // 少し古い値を受信して急激に値が変わることがあるのでイージングを入れる
+            Color DMXColor = new Color(
                 (float)(Analyser.GetByte()) / 255.0f,
                 (float)(Analyser.GetByte()) / 255.0f,
                 (float)(Analyser.GetByte()) / 255.0f,
                 (float)(Analyser.GetByte()) / 255.0f
             );
+            m_DMXColor = Color.Lerp(m_DMXColor, DMXColor, 0.5f);
 
             float NewDMXDimmer = (float)(Analyser.GetByte()) / 255.0f;
             m_DMXTilt = Mathf.Rad2Deg * 2.0f * 3.1415f * (float)(Analyser.GetByte()) / 255.0f;
@@ -120,6 +124,30 @@ namespace livesystem
                 Quaternion NewRotate = Quaternion.AngleAxis(m_DMXZAngle, Vector3.forward);
 
                 m_Emitter.transform.localRotation = Quaternion.Slerp(OldRotate, NewRotate, 0.1f);
+
+                MeshRenderer renderer = m_Emitter.GetComponent<MeshRenderer>();
+                if(renderer != null)
+                {
+                    Material material = renderer.material;
+                    if(material != null)
+                    {
+                        // プロパティブロック取得
+                        renderer.GetPropertyBlock(m_EmitterProperyBlock);
+
+                        Color FinalColor = m_DMXColor;
+                        if(FinalColor.a > 0.001)
+                        {
+                            FinalColor.r += m_DMXDimmer;
+                            FinalColor.g += m_DMXDimmer;
+                            FinalColor.b += m_DMXDimmer;
+                        }
+
+                        m_EmitterProperyBlock.SetColor("_EmissiveColor", FinalColor);
+
+                        // プロパティブロック再設定
+                        renderer.SetPropertyBlock(m_EmitterProperyBlock);
+                    }
+                }
             }
 
             // LightShaft
