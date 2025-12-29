@@ -7,7 +7,7 @@ Shader "Custom/GPUAudience"
 
     SubShader
     {
-        Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" }
+        Tags{ "LightMode" = "SRPDefaultUnlit" }
 
         Pass
         {
