@@ -30,6 +30,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _BaseRadius: 0.17
+    - _Dimmer: 1
     - _Height: 3.94
     - _Intensity: 1.46
     - _LightPower: 1
@@ -39,7 +40,7 @@ Material:
     - _SpotAngle: 13.8
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color: {r: 1, g: 0.92149115, b: 0.60062885, a: 1}
     - _LightColor: {r: 0.7490196, g: 0.7490196, b: 0.7490196, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
