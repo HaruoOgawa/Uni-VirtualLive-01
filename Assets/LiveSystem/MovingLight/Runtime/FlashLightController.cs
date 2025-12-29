@@ -62,7 +62,9 @@ namespace livesystem
 
                 if (material == null) continue;
 
-                if (material.name == "Flash_Emit")
+                if (material.name == "Flash_Emit" || 
+                    material.name == "Stair_Emissive" || 
+                    material.name == "Stage_Emissive")
                 {
                     meshRenderer.GetPropertyBlock(m_ProperyBlock, m);
                     m_ProperyBlock.SetColor("_EmissiveColor", FinalColor);
