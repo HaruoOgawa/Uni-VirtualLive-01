@@ -52,6 +52,11 @@ namespace srp.render
             m_CommandBuffer = new CommandBuffer();
         }
 
+        public List<CPostProcessFeature> GetProcessFeatures()
+        {
+            return m_ProcessFeatures;
+        }
+
         bool Create(int ScreenWidth, int ScreenHeight)
         {
             // FinalResultRT

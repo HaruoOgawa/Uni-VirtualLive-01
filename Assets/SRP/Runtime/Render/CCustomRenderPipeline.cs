@@ -49,7 +49,12 @@ namespace srp.render
                 if (!m_Renderer.Render(context, camera, mainCamera))
                 {
                     Debug.LogErrorFormat("[CCustomRenderPipeline] {0} camera failed to render.", camera.name);
-                    continue;
+
+                    // Unityネイティブ側に資材が自動破棄されて無効な形式になっているので資材をすべて作り直す
+                    var ProcessFeatures = m_Renderer.GetProcessFeatures();
+                    m_Renderer = new CCustomRenderer(ProcessFeatures);
+
+                    return;
                 }
             }
         }
