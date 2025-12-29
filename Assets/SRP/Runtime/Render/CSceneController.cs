@@ -52,7 +52,7 @@ namespace srp.render
             m_DeferredLightMat = new Material(Shader.Find("CustomSRP/GBufferLight"));
             m_DeferredIndirectLightMat = new Material(Shader.Find("CustomSRP/GBufferIndirectLight"));
             m_DeferredEmissiveMat = new Material(Shader.Find("CustomSRP/GBufferEmissive"));
-            m_FullScreenMat = new Material(Shader.Find("Hidden/FullScreen"));
+            m_FullScreenMat = new Material(Shader.Find("CustomSRP/FullScreen"));
         }
 
         public void Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, SPassDescriptor passDescriptor, CRenderTarget ShadowMapRT)

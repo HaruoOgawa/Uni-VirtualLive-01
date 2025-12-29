@@ -39,11 +39,20 @@ GraphicsSettings:
   - {fileID: 4800000, guid: def4d3411537acf49849b569d6b234d1, type: 3}
   - {fileID: 4800000, guid: 7696abd123367914086c7d110a57d4c5, type: 3}
   - {fileID: 4800000, guid: 6449edbd279476448929e71fbec8cbbd, type: 3}
+  - {fileID: 4800000, guid: 21c0c12354df1a340aa454f555e0884b, type: 3}
   - {fileID: 4800000, guid: 053ff2a6cdf514d479333ed5802af913, type: 3}
   - {fileID: 4800000, guid: 8a15aaea8cb66af4bb0ba993889215bf, type: 3}
   - {fileID: 4800000, guid: 198c9c7209ef1ab45aa19638bbbdba98, type: 3}
   - {fileID: 4800000, guid: 4b83224701c64924bb76d2fc2d11de7f, type: 3}
   - {fileID: 4800000, guid: 19014462877362c479ad9ed23e161cc6, type: 3}
+  - {fileID: 4800000, guid: bb5a294f5a18b5146b7b26392d627450, type: 3}
+  - {fileID: 4800000, guid: 364966726e33d75459b8e7999e2adde6, type: 3}
+  - {fileID: 4800000, guid: 053a779f36310d742b7cc7f2efa8fe23, type: 3}
+  - {fileID: 4800000, guid: 406f4fd136f2a1e438552fcdbce4392d, type: 3}
+  - {fileID: 4800000, guid: 6c9128e372f660e49a3cd82b31b5507a, type: 3}
+  - {fileID: 4800000, guid: 9b48333b16f86d246b42fa6a50f1b5d6, type: 3}
+  - {fileID: 4800000, guid: 364966726e33d75459b8e7999e2adde6, type: 3}
+  - {fileID: 4800000, guid: 095572ab0981ac24c82cc36e25c31d8f, type: 3}
   m_PreloadedShaders: []
   m_PreloadShadersBatchTimeLimit: -1
   m_SpritesDefaultMaterial: {fileID: 10754, guid: 0000000000000000f000000000000000, type: 0}
@@ -69,6 +78,8 @@ GraphicsSettings:
   m_AlbedoSwatchInfos: []
   m_RenderPipelineGlobalSettingsMap:
     UnityEngine.Rendering.Universal.UniversalRenderPipeline: {fileID: 11400000, guid: 812a31a4cebf26543ba8a0621842cf89, type: 2}
+  m_ShaderBuildSettings:
+    keywordDeclarationOverrides: []
   m_LightsUseLinearIntensity: 1
   m_LightsUseColorTemperature: 1
   m_LogWhenShaderIsCompiled: 0

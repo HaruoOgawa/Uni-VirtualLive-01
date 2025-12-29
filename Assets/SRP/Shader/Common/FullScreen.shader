@@ -1,4 +1,4 @@
-Shader "Hidden/FullScreen"
+Shader "CustomSRP/FullScreen"
 {
     Properties
     {
