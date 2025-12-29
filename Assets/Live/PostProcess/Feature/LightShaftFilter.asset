@@ -9,9 +9,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0436e40bc82364b4e9445709486a35cd, type: 3}
-  m_Name: BloomFilter
-  m_EditorClassIdentifier: Assembly-CSharp::srp.postprocess.CBloomFilter
+  m_Script: {fileID: 11500000, guid: 89b7776fa22b25a4d84b2d5b58401648, type: 3}
+  m_Name: LightShaftFilter
+  m_EditorClassIdentifier: Assembly-CSharp::srp.postprocess.CLightShaftFilter
   Enabled: 1
-  Threshold: 2
-  Intensity: 2

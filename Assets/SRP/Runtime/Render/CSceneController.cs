@@ -28,6 +28,7 @@ namespace srp.render
         // デファードライティング用マテリアル
         Material m_DeferredLightMat = null;
         Material m_DeferredIndirectLightMat = null;
+        Material m_DeferredEmissiveMat = null;
 
         // フルスクリーン描画用マテリアル
         Material m_FullScreenMat = null;
@@ -50,6 +51,7 @@ namespace srp.render
             // マテリアル生成
             m_DeferredLightMat = new Material(Shader.Find("CustomSRP/GBufferLight"));
             m_DeferredIndirectLightMat = new Material(Shader.Find("CustomSRP/GBufferIndirectLight"));
+            m_DeferredEmissiveMat = new Material(Shader.Find("CustomSRP/GBufferEmissive"));
             m_FullScreenMat = new Material(Shader.Find("Hidden/FullScreen"));
         }
 
@@ -335,6 +337,21 @@ namespace srp.render
             return true;
         }
 
+        // GBufferの発光色の描画
+        public bool DrawDeferredEmissive(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera,
+            SPassDescriptor passDescriptor, CRenderTarget GBufferRT)
+        {
+            // GBufferをセット
+            SetRTTextures(commandBuffer, GBufferRT, true, "SRP_GBuffer_");
+
+            // カメラ情報セット
+            SetCamera(commandBuffer, camera);
+
+            if (!DrawEmissive(context, commandBuffer)) return false;
+
+            return true;
+        }
+
         bool DrawLights(ScriptableRenderContext context, CommandBuffer commandBuffer, int maxLightCount, Camera camera)
         {
             // 各ライトボリュームの描画
@@ -457,6 +474,14 @@ namespace srp.render
         {
             // 描画実行
             commandBuffer.DrawMesh(m_FullScreenMesh, Matrix4x4.identity, m_DeferredIndirectLightMat);
+
+            return true;
+        }
+
+        bool DrawEmissive(ScriptableRenderContext context, CommandBuffer commandBuffer)
+        {
+            // 描画実行
+            commandBuffer.DrawMesh(m_FullScreenMesh, Matrix4x4.identity, m_DeferredEmissiveMat);
 
             return true;
         }

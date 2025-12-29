@@ -29,6 +29,7 @@ namespace srp.render
         // デファードレンダリング
         CRenderPass m_GBufferLightPass = null; // GBufferライティングパス
         CRenderPass m_GBufferIndirectLightPass = null; // GBuffer間接照明パス
+        CRenderPass m_GBufferEmissivePass = null; // GBufferEmissiveパス
 
         // フォアグラウンドレンダーパス
         CRenderPass m_ForegroundPass = null;
@@ -111,6 +112,18 @@ namespace srp.render
                 m_GBufferIndirectLightPass.SetRenderTarget(renderTarget);
             }
 
+            // GBufferEmissivePass
+            {
+                m_GBufferEmissivePass = new CRenderPass("GBufferEmissivePass"); // GBufferEmissiveパス
+
+                m_GBufferEmissivePass.AddShaderTag("CustomGBufferEmissive");
+
+                CRenderTarget renderTarget = new CRenderTarget();
+                renderTarget.Create(ScreenWidth, ScreenHeight, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
+
+                m_GBufferEmissivePass.SetRenderTarget(renderTarget);
+            }
+
             // ForegroundPass
             {
                 m_ForegroundPass = new CRenderPass("ForegroundPass");
@@ -179,6 +192,12 @@ namespace srp.render
             {
                 m_GBufferIndirectLightPass.Release();
                 m_GBufferIndirectLightPass = null;
+            }
+            
+            if (m_GBufferEmissivePass != null)
+            {
+                m_GBufferEmissivePass.Release();
+                m_GBufferEmissivePass = null;
             }
 
             if (m_ForegroundPass != null)
@@ -278,12 +297,27 @@ namespace srp.render
                     m_SceneController.DrawDeferredIndirectLight(context, m_CommandBuffer, camera, descriptor, m_GBufferGenPass.GetRenderTarget());
                     if (!m_GBufferIndirectLightPass.End(context, m_CommandBuffer, camera, IsPlannerReflection)) return false;
                 }
+
+                // GBuffer Emissive
+                // 発光色の加算をGBufferライティングでやってしまうと光源の数だけ加算されて部分的に白飛びしてしまうのでパスをわけて1回で描画する
+                // Emissiveは自己発光なので他の光源でライティングするというのも確かにおかしな話
+                {
+                    // デファードエミッシブパスにGBufferIndirectLightPassのカラー・深度をコピーする
+                    if (!m_GBufferEmissivePass.GetRenderTarget().CopyFrameBuffer(context, m_CommandBuffer, m_GBufferIndirectLightPass.GetRenderTarget())) return false;
+
+                    SPassDescriptor descriptor = new SPassDescriptor();
+                    descriptor.TargetShaderTags = m_GBufferEmissivePass.GetTargetShaderTags();
+
+                    if (!m_GBufferEmissivePass.Begin(context, m_CommandBuffer, camera, IsPlannerReflection, false, false)) return false;
+                    m_SceneController.DrawDeferredEmissive(context, m_CommandBuffer, camera, descriptor, m_GBufferGenPass.GetRenderTarget());
+                    if (!m_GBufferEmissivePass.End(context, m_CommandBuffer, camera, IsPlannerReflection)) return false;
+                }
             }
 
             // フォアグラウンドレンダリング
             {
-                // フォアグラウンドパス(ForegroundPass)にGBufferLightPassのカラー・深度をコピーする
-                if (!m_ForegroundPass.GetRenderTarget().CopyFrameBuffer(context, m_CommandBuffer, m_GBufferIndirectLightPass.GetRenderTarget())) return false;
+                // フォアグラウンドパス(ForegroundPass)にGBufferEmissivePassのカラー・深度をコピーする
+                if (!m_ForegroundPass.GetRenderTarget().CopyFrameBuffer(context, m_CommandBuffer, m_GBufferEmissivePass.GetRenderTarget())) return false;
 
                 SPassDescriptor descriptor = new SPassDescriptor();
                 descriptor.TargetShaderTags = m_ForegroundPass.GetTargetShaderTags();
