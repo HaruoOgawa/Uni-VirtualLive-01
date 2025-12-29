@@ -36,6 +36,25 @@ namespace livesystem
             if (m_Pan != null) m_DefaultPanRotate = m_Pan.transform.localRotation;
             if (m_Tilt != null) m_DefaultTiltRotate = m_Tilt.transform.localRotation;
             if (m_Light != null) m_DefaultIntensity = m_Light.intensity;
+
+            // バウンディングボックスのサイズを再計算する
+            if(m_LightShaft != null)
+            {
+                MeshRenderer renderer = m_LightShaft.GetComponent<MeshRenderer>();
+                if (renderer != null)
+                {
+                    float len = 100.0f;
+                    float r = 20.0f;
+                    
+                    Vector3 StartPos = m_LightShaft.transform.localPosition;
+                    Vector3 EndPos = len * Vector3.up + StartPos;
+
+                    Vector3 Center = (EndPos + StartPos) * 0.5f;
+                    Vector3 Size = new Vector3(r, len, r);
+
+                    renderer.bounds = new Bounds(Center, Size);
+                }
+            }
         }
 
         public void AssignDMXData(byte[] data)
