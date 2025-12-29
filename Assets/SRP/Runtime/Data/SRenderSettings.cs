@@ -1,12 +1,15 @@
 using UnityEngine;
 
-[System.Serializable]
-public struct SRenderSettings
+namespace srp.data
 {
-    public SPostProcessSettings PostProcessSettings;
-
-    public SRenderSettings(SPostProcessSettings _PostProcessSettings)
+    [System.Serializable]
+    public struct SRenderSettings
     {
-        PostProcessSettings = _PostProcessSettings;
+        public SPostProcessSettings PostProcessSettings;
+
+        public SRenderSettings(SPostProcessSettings _PostProcessSettings)
+        {
+            PostProcessSettings = _PostProcessSettings;
+        }
     }
 }

@@ -2,8 +2,9 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using System.Collections.Generic;
 using srp.postprocess;
+using srp.data;
 
-namespace srp
+namespace srp.render
 {
     [CreateAssetMenu(menuName = "Rendering/Custom Render Pipeline")]
     public class CCustomRenderPipelineAsset : RenderPipelineAsset

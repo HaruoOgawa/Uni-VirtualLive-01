@@ -1,12 +1,15 @@
 using srp.postprocess;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.UIElements;
+using srp.data;
 
-namespace srp
+#if UNITY_EDITOR
+using Unity.VisualScripting;
+#endif
+
+namespace srp.render
 {
     public class CCustomRenderPipeline : RenderPipeline
     {

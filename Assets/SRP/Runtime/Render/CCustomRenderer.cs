@@ -1,11 +1,11 @@
 using srp.postprocess;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
+using srp.data;
+using srp.effect;
 
-namespace srp
+namespace srp.render
 {
     public class CCustomRenderer
     {
@@ -378,58 +378,6 @@ namespace srp
             Vector4 ClipPlane = new Vector4(cNormal.x, cNormal.y, cNormal.z, -Vector3.Dot(cPos, cNormal));
 
             ReflectCamera.projectionMatrix = mainCamera.CalculateObliqueMatrix(ClipPlane);
-
-            /*// メインカメラ情報
-            Vector3 forward = mainCamera.transform.forward;
-            Vector3 up = mainCamera.transform.up;
-            Vector3 right = mainCamera.transform.right;
-            Vector3 center = mainCamera.transform.position;
-
-            // ワールド座標系から反射平面座標系に変換
-            Vector3 PlannerForward = Plane.worldToLocalMatrix.MultiplyVector(forward);
-            Vector3 PlannerUp = Plane.worldToLocalMatrix.MultiplyVector(up);
-            Vector3 PlannerRight = Plane.worldToLocalMatrix.MultiplyVector(right);
-            Vector3 PlannerCenter = Plane.worldToLocalMatrix.MultiplyPoint(center);
-
-            // 反射平面を中心に面対称な位置に変換
-            PlannerForward.y *= -1.0f;
-            PlannerUp.y *= -1.0f;
-            PlannerRight.y *= -1.0f;
-            PlannerCenter.y *= -1.0f;
-
-            // 反射平面座標系からワールド座標系に戻す
-            PlannerForward = Plane.localToWorldMatrix.MultiplyVector(PlannerForward);
-            PlannerUp = Plane.localToWorldMatrix.MultiplyVector(PlannerUp);
-            PlannerRight = Plane.localToWorldMatrix.MultiplyVector(PlannerRight);
-            PlannerCenter = Plane.localToWorldMatrix.MultiplyPoint(PlannerCenter);
-
-            // Forward・Upを更新したら回転も更新されそうだが、なぜか変わらないのでピッチ回転も明示的に反転させる
-            Vector3 PlannerEuler = mainCamera.transform.eulerAngles;
-            PlannerEuler.x *= -1.0f;
-
-            // 反射カメラに反射計算を行ったtransformを反映する
-            ReflectCamera.transform.forward = PlannerForward;
-            ReflectCamera.transform.up = PlannerUp;
-            ReflectCamera.transform.right = Vector3.Cross(PlannerForward, PlannerUp);
-            ReflectCamera.transform.position = PlannerCenter;
-            ReflectCamera.transform.rotation = Quaternion.Euler(PlannerEuler);
-
-            // その他情報もメインカメラに合わせる
-            ReflectCamera.aspect = mainCamera.aspect;
-            ReflectCamera.fieldOfView = mainCamera.fieldOfView;
-            ReflectCamera.nearClipPlane = mainCamera.nearClipPlane;
-            ReflectCamera.farClipPlane = mainCamera.farClipPlane;
-
-            //
-            Vector3 pNormal = (-1.0f) * Plane.up;
-            Vector3 pPos = Plane.position;
-
-            Vector3 cNormal = ReflectCamera.worldToCameraMatrix.MultiplyVector(pNormal);
-            Vector3 cPos = ReflectCamera.worldToCameraMatrix.MultiplyPoint(pPos);
-
-            Vector4 clipPlane = new Vector4(cNormal.x, cNormal.y, cNormal.z, -Vector3.Dot(cPos, cNormal));
-
-            ReflectCamera.projectionMatrix = ReflectCamera.CalculateObliqueMatrix(clipPlane);*/
         }
 
         private Matrix4x4 CalcReflectionMatrix(Vector4 n)

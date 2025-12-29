@@ -1,9 +1,10 @@
-using srp.postprocess;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
+using srp.render;
+using srp.data;
 
-namespace srp
+namespace srp.postprocess
 {
     public class CPostProcess
     {

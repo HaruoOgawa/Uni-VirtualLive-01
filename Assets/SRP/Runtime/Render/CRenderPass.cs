@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace srp
+namespace srp.render
 {
     public class CRenderPass : ARenderPass
     {

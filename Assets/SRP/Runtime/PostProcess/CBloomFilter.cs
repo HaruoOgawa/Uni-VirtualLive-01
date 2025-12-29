@@ -1,10 +1,10 @@
-using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.Rendering.Universal;
+using srp.render;
+using srp.data;
 
-namespace srp
+namespace srp.postprocess
 {
     struct SBloomIO
     {

@@ -1,8 +1,8 @@
 using UnityEngine;
 using UnityEngine.Rendering;
-using static UnityEngine.XR.XRDisplaySubsystem;
+using srp.render;
 
-namespace srp
+namespace srp.postprocess
 {
     public class CFXAAFilter
     {

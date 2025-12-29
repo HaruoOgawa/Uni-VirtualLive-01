@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace srp
+namespace srp.render
 {
     public abstract class ARenderPass
     {

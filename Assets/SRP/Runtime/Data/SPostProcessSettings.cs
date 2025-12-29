@@ -1,14 +1,17 @@
 using UnityEngine;
 
-[System.Serializable]
-public struct SPostProcessSettings
+namespace srp.data
 {
-    public float Threshold;
-    public float Intensity;
-
-    public SPostProcessSettings(float _Threshold, float _Intensity)
+    [System.Serializable]
+    public struct SPostProcessSettings
     {
-        this.Threshold = _Threshold;
-        this.Intensity = _Intensity;
+        public float Threshold;
+        public float Intensity;
+
+        public SPostProcessSettings(float _Threshold, float _Intensity)
+        {
+            this.Threshold = _Threshold;
+            this.Intensity = _Intensity;
+        }
     }
 }

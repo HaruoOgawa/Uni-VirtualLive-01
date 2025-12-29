@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace srp
+namespace srp.data
 {
     public static class CShaderGlobalKeywordList
     {
