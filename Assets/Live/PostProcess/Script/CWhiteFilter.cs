@@ -1,11 +1,14 @@
 using UnityEngine;
 using UnityEngine.Rendering;
+using srp.render;
 
 namespace srp.postprocess
 {
     [CreateAssetMenu(fileName = "WhiteFilter", menuName = "Scriptable Objects/PostProcessFeature/WhiteFilter")]
     public class CWhiteFilter : CPostProcessFeature
     {
+        [SerializeField] bool Enabled = true;
+
         [SerializeField] [Range(0.0f, 1.0f)] float Rate = 0.0f;
 
         CRenderPass m_RenderPass = null;
@@ -41,6 +44,8 @@ namespace srp.postprocess
         public override bool Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera,
             CRenderTarget readRT, CRenderTarget writeRT, CSceneController sceneController)
         {
+            if (!Enabled) return false;
+
             if (Rate == 0.0 || m_RenderPass == null || m_Material == null) return false;
 
             // レンダーテクスチャを更新

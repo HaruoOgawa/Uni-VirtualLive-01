@@ -12,8 +12,8 @@ namespace livesystem
 {
     public unsafe class VATGenWindow : EditorWindow
     {
-        public Object m_ClipObj = null;
-        public Object m_TargetObj = null;
+        [SerializeField] Object m_ClipObj = null;
+        [SerializeField] Object m_TargetObj = null;
 
         [MenuItem("Assets/Create/Animation/Generate VAT")]
         public static void ShowWindow()

@@ -1,6 +1,9 @@
 using UnityEngine;
 
-public class PlannerReflection : MonoBehaviour
+namespace srp.effect
 {
-    public GameObject Plane = null;
+    public class PlannerReflection : MonoBehaviour
+    {
+        public GameObject Plane = null;
+    }
 }

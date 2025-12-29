@@ -1,20 +1,23 @@
 using srp.postprocess;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
-using UnityEngine.UIElements;
+using srp.data;
 
-namespace srp
+#if UNITY_EDITOR
+using Unity.VisualScripting;
+#endif
+
+namespace srp.render
 {
     public class CCustomRenderPipeline : RenderPipeline
     {
         CCustomRenderer m_Renderer = null;
 
-        public CCustomRenderPipeline(SRenderSettings settings, List<CPostProcessFeature> processFeatures)
+        public CCustomRenderPipeline(List<CPostProcessFeature> processFeatures)
         {
-            m_Renderer = new CCustomRenderer(settings, processFeatures);
+            m_Renderer = new CCustomRenderer(processFeatures);
         }
 
         protected override void Render(ScriptableRenderContext context, List<Camera> cameras)
@@ -46,7 +49,12 @@ namespace srp
                 if (!m_Renderer.Render(context, camera, mainCamera))
                 {
                     Debug.LogErrorFormat("[CCustomRenderPipeline] {0} camera failed to render.", camera.name);
-                    continue;
+
+                    // Unityネイティブ側に資材が自動破棄されて無効な形式になっているので資材をすべて作り直す
+                    var ProcessFeatures = m_Renderer.GetProcessFeatures();
+                    m_Renderer = new CCustomRenderer(ProcessFeatures);
+
+                    return;
                 }
             }
         }

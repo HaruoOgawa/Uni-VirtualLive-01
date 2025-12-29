@@ -1,18 +1,17 @@
 using srp.postprocess;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
+using srp.data;
+using srp.effect;
 
-namespace srp
+namespace srp.render
 {
     public class CCustomRenderer
     {
         int m_CurrentScreenWidth = 0;
         int m_CurrentScreenHeight = 0;
 
-        SRenderSettings m_Settings;
         List<CPostProcessFeature> m_ProcessFeatures = new List<CPostProcessFeature>();
 
         // シーン
@@ -30,6 +29,7 @@ namespace srp
         // デファードレンダリング
         CRenderPass m_GBufferLightPass = null; // GBufferライティングパス
         CRenderPass m_GBufferIndirectLightPass = null; // GBuffer間接照明パス
+        CRenderPass m_GBufferEmissivePass = null; // GBufferEmissiveパス
 
         // フォアグラウンドレンダーパス
         CRenderPass m_ForegroundPass = null;
@@ -44,13 +44,17 @@ namespace srp
         // 最終描画結果
         CRenderPass m_MainResultPass = null;
 
-        public CCustomRenderer(SRenderSettings settings, List<CPostProcessFeature> processFeatures)
+        public CCustomRenderer(List<CPostProcessFeature> processFeatures)
         {
-            m_Settings = settings;
             m_ProcessFeatures = processFeatures;
 
             m_SceneController = new CSceneController();
             m_CommandBuffer = new CommandBuffer();
+        }
+
+        public List<CPostProcessFeature> GetProcessFeatures()
+        {
+            return m_ProcessFeatures;
         }
 
         bool Create(int ScreenWidth, int ScreenHeight)
@@ -111,6 +115,18 @@ namespace srp
                 renderTarget.Create(ScreenWidth, ScreenHeight, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
 
                 m_GBufferIndirectLightPass.SetRenderTarget(renderTarget);
+            }
+
+            // GBufferEmissivePass
+            {
+                m_GBufferEmissivePass = new CRenderPass("GBufferEmissivePass"); // GBufferEmissiveパス
+
+                m_GBufferEmissivePass.AddShaderTag("CustomGBufferEmissive");
+
+                CRenderTarget renderTarget = new CRenderTarget();
+                renderTarget.Create(ScreenWidth, ScreenHeight, 1, RenderTextureFormat.ARGBFloat, RenderTextureFormat.Depth, 24);
+
+                m_GBufferEmissivePass.SetRenderTarget(renderTarget);
             }
 
             // ForegroundPass
@@ -181,6 +197,12 @@ namespace srp
             {
                 m_GBufferIndirectLightPass.Release();
                 m_GBufferIndirectLightPass = null;
+            }
+            
+            if (m_GBufferEmissivePass != null)
+            {
+                m_GBufferEmissivePass.Release();
+                m_GBufferEmissivePass = null;
             }
 
             if (m_ForegroundPass != null)
@@ -280,12 +302,27 @@ namespace srp
                     m_SceneController.DrawDeferredIndirectLight(context, m_CommandBuffer, camera, descriptor, m_GBufferGenPass.GetRenderTarget());
                     if (!m_GBufferIndirectLightPass.End(context, m_CommandBuffer, camera, IsPlannerReflection)) return false;
                 }
+
+                // GBuffer Emissive
+                // 発光色の加算をGBufferライティングでやってしまうと光源の数だけ加算されて部分的に白飛びしてしまうのでパスをわけて1回で描画する
+                // Emissiveは自己発光なので他の光源でライティングするというのも確かにおかしな話
+                {
+                    // デファードエミッシブパスにGBufferIndirectLightPassのカラー・深度をコピーする
+                    if (!m_GBufferEmissivePass.GetRenderTarget().CopyFrameBuffer(context, m_CommandBuffer, m_GBufferIndirectLightPass.GetRenderTarget())) return false;
+
+                    SPassDescriptor descriptor = new SPassDescriptor();
+                    descriptor.TargetShaderTags = m_GBufferEmissivePass.GetTargetShaderTags();
+
+                    if (!m_GBufferEmissivePass.Begin(context, m_CommandBuffer, camera, IsPlannerReflection, false, false)) return false;
+                    m_SceneController.DrawDeferredEmissive(context, m_CommandBuffer, camera, descriptor, m_GBufferGenPass.GetRenderTarget());
+                    if (!m_GBufferEmissivePass.End(context, m_CommandBuffer, camera, IsPlannerReflection)) return false;
+                }
             }
 
             // フォアグラウンドレンダリング
             {
-                // フォアグラウンドパス(ForegroundPass)にGBufferLightPassのカラー・深度をコピーする
-                if (!m_ForegroundPass.GetRenderTarget().CopyFrameBuffer(context, m_CommandBuffer, m_GBufferIndirectLightPass.GetRenderTarget())) return false;
+                // フォアグラウンドパス(ForegroundPass)にGBufferEmissivePassのカラー・深度をコピーする
+                if (!m_ForegroundPass.GetRenderTarget().CopyFrameBuffer(context, m_CommandBuffer, m_GBufferEmissivePass.GetRenderTarget())) return false;
 
                 SPassDescriptor descriptor = new SPassDescriptor();
                 descriptor.TargetShaderTags = m_ForegroundPass.GetTargetShaderTags();
@@ -308,8 +345,7 @@ namespace srp
             }
 
             // ポストプロセス
-            if (!m_PostProcess.Draw(context, m_CommandBuffer, camera, m_FinalResultRT, m_SceneController, 
-                m_Settings.PostProcessSettings, m_ProcessFeatures)) return false;
+            if (!m_PostProcess.Draw(context, m_CommandBuffer, camera, m_FinalResultRT, m_SceneController, m_ProcessFeatures)) return false;
 
             // 最終描画結果
             {
@@ -378,58 +414,6 @@ namespace srp
             Vector4 ClipPlane = new Vector4(cNormal.x, cNormal.y, cNormal.z, -Vector3.Dot(cPos, cNormal));
 
             ReflectCamera.projectionMatrix = mainCamera.CalculateObliqueMatrix(ClipPlane);
-
-            /*// メインカメラ情報
-            Vector3 forward = mainCamera.transform.forward;
-            Vector3 up = mainCamera.transform.up;
-            Vector3 right = mainCamera.transform.right;
-            Vector3 center = mainCamera.transform.position;
-
-            // ワールド座標系から反射平面座標系に変換
-            Vector3 PlannerForward = Plane.worldToLocalMatrix.MultiplyVector(forward);
-            Vector3 PlannerUp = Plane.worldToLocalMatrix.MultiplyVector(up);
-            Vector3 PlannerRight = Plane.worldToLocalMatrix.MultiplyVector(right);
-            Vector3 PlannerCenter = Plane.worldToLocalMatrix.MultiplyPoint(center);
-
-            // 反射平面を中心に面対称な位置に変換
-            PlannerForward.y *= -1.0f;
-            PlannerUp.y *= -1.0f;
-            PlannerRight.y *= -1.0f;
-            PlannerCenter.y *= -1.0f;
-
-            // 反射平面座標系からワールド座標系に戻す
-            PlannerForward = Plane.localToWorldMatrix.MultiplyVector(PlannerForward);
-            PlannerUp = Plane.localToWorldMatrix.MultiplyVector(PlannerUp);
-            PlannerRight = Plane.localToWorldMatrix.MultiplyVector(PlannerRight);
-            PlannerCenter = Plane.localToWorldMatrix.MultiplyPoint(PlannerCenter);
-
-            // Forward・Upを更新したら回転も更新されそうだが、なぜか変わらないのでピッチ回転も明示的に反転させる
-            Vector3 PlannerEuler = mainCamera.transform.eulerAngles;
-            PlannerEuler.x *= -1.0f;
-
-            // 反射カメラに反射計算を行ったtransformを反映する
-            ReflectCamera.transform.forward = PlannerForward;
-            ReflectCamera.transform.up = PlannerUp;
-            ReflectCamera.transform.right = Vector3.Cross(PlannerForward, PlannerUp);
-            ReflectCamera.transform.position = PlannerCenter;
-            ReflectCamera.transform.rotation = Quaternion.Euler(PlannerEuler);
-
-            // その他情報もメインカメラに合わせる
-            ReflectCamera.aspect = mainCamera.aspect;
-            ReflectCamera.fieldOfView = mainCamera.fieldOfView;
-            ReflectCamera.nearClipPlane = mainCamera.nearClipPlane;
-            ReflectCamera.farClipPlane = mainCamera.farClipPlane;
-
-            //
-            Vector3 pNormal = (-1.0f) * Plane.up;
-            Vector3 pPos = Plane.position;
-
-            Vector3 cNormal = ReflectCamera.worldToCameraMatrix.MultiplyVector(pNormal);
-            Vector3 cPos = ReflectCamera.worldToCameraMatrix.MultiplyPoint(pPos);
-
-            Vector4 clipPlane = new Vector4(cNormal.x, cNormal.y, cNormal.z, -Vector3.Dot(cPos, cNormal));
-
-            ReflectCamera.projectionMatrix = ReflectCamera.CalculateObliqueMatrix(clipPlane);*/
         }
 
         private Matrix4x4 CalcReflectionMatrix(Vector4 n)

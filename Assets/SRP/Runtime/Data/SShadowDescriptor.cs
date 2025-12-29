@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace srp
+namespace srp.data
 {
     public class SShadowDescriptor
     {

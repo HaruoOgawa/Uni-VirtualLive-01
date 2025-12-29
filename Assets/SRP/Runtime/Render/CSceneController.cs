@@ -6,8 +6,9 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.RendererUtils;
+using srp.data;
 
-namespace srp
+namespace srp.render
 {
     public class CSceneController
     {
@@ -27,6 +28,7 @@ namespace srp
         // デファードライティング用マテリアル
         Material m_DeferredLightMat = null;
         Material m_DeferredIndirectLightMat = null;
+        Material m_DeferredEmissiveMat = null;
 
         // フルスクリーン描画用マテリアル
         Material m_FullScreenMat = null;
@@ -49,7 +51,8 @@ namespace srp
             // マテリアル生成
             m_DeferredLightMat = new Material(Shader.Find("CustomSRP/GBufferLight"));
             m_DeferredIndirectLightMat = new Material(Shader.Find("CustomSRP/GBufferIndirectLight"));
-            m_FullScreenMat = new Material(Shader.Find("Hidden/FullScreen"));
+            m_DeferredEmissiveMat = new Material(Shader.Find("CustomSRP/GBufferEmissive"));
+            m_FullScreenMat = new Material(Shader.Find("CustomSRP/FullScreen"));
         }
 
         public void Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera, SPassDescriptor passDescriptor, CRenderTarget ShadowMapRT)
@@ -334,6 +337,21 @@ namespace srp
             return true;
         }
 
+        // GBufferの発光色の描画
+        public bool DrawDeferredEmissive(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera,
+            SPassDescriptor passDescriptor, CRenderTarget GBufferRT)
+        {
+            // GBufferをセット
+            SetRTTextures(commandBuffer, GBufferRT, true, "SRP_GBuffer_");
+
+            // カメラ情報セット
+            SetCamera(commandBuffer, camera);
+
+            if (!DrawEmissive(context, commandBuffer)) return false;
+
+            return true;
+        }
+
         bool DrawLights(ScriptableRenderContext context, CommandBuffer commandBuffer, int maxLightCount, Camera camera)
         {
             // 各ライトボリュームの描画
@@ -456,6 +474,14 @@ namespace srp
         {
             // 描画実行
             commandBuffer.DrawMesh(m_FullScreenMesh, Matrix4x4.identity, m_DeferredIndirectLightMat);
+
+            return true;
+        }
+
+        bool DrawEmissive(ScriptableRenderContext context, CommandBuffer commandBuffer)
+        {
+            // 描画実行
+            commandBuffer.DrawMesh(m_FullScreenMesh, Matrix4x4.identity, m_DeferredEmissiveMat);
 
             return true;
         }

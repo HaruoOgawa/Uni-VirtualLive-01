@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace srp
+namespace srp.render
 {
     public class CRenderTarget : IDisposable
     {
         int m_Width = 0;
         int m_Height = 0;
         int m_RenderTargetCount = 0;
+        RenderTextureFormat m_ColorFormat;
+        RenderTextureFormat m_DepthFormat;
+        int m_DepthBit;
 
         List<RenderTexture> m_ColorBuffers = new List<RenderTexture>();
         List<RenderTargetIdentifier> m_ColorRTIdentifiers = new List<RenderTargetIdentifier>();
@@ -66,12 +69,14 @@ namespace srp
             }
 
             m_ColorBuffers.Clear();
+            m_ColorRTIdentifiers.Clear();
 
-            if(m_DepthBuffer != null)
+            if (m_DepthBuffer != null)
             {
                 m_DepthBuffer.Release();
                 m_DepthBuffer = null;
             }
+            //m_DepthRTIdentifier = null;
         }
 
         public bool IsValid()
@@ -85,6 +90,18 @@ namespace srp
             }
 
             if(m_DepthBuffer == null) return false;
+
+            return true;
+        }
+
+        public bool RecreateIfInValid()
+        {
+            // もし資材がUnityネイティブ側に自動破棄されていて無効な状態になっていたら再生成する
+            if(!IsValid())
+            {
+                Release();
+                if (!Create(m_Width, m_Height, m_RenderTargetCount, m_ColorFormat, m_DepthFormat, m_DepthBit)) return false;
+            }
 
             return true;
         }
@@ -166,6 +183,9 @@ namespace srp
             m_Width = width;
             m_Height = height;
             m_RenderTargetCount = RenderTargetCount;
+            m_ColorFormat = ColorFormat;
+            m_DepthFormat = DepthFormat;
+            m_DepthBit = DepthBit;
 
             return true;
         }
@@ -239,6 +259,8 @@ namespace srp
         {
             var SrcRT = Src.GetDepthBuffer();
             var DstRT = m_DepthBuffer;
+
+            if(SrcRT == null || DstRT == null) return false;
 
             // まだレンダーテクスチャが生成されていない
             if (!SrcRT.IsCreated() || !DstRT.IsCreated()) return false;

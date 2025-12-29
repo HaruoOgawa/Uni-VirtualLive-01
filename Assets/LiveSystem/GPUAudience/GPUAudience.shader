@@ -7,7 +7,7 @@ Shader "Custom/GPUAudience"
 
     SubShader
     {
-        Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" }
+        Tags{ "LightMode" = "SRPDefaultUnlit" }
 
         Pass
         {
@@ -16,7 +16,11 @@ Shader "Custom/GPUAudience"
             #pragma vertex vert
             #pragma fragment frag
 
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
+
+            #include "../../SRP/Shader/ShaderLibrary/UnityInput.hlsl"
+            #include "../../SRP/Shader/ShaderLibrary/PBR.hlsl"
+            #include "../../SRP/Shader/ShaderLibrary/ShadowMapping.hlsl"
 
             struct Attributes
             {
@@ -32,6 +36,7 @@ Shader "Custom/GPUAudience"
                 float4 positionHCS : SV_POSITION;
                 float2 uv : TEXCOORD0;
                 float3 worldNormal : TEXCOORD1;
+                float3 worldPos : TEXCOORD2;
             };
 
             struct BoneWeightIndex
@@ -55,6 +60,12 @@ Shader "Custom/GPUAudience"
             int _NumOfFrame;
 
             float4 _EmitColor;
+
+            #define MAX_MAIN_LIGHT_COUNT 4
+
+            int SRP_Foreground_MainLightCount;
+            float4 SRP_Foreground_MainLightDirArray[MAX_MAIN_LIGHT_COUNT];
+            float4 SRP_Foreground_MainLightColorArray[MAX_MAIN_LIGHT_COUNT];
 
             float4 fetchElement(float JointIndex, int Offset, float v)
             {
@@ -134,15 +145,41 @@ Shader "Custom/GPUAudience"
                 float4 worldPos = mul(WorldMatrix, float4(IN.positionOS.xyz, 1.0));
 
                 Varyings OUT;
-                OUT.positionHCS = mul(mul(UNITY_MATRIX_P, UNITY_MATRIX_V), worldPos);
+                OUT.positionHCS = mul(mul(unity_MatrixP, unity_MatrixV), worldPos);
                 OUT.uv = IN.uv;
                 OUT.worldNormal = normalize((mul(WorldMatrix, float4(IN.normal, 0.0))).xyz);
+                OUT.worldPos = worldPos;
                 return OUT;
             }
 
             float4 frag(Varyings IN) : SV_Target
             {
                 float4 col = float4(0.0, 0.0, 0.0, 1.0);
+
+                PBRData pbr;
+                pbr.Albedo = float3(1.0, 1.0, 1.0);
+                pbr.Metallic = 0.0;
+                pbr.Roughness = 0.1;
+                pbr.WorldNormal = IN.worldNormal;
+                pbr.ViewDir = normalize(IN.worldPos.xyz - _WorldSpaceCameraPos);
+
+                // MainLight
+                for(int n = 0; n < min(MAX_MAIN_LIGHT_COUNT, SRP_Foreground_MainLightCount); n++)
+                {
+                    float3 lightDir = SRP_Foreground_MainLightDirArray[n].xyz;
+                    float3 lightColor = SRP_Foreground_MainLightColorArray[n].xyz;
+
+                    LightData light;
+                    light.dir = lightDir;
+                    light.color = lightColor;
+                    light.attenuation = 1.0;
+
+                    // PBR
+                    col.rgb += ComputeDirectLight(pbr, light);
+                }
+
+                // col.rgb += ComputeIndirectLight(pbr);
+                col.rgb *= 0.005;
                 col.rgb += _EmitColor.rgb;
 
                 return col;

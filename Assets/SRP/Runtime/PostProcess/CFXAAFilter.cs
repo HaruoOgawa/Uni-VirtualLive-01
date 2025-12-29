@@ -1,11 +1,14 @@
 using UnityEngine;
 using UnityEngine.Rendering;
-using static UnityEngine.XR.XRDisplaySubsystem;
+using srp.render;
 
-namespace srp
+namespace srp.postprocess
 {
-    public class CFXAAFilter
+    [CreateAssetMenu(fileName = "FXAAFilter", menuName = "Scriptable Objects/PostProcessFeature/FXAAFilter")]
+    public class CFXAAFilter : CPostProcessFeature
     {
+        [SerializeField] bool Enabled = true;
+
         CRenderPass m_RenderPass = null;
 
         Material m_Material = null;
@@ -14,7 +17,7 @@ namespace srp
         {
         }
 
-        public void Release()
+        public override void Release()
         {
             if (m_RenderPass != null)
             {
@@ -25,7 +28,7 @@ namespace srp
             m_Material = null;
         }
 
-        public bool Create(int ScreenWidth, int ScreenHeight)
+        public override bool Create(int ScreenWidth, int ScreenHeight)
         {
             m_RenderPass = new CRenderPass("FXAAPass");
 
@@ -34,9 +37,11 @@ namespace srp
             return true;
         }
 
-        public bool Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera,
+        public override bool Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera,
             CRenderTarget readRT, CRenderTarget writeRT, CSceneController sceneController)
         {
+            if (!Enabled) return false;
+
             // レンダーテクスチャを更新
             m_RenderPass.SetRenderTarget(writeRT);
 

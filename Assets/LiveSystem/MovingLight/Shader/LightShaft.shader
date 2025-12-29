@@ -1,4 +1,4 @@
-Shader "Custom/LightShaft"
+Shader "SRP/LightShaft"
 {
     Properties
     {
@@ -20,6 +20,8 @@ Shader "Custom/LightShaft"
 
         Pass
         {
+            Tags{ "LightMode" = "SRPLightShaftPass" }
+
             Cull Front
             Blend SrcAlpha OneMinusSrcAlpha
             ZWrite Off
