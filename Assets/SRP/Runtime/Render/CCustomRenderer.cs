@@ -12,7 +12,6 @@ namespace srp.render
         int m_CurrentScreenWidth = 0;
         int m_CurrentScreenHeight = 0;
 
-        SRenderSettings m_Settings;
         List<CPostProcessFeature> m_ProcessFeatures = new List<CPostProcessFeature>();
 
         // シーン
@@ -44,9 +43,8 @@ namespace srp.render
         // 最終描画結果
         CRenderPass m_MainResultPass = null;
 
-        public CCustomRenderer(SRenderSettings settings, List<CPostProcessFeature> processFeatures)
+        public CCustomRenderer(List<CPostProcessFeature> processFeatures)
         {
-            m_Settings = settings;
             m_ProcessFeatures = processFeatures;
 
             m_SceneController = new CSceneController();
@@ -308,8 +306,7 @@ namespace srp.render
             }
 
             // ポストプロセス
-            if (!m_PostProcess.Draw(context, m_CommandBuffer, camera, m_FinalResultRT, m_SceneController, 
-                m_Settings.PostProcessSettings, m_ProcessFeatures)) return false;
+            if (!m_PostProcess.Draw(context, m_CommandBuffer, camera, m_FinalResultRT, m_SceneController, m_ProcessFeatures)) return false;
 
             // 最終描画結果
             {

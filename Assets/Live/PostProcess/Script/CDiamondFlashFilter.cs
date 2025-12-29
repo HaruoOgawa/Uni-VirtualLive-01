@@ -7,6 +7,8 @@ namespace srp.postprocess
     [CreateAssetMenu(fileName = "DiamondFlashFilter", menuName = "Scriptable Objects/PostProcessFeature/DiamondFlashFilter")]
     public class CDiamondFlashFilter : CPostProcessFeature
     {
+        [SerializeField] bool Enabled = true;
+
         [SerializeField] string TargetTag = string.Empty;
 
         CRenderPass m_RenderPass = null;
@@ -42,6 +44,8 @@ namespace srp.postprocess
         public override bool Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera,
             CRenderTarget readRT, CRenderTarget writeRT, CSceneController sceneController)
         {
+            if (!Enabled) return false;
+
             if (camera.tag != TargetTag || m_RenderPass == null || m_Material == null) return false;
 
             // レンダーテクスチャを更新

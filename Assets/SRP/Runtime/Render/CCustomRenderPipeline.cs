@@ -15,9 +15,9 @@ namespace srp.render
     {
         CCustomRenderer m_Renderer = null;
 
-        public CCustomRenderPipeline(SRenderSettings settings, List<CPostProcessFeature> processFeatures)
+        public CCustomRenderPipeline(List<CPostProcessFeature> processFeatures)
         {
-            m_Renderer = new CCustomRenderer(settings, processFeatures);
+            m_Renderer = new CCustomRenderer(processFeatures);
         }
 
         protected override void Render(ScriptableRenderContext context, List<Camera> cameras)

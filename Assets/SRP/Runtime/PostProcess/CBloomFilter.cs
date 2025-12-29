@@ -18,8 +18,14 @@ namespace srp.postprocess
         }
     };
 
-    public class CBloomFilter
+    [CreateAssetMenu(fileName = "BloomFilter", menuName = "Scriptable Objects/PostProcessFeature/BloomFilter")]
+    public class CBloomFilter : CPostProcessFeature
     {
+        [SerializeField] bool Enabled = true;
+
+        [SerializeField] float Threshold = 1.0f;
+        [SerializeField] float Intensity = 1.0f;
+
         Material m_BrightnessMat = null;
         Material m_ReduceMat = null;
         Material m_BlurMat = null;
@@ -35,7 +41,7 @@ namespace srp.postprocess
         {
         }
 
-        public void Release()
+        public override void Release()
         {
             m_BrightnessMat = null;
             m_ReduceMat = null;
@@ -63,7 +69,7 @@ namespace srp.postprocess
             m_LastPassName = string.Empty;
         }
 
-        public bool Create(int ScreenWidth, int ScreenHeight)
+        public override bool Create(int ScreenWidth, int ScreenHeight)
         {
             // É}ÉeÉäÉAÉãçÏê¨
             m_BrightnessMat = new Material(Shader.Find("SRP/BloomBrigtness"));
@@ -90,7 +96,10 @@ namespace srp.postprocess
 
                 renderPass.SetRenderTarget(renderTarget);
 
-                m_RenderPassMap.Add(PassName, renderPass);
+                if (!m_RenderPassMap.ContainsKey(PassName))
+                {
+                    m_RenderPassMap.Add(PassName, renderPass);
+                }
             }
 
             // Reduce and Blur Pass
@@ -102,9 +111,20 @@ namespace srp.postprocess
                     int Rate = (int)Mathf.Pow(2.0f, 1.0f + (float)i);
                     int Size = 2048 / Rate;
 
-                    m_RenderPassMap.Add(ReduceBufTuple.Reduce.DstPass, CreateRenderPass(ReduceBufTuple.Reduce.DstPass, Size, Size));
-                    m_RenderPassMap.Add(ReduceBufTuple.XBlur.DstPass, CreateRenderPass(ReduceBufTuple.XBlur.DstPass, Size, Size));
-                    m_RenderPassMap.Add(ReduceBufTuple.YBlur.DstPass, CreateRenderPass(ReduceBufTuple.YBlur.DstPass, Size, Size));
+                    if (!m_RenderPassMap.ContainsKey(ReduceBufTuple.Reduce.DstPass))
+                    {
+                        m_RenderPassMap.Add(ReduceBufTuple.Reduce.DstPass, CreateRenderPass(ReduceBufTuple.Reduce.DstPass, Size, Size));
+                    }
+
+                    if (!m_RenderPassMap.ContainsKey(ReduceBufTuple.XBlur.DstPass))
+                    {
+                        m_RenderPassMap.Add(ReduceBufTuple.XBlur.DstPass, CreateRenderPass(ReduceBufTuple.XBlur.DstPass, Size, Size));
+                    }
+
+                    if (!m_RenderPassMap.ContainsKey(ReduceBufTuple.YBlur.DstPass))
+                    {
+                        m_RenderPassMap.Add(ReduceBufTuple.YBlur.DstPass, CreateRenderPass(ReduceBufTuple.YBlur.DstPass, Size, Size));
+                    }
                 }
             }
 
@@ -129,17 +149,18 @@ namespace srp.postprocess
             return renderPass;
         }
 
-        public bool Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera,
-            CRenderTarget readRT, CRenderTarget writeRT, CSceneController sceneController, SPostProcessSettings settings)
+        public override bool Draw(ScriptableRenderContext context, CommandBuffer commandBuffer, Camera camera,
+            CRenderTarget readRT, CRenderTarget writeRT, CSceneController sceneController)
         {
+            if (!Enabled) return false;
 
             // BrigtnessPass
             {
                 if (!BeginRenderPass("BrigtnessPass", context, commandBuffer, camera)) return false;
 
                 m_BrightnessMat.SetTexture("_MainTex", readRT.GetColorBuffer());
-                m_BrightnessMat.SetFloat("_Threshold", settings.Threshold);
-                m_BrightnessMat.SetFloat("_Intencity", settings.Intensity);
+                m_BrightnessMat.SetFloat("_Threshold", Threshold);
+                m_BrightnessMat.SetFloat("_Intencity", Intensity);
                 sceneController.DrawFullScreen(context, commandBuffer, camera, m_BrightnessMat);
 
                 if (!EndRenderPass("BrigtnessPass", context, commandBuffer, camera)) return false;
